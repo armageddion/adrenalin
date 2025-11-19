@@ -1,5 +1,13 @@
+import squirrelStartup from 'electron-squirrel-startup';
+if (squirrelStartup) {
+	app.quit();
+}
+
 import { spawn } from 'node:child_process'
 import { app, BrowserWindow } from 'electron'
+
+const { updateElectronApp } = require('update-electron-app');
+updateElectronApp(); // additional configuration options available
 
 let serverProcess
 

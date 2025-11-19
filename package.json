@@ -1,83 +1,97 @@
 {
-	"name": "adrenalin",
-	"type": "module",
-	"main": "main.js",
-	"version": "1.0.0",
-	"scripts": {
-		"start": "tsx src/server.ts",
-		"css": "npx @tailwindcss/cli -i ./src/assets/styles.css -o ./public/styles.css",
-		"dev:css": "npm run css -- --watch",
-		"dev": "tsx watch src/server.ts",
-		"lint": "biome check --write --unsafe",
-		"typecheck": "tsc --noEmit",
-		"setup:db": "node scripts/db.js init",
-		"backup:db": "node scripts/backup-db.js",
-		"setup:dependencies": "node scripts/dependencies.js",
-		"setup:fonts": "npx -y google-fonts-offline outDir=public/fonts \"http://fonts.googleapis.com/css?family=Oxanium\"",
-		"setup:icon": "npx -y svg-to-ico src/assets/logo.svg public/favicon.ico",
-		"setup": "npm run setup:db && npm run setup:dependencies && npm run setup:fonts && npm run setup:icon",
-		"test:e2e": "NODE_ENV=test start-server-and-test 'tsx src/server.ts' http://localhost:3001 'cypress run --config-file test/cypress.config.ts'",
-		"test:unit": "NODE_ENV=test vitest run --config test/vitest.config.ts",
-		"test:integration": "NODE_ENV=test vitest run --config test/vitest.integration.config.ts",
-		"test": "npm run test:unit && npm run test:integration && npm run test:e2e",
-		"electron": "electron .",
-		"electron:dev": "NODE_ENV=development electron .",
-		"build:electron": "electron-builder"
-	},
-	"dependencies": {
-		"@hono/node-server": "^1.19.5",
-		"@intlify/hono": "^0.1.1",
-		"alpinejs": "^3.15.0",
-		"better-sqlite3": "^12.4.1",
-		"hono": "^4.9.9",
-		"htmx.org": "^2.0.7",
-		"signature_pad": "^5.1.1"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.2.6",
-		"@types/better-sqlite3": "^7.6.13",
-		"@types/jsdom": "^27.0.0",
-		"@types/node": "^24.5.2",
-		"@types/supertest": "^6.0.3",
-		"@vitest/coverage-v8": "^3.2.4",
-		"@vitest/ui": "^3.2.4",
-		"cypress": "^15.4.0",
-		"electron": "^39.0.0",
-		"electron-builder": "^26.0.12",
-		"jsdom": "^27.0.0",
-		"nodemon": "^3.1.10",
-		"start-server-and-test": "^2.1.2",
-		"supertest": "^7.1.4",
-		"tailwindcss": "^4.1.13",
-		"tsx": "^4.20.6",
-		"typed-htmx": "^0.3.1",
-		"typescript": "^5.9.2",
-		"vitest": "^3.2.4"
-	},
-	"build": {
-		"appId": "com.adrenalin.app",
-		"productName": "Adrenalin",
-		"directories": {
-			"output": "dist"
-		},
-		"npmRebuild": false,
-		"buildDependenciesFromSource": false,
-		"nodeGypRebuild": false,
-		"files": [
-			"src/**/*",
-			"main.js",
-			"package.json",
-			"db/**/*",
-			"public/**/*"
-		],
-		"mac": {
-			"category": "public.app-category.productivity"
-		},
-		"win": {
-			"target": "nsis"
-		},
-		"linux": {
-			"target": "AppImage"
-		}
-	}
+  "name": "adrenalin",
+  "main": "main.js",
+  "version": "1.0.0",
+  "author": "Armageddion",
+  "description": "Adrenalin CRM application",  
+  "scripts": {
+    "start": "electron-forge start",
+    "css": "npx @tailwindcss/cli -i ./src/assets/styles.css -o ./public/styles.css",
+    "dev:css": "npm run css -- --watch",
+    "dev": "tsx watch src/server.ts",
+    "lint": "biome check --write --unsafe",
+    "typecheck": "tsc --noEmit",
+    "setup:db": "node scripts/db.js init",
+    "backup:db": "node scripts/backup-db.js",
+    "setup:dependencies": "node scripts/dependencies.js",
+    "setup:fonts": "npx -y google-fonts-offline outDir=public/fonts \"http://fonts.googleapis.com/css?family=Oxanium\"",
+    "setup:icon": "npx -y svg-to-ico src/assets/logo.svg public/favicon.ico",
+    "setup": "npm run setup:db && npm run setup:dependencies && npm run setup:fonts && npm run setup:icon",
+    "test:e2e": "NODE_ENV=test start-server-and-test 'tsx src/server.ts' http://localhost:3001 'cypress run --config-file test/cypress.config.ts'",
+    "test:unit": "NODE_ENV=test vitest run --config test/vitest.config.ts",
+    "test:integration": "NODE_ENV=test vitest run --config test/vitest.integration.config.ts",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "electron": "electron .",
+    "electron:dev": "NODE_ENV=development electron .",
+    "build:electron": "npx electron-builder",
+    "package": "electron-forge package --platform=win32 --arch=ia32",
+    "publish": "electron-forge publish",
+    "make": "electron-forge make"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "@intlify/hono": "^0.1.1",
+    "alpinejs": "^3.15.0",
+    "better-sqlite3": "^12.4.1",
+    "electron-squirrel-startup": "^1.0.1",
+    "hono": "^4.9.9",
+    "htmx.org": "^2.0.7",
+    "signature_pad": "^5.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.6",
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-rpm": "^7.10.2",
+    "@electron-forge/maker-squirrel": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
+    "@electron-forge/plugin-fuses": "^7.10.2",
+    "@electron-forge/publisher-github": "^7.10.2",
+    "@electron/fuses": "^1.8.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^24.5.2",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "cypress": "^15.4.0",
+    "electron": "33.0.0",
+    "jsdom": "^27.0.0",
+    "nodemon": "^3.1.10",
+    "patch-package": "^8.0.1",
+    "start-server-and-test": "^2.1.2",
+    "supertest": "^7.1.4",
+    "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.6",
+    "typed-htmx": "^0.3.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "build": {
+    "appId": "com.adrenalin.app",
+    "productName": "Adrenalin",
+    "directories": {
+      "output": "dist"
+    },
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "nodeGypRebuild": false,
+    "files": [
+      "src/**/*",
+      "main.js",
+      "package.json",
+      "db/**/*",
+      "public/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
 }

@@ -1,44 +1,27 @@
-name: Build/release
-
-on: push
-
+name: Release app
+on:
+  workflow_dispatch:
 jobs:
-    release:
-        runs-on: ${{ matrix.os }}
-
-        strategy:
-            matrix:
-                os: [windows-latest]
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                node-version: '22'
-
-            - name: Install dependencies
-              run: npm install
-
-            - name: Compile Electron App
-              uses: samuelmeuli/action-electron-builder@v1
-              with:
-                  # GitHub token, automatically provided to the action
-                  # (Optional)
-                  github_token: ${{ secrets.github_token }}
-
-                  # If the commit is tagged with a version (e.g. "v1.0.0"),
-                  # (Optional)
-                  release: true
-
-                  build_script_name: build:electron
-
-                  # Package manager. NPM, PNPM and Yarn supported. Install Yarn and PNPM yourself. Default is NPM
-                  # (Optional)
-                  package_manager: NPM
-
-                  # Skip buiding the application
-                  # (Optional)
-                  skip_build: false
+  build:
+    strategy:
+      matrix:
+        os:
+          [
+            #{ name: 'linux', image: 'ubuntu-latest' },
+            #{ name: 'macos', image: 'macos-latest' },
+            { name: 'windows', image: 'windows-latest' }
+          ]
+    runs-on: ${{ matrix.os.image }}
+    steps:
+      - name: Github checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm list electron 
+      - name: Publish app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run publish
