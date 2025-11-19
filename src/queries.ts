@@ -6,12 +6,34 @@ import type { Member, Package, Visit } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isTest = process.env.NODE_ENV === 'test'
-const dbPath = isTest ? ':memory:' : path.resolve(__dirname, '../db/adrenalin.db')
+
+let envDbPath = process.env.DB_PATH
+if (!isTest && !process.env.ELECTRON_RUN && !envDbPath) {
+	const configPath = path.resolve(__dirname, '../config.json')
+	if (fs.existsSync(configPath)) {
+		const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+		envDbPath = config.dbPath
+	}
+}
+const dbPath = isTest ? ':memory:' : envDbPath || path.resolve(__dirname, '../db/adrenalin.db')
+
 const schemaPath = path.resolve(__dirname, '../db/schema.sqlite')
 const seedPath = path.resolve(__dirname, '../db/seed.sqlite')
 
 export const db = new Database(dbPath, { readonly: false })
 db.pragma('journal_mode = WAL')
+
+if (!isTest) {
+	const tableCheck = db
+		.prepare("SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='members'")
+		.get() as { count: number }
+
+	if (tableCheck.count === 0) {
+		console.log('Initializing new database at:', dbPath)
+		const schemaSql = fs.readFileSync(schemaPath, 'utf8')
+		db.exec(schemaSql)
+	}
+}
 
 if (isTest) {
 	const schemaSql = fs.readFileSync(schemaPath, 'utf8')
