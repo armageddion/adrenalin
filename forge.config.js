@@ -1,7 +1,7 @@
 import { FusesPlugin } from '@electron-forge/plugin-fuses'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
 
-module.exports = {
+export default {
 	packagerConfig: {
 		asar: true,
 		// Ensure native modules are unpacked to avoid issues at runtime
@@ -81,7 +81,7 @@ module.exports = {
 					owner: 'armageddion',
 					name: 'adrenalin',
 				},
-				prerelease: false,
+				prerelease: true,
 				draft: false,
 			},
 		},
