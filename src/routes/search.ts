@@ -6,20 +6,20 @@ import { logVisit } from './visits'
 
 const searchRouter = new Hono()
 
-searchRouter.get('/search', (c) => {
+searchRouter.get('/search', async (c) => {
 	const t = useTranslation(c)
 	const query = c.req.query('q') || ''
-	const members = q.searchMembers(query)
+	const members = await q.searchMembers(query)
 	return c.html(SearchResults({ members, t }))
 })
 
-searchRouter.get('/members-search', (c) => {
+searchRouter.get('/members-search', async (c) => {
 	const t = useTranslation(c)
 	const query = c.req.query('q') || ''
 	if (!query) {
 		return c.html('<div id="search-results"></div>') // Empty when no query
 	}
-	const members = q.searchMembers(query)
+	const members = await q.searchMembers(query)
 
 	// Multiple results - show search dropdown
 	const results = SearchResults({ members, t })
@@ -30,18 +30,18 @@ searchRouter.get('/members-search', (c) => {
 	`)
 })
 
-searchRouter.get('/visit-input', (c) => {
+searchRouter.get('/visit-input', async (c) => {
 	const t = useTranslation(c)
 	const query = c.req.query('q') || ''
 	if (!query) {
 		return c.html('<div id="search-results"></div>') // Empty when no query
 	}
-	const members = q.searchMembers(query)
+	const members = await q.searchMembers(query)
 
 	// If exactly one result, automatically log a visit and redirect to member profile
 	if (members.length === 1) {
 		const member = members[0]
-		logVisit(member.id, t)
+		await logVisit(member.id, t)
 		c.header('HX-Redirect', `/members/${member.id}`)
 		return c.text('', 200)
 	}

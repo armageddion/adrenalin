@@ -4,32 +4,34 @@ import app from '../../src/routes'
 // Mock the queries module with factory
 vi.mock('../../src/queries', () => {
 	const mockQueries = {
-		getNewMembersLast30Days: vi.fn(() => 5),
-		getVisitsToday: vi.fn(() => 3),
-		getVisitsLast7Days: vi.fn(() => 10),
-		getVisitsPrevious7Days: vi.fn(() => 8),
-		getVisitsLast30Days: vi.fn(() => 25),
-		getVisitsPrevious30Days: vi.fn(() => 20),
-		searchMembers: vi.fn(() => []),
-		getMembers: vi.fn(() => []),
-		getMembersPaginated: vi.fn(() => []),
-		getMembersCount: vi.fn(() => 0),
-		getPackages: vi.fn(() => []),
-		getMember: vi.fn(),
-		getVisits: vi.fn(() => []),
-		getVisitsPaginated: vi.fn(() => []),
-		getVisitsCount: vi.fn(() => 0),
-		getVisitsByMemberId: vi.fn(() => []),
-		addMember: vi.fn(),
-		updateMember: vi.fn(),
-		deleteMember: vi.fn(),
-		addPackage: vi.fn(),
-		updatePackage: vi.fn(),
-		deletePackage: vi.fn(),
-		addVisit: vi.fn(),
-		deleteVisit: vi.fn(),
-		getMembersWithUpcomingExpiries: vi.fn(),
-		logMessage: vi.fn(),
+		getNewMembersLast30Days: vi.fn(() => Promise.resolve(5)),
+		getVisitsToday: vi.fn(() => Promise.resolve(3)),
+		getVisitsLast7Days: vi.fn(() => Promise.resolve(10)),
+		getVisitsPrevious7Days: vi.fn(() => Promise.resolve(8)),
+		getVisitsLast30Days: vi.fn(() => Promise.resolve(25)),
+		getVisitsPrevious30Days: vi.fn(() => Promise.resolve(20)),
+		searchMembers: vi.fn(() => Promise.resolve([])),
+		getMembers: vi.fn(() => Promise.resolve([])),
+		getMembersPaginated: vi.fn(() => Promise.resolve([])),
+		getMembersCount: vi.fn(() => Promise.resolve(0)),
+		getPackages: vi.fn(() => Promise.resolve([])),
+		getMember: vi.fn(() => Promise.resolve(undefined)),
+		getVisits: vi.fn(() => Promise.resolve([])),
+		getVisitsPaginated: vi.fn(() => Promise.resolve([])),
+		getVisitsCount: vi.fn(() => Promise.resolve(0)),
+		getVisitsByMemberId: vi.fn(() => Promise.resolve([])),
+		addMember: vi.fn(() => Promise.resolve(1)),
+		updateMember: vi.fn(() => Promise.resolve()),
+		deleteMember: vi.fn(() => Promise.resolve()),
+		addPackage: vi.fn(() => Promise.resolve(1)),
+		updatePackage: vi.fn(() => Promise.resolve()),
+		deletePackage: vi.fn(() => Promise.resolve()),
+		addVisit: vi.fn(() => Promise.resolve()),
+		deleteVisit: vi.fn(() => Promise.resolve()),
+		getMembersWithUpcomingExpiries: vi.fn(() => Promise.resolve([])),
+		logMessage: vi.fn(() => Promise.resolve()),
+		searchMembersCount: vi.fn(() => Promise.resolve(0)),
+		searchMembersPaginated: vi.fn(() => Promise.resolve([])),
 	}
 	return mockQueries
 })
@@ -50,7 +52,7 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should handle search query', async () => {
-		vi.mocked(q.searchMembers).mockReturnValue([
+		vi.mocked(q.searchMembers).mockResolvedValue([
 			{
 				id: 1,
 				first_name: 'Anja',
@@ -148,7 +150,7 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should handle GET /members/:id', async () => {
-		vi.mocked(q.getMember).mockReturnValue({
+		vi.mocked(q.getMember).mockResolvedValue({
 			id: 1,
 			first_name: 'John',
 			last_name: 'Doe',
@@ -184,7 +186,7 @@ describe('Hono App Routes', () => {
 
 	it('should handle POST /cron with valid secret', async () => {
 		process.env.CRON_SECRET = 'test-secret'
-		vi.mocked(q.getMembersWithUpcomingExpiries).mockReturnValue([
+		vi.mocked(q.getMembersWithUpcomingExpiries).mockResolvedValue([
 			{
 				id: 1,
 				email: 'test@example.com',

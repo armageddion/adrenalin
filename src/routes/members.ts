@@ -39,7 +39,7 @@ export function parseMemberData(
 
 const membersRouter = new Hono()
 
-membersRouter.get('/', (c) => {
+membersRouter.get('/', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
 
@@ -48,8 +48,10 @@ membersRouter.get('/', (c) => {
 	const search = c.req.query('search') || ''
 	const append = c.req.query('append') === '1'
 
-	const members = search ? q.searchMembersPaginated(search, page, limit) : q.getMembersPaginated(page, limit)
-	const totalMembers = search ? q.searchMembersCount(search) : q.getMembersCount()
+	const members = search
+		? await q.searchMembersPaginated(search, page, limit)
+		: await q.getMembersPaginated(page, limit)
+	const totalMembers = search ? await q.searchMembersCount(search) : await q.getMembersCount()
 
 	const pagination = {
 		currentPage: page,
@@ -107,10 +109,10 @@ membersRouter.get('/', (c) => {
 	)
 })
 
-membersRouter.get('/new', (c) => {
+membersRouter.get('/new', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
-	const packages = q.getPackages()
+	const packages = await q.getPackages()
 	const { content, script } = MemberForm({ packages, member: null, t })
 	return c.html(
 		PageLayout({
@@ -123,14 +125,14 @@ membersRouter.get('/new', (c) => {
 	)
 })
 
-membersRouter.get('/:id', (c) => {
+membersRouter.get('/:id', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	const member = q.getMember(id)
+	const member = await q.getMember(id)
 	if (member) {
-		const visits = q.getVisitsByMemberId(id)
-		const packages = q.getPackages()
+		const visits = await q.getVisitsByMemberId(id)
+		const packages = await q.getPackages()
 		const memberPackage = packages.find((p) => p.id === member.package_id)
 		const memberContent = html`
 			<div class="bg-card p-6 rounded-lg shadow-md">
@@ -183,12 +185,12 @@ membersRouter.get('/:id', (c) => {
 	return notFoundResponse(c, t, 'member')
 })
 
-membersRouter.get('/:id/edit', (c) => {
+membersRouter.get('/:id/edit', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	const member = q.getMember(id)
-	const packages = q.getPackages()
+	const member = await q.getMember(id)
+	const packages = await q.getPackages()
 
 	if (member) {
 		const { content: _content, script } = MemberForm({ packages, member, t })
@@ -219,8 +221,8 @@ membersRouter.post('/', async (c) => {
 	const t = useTranslation(c)
 	const body = await c.req.parseBody()
 	const member = parseMemberData(body)
-	q.addMember(member)
-	const members = q.getMembers()
+	await q.addMember(member)
+	const members = await q.getMembers()
 	return c.html(MemberList({ members, t }).content as string)
 })
 
@@ -228,16 +230,16 @@ membersRouter.post('/:id', async (c) => {
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const updates = parseMemberData(body, true)
-	q.updateMember(id, updates)
+	await q.updateMember(id, updates)
 	c.header('HX-Redirect', '/members')
 	return c.text('', 200)
 })
 
-membersRouter.delete('/:id', (c) => {
+membersRouter.delete('/:id', async (c) => {
 	const t = useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	q.deleteMember(id)
-	const members = q.getMembers()
+	await q.deleteMember(id)
+	const members = await q.getMembers()
 	return c.html(MemberList({ members, t }).content as string)
 })
 

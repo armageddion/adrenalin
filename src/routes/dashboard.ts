@@ -8,15 +8,15 @@ import { PageLayout } from '../views/layouts'
 
 const dashboardRouter = new Hono()
 
-dashboardRouter.get('', (c) => {
+dashboardRouter.get('', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
-	const newMembers30Days = q.getNewMembersLast30Days()
-	const visitsToday = q.getVisitsToday()
-	const visitsLast7Days = q.getVisitsLast7Days()
-	const visitsPrevious7Days = q.getVisitsPrevious7Days()
-	const visitsLast30Days = q.getVisitsLast30Days()
-	const visitsPrevious30Days = q.getVisitsPrevious30Days()
+	const newMembers30Days = await q.getNewMembersLast30Days()
+	const visitsToday = await q.getVisitsToday()
+	const visitsLast7Days = await q.getVisitsLast7Days()
+	const visitsPrevious7Days = await q.getVisitsPrevious7Days()
+	const visitsLast30Days = await q.getVisitsLast30Days()
+	const visitsPrevious30Days = await q.getVisitsPrevious30Days()
 
 	const stats = {
 		newMembers30Days,

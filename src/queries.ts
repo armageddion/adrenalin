@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import Database from 'better-sqlite3'
+import { createClient } from '@libsql/client'
 import type { Member, Package, Visit } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -16,54 +16,62 @@ if (!isTest && !process.env.ELECTRON_RUN && !envDbPath) {
 	}
 }
 const dbPath = isTest ? ':memory:' : envDbPath || path.resolve(__dirname, '../db/adrenalin.db')
+const dbUrl = dbPath === ':memory:' ? ':memory:' : `file:${dbPath}`
 
 const schemaPath = path.resolve(__dirname, '../db/schema.sqlite')
 const seedPath = path.resolve(__dirname, '../db/seed.sqlite')
 
-export const db = new Database(dbPath, { readonly: false })
-db.pragma('journal_mode = WAL')
+export const db = createClient({ url: dbUrl })
+
+// Initialize WAL mode
+await db.execute('PRAGMA journal_mode = WAL')
 
 if (!isTest) {
-	const tableCheck = db
-		.prepare("SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='members'")
-		.get() as { count: number }
+	const rs = await db.execute("SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='members'")
+	const tableCheck = rs.rows[0] as unknown as { count: number }
 
 	if (tableCheck.count === 0) {
 		console.log('Initializing new database at:', dbPath)
 		const schemaSql = fs.readFileSync(schemaPath, 'utf8')
-		db.exec(schemaSql)
+		await db.executeMultiple(schemaSql)
 	}
 }
 
 if (isTest) {
 	const schemaSql = fs.readFileSync(schemaPath, 'utf8')
 	const seedSql = fs.readFileSync(seedPath, 'utf8')
-	db.exec(schemaSql)
-	db.exec(seedSql)
+	await db.executeMultiple(schemaSql)
+	await db.executeMultiple(seedSql)
 }
 
-export function getMembers(): Member[] {
-	const stmt = db.prepare('SELECT * FROM members ORDER BY updated_at DESC')
-	return stmt.all() as Member[]
+export async function getMembers(): Promise<Member[]> {
+	const rs = await db.execute('SELECT * FROM members ORDER BY updated_at DESC')
+	return rs.rows as unknown as Member[]
 }
 
-export function getMembersPaginated(page: number, limit: number): Member[] {
+export async function getMembersPaginated(page: number, limit: number): Promise<Member[]> {
 	const offset = (page - 1) * limit
-	const stmt = db.prepare('SELECT * FROM members ORDER BY updated_at DESC LIMIT ? OFFSET ?')
-	return stmt.all(limit, offset) as Member[]
+	const rs = await db.execute({
+		sql: 'SELECT * FROM members ORDER BY updated_at DESC LIMIT ? OFFSET ?',
+		args: [limit, offset],
+	})
+	return rs.rows as unknown as Member[]
 }
 
-export function getMembersCount(): number {
-	const stmt = db.prepare('SELECT COUNT(*) as count FROM members')
-	return (stmt.get() as { count: number }).count
+export async function getMembersCount(): Promise<number> {
+	const rs = await db.execute('SELECT COUNT(*) as count FROM members')
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getMember(id: number): Member | undefined {
-	const stmt = db.prepare('SELECT * FROM members WHERE id = ?')
-	return stmt.get(id) as Member | undefined
+export async function getMember(id: number): Promise<Member | undefined> {
+	const rs = await db.execute({
+		sql: 'SELECT * FROM members WHERE id = ?',
+		args: [id],
+	})
+	return rs.rows[0] as unknown as Member | undefined
 }
 
-export function searchMembers(query: string): Member[] {
+export async function searchMembers(query: string): Promise<Member[]> {
 	const words = query
 		.trim()
 		.split(/\s+/)
@@ -84,11 +92,11 @@ export function searchMembers(query: string): Member[] {
 		ORDER BY updated_at DESC
 	`
 
-	const stmt = db.prepare(sql)
-	return stmt.all(...params) as Member[]
+	const rs = await db.execute({ sql, args: params })
+	return rs.rows as unknown as Member[]
 }
 
-export function searchMembersPaginated(query: string, page: number, limit: number): Member[] {
+export async function searchMembersPaginated(query: string, page: number, limit: number): Promise<Member[]> {
 	const words = query
 		.trim()
 		.split(/\s+/)
@@ -96,7 +104,7 @@ export function searchMembersPaginated(query: string, page: number, limit: numbe
 	if (words.length === 0) return []
 
 	const conditions: string[] = []
-	const params: string[] = []
+	const params: any[] = [] // Using any[] to accommodate mixed types if needed
 	words.forEach((word) => {
 		const wordParam = `%${word}%`
 		conditions.push(`(first_name LIKE ? OR last_name LIKE ? OR card_id LIKE ?)`)
@@ -110,12 +118,13 @@ export function searchMembersPaginated(query: string, page: number, limit: numbe
 		ORDER BY updated_at DESC
 		LIMIT ? OFFSET ?
 	`
+	params.push(limit, offset)
 
-	const stmt = db.prepare(sql)
-	return stmt.all(...params, limit, offset) as Member[]
+	const rs = await db.execute({ sql, args: params })
+	return rs.rows as unknown as Member[]
 }
 
-export function searchMembersCount(query: string): number {
+export async function searchMembersCount(query: string): Promise<number> {
 	const words = query
 		.trim()
 		.split(/\s+/)
@@ -131,176 +140,220 @@ export function searchMembersCount(query: string): number {
 	})
 
 	const sql = `SELECT COUNT(*) as count FROM members WHERE ${conditions.join(' AND ')}`
-	const stmt = db.prepare(sql)
-	return (stmt.get(...params) as { count: number }).count
+	const rs = await db.execute({ sql, args: params })
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisits(): Array<Visit & Pick<Member, 'first_name' | 'last_name'>> {
-	const stmt = db.prepare(`
+export async function getVisits(): Promise<Array<Visit & Pick<Member, 'first_name' | 'last_name'>>> {
+	const rs = await db.execute(`
 		SELECT v.*, m.first_name, m.last_name
 		FROM visits v
 		JOIN members m ON v.member_id = m.id
 		ORDER BY v.created_at DESC
 	`)
-	return stmt.all() as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
+	return rs.rows as unknown as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
 }
 
-export function getVisitsPaginated(
+export async function getVisitsPaginated(
 	page: number,
 	limit: number,
-): Array<Visit & Pick<Member, 'first_name' | 'last_name'>> {
+): Promise<Array<Visit & Pick<Member, 'first_name' | 'last_name'>>> {
 	const offset = (page - 1) * limit
-	const stmt = db.prepare(`
+	const rs = await db.execute({
+		sql: `
 		SELECT v.*, m.first_name, m.last_name
 		FROM visits v
 		JOIN members m ON v.member_id = m.id
 		ORDER BY v.created_at DESC
 		LIMIT ? OFFSET ?
-	`)
-	return stmt.all(limit, offset) as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
+	`,
+		args: [limit, offset],
+	})
+	return rs.rows as unknown as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
 }
 
-export function getVisitsCount(): number {
-	const stmt = db.prepare('SELECT COUNT(*) as count FROM visits')
-	return (stmt.get() as { count: number }).count
+export async function getVisitsCount(): Promise<number> {
+	const rs = await db.execute('SELECT COUNT(*) as count FROM visits')
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisitsByMemberId(memberId: number): Array<Visit & Pick<Member, 'first_name' | 'last_name'>> {
-	const stmt = db.prepare(`
+export async function getVisitsByMemberId(
+	memberId: number,
+): Promise<Array<Visit & Pick<Member, 'first_name' | 'last_name'>>> {
+	const rs = await db.execute({
+		sql: `
 		SELECT v.*, m.first_name, m.last_name
 		FROM visits v
 		JOIN members m ON v.member_id = m.id
 		WHERE v.member_id = ?
 		ORDER BY v.created_at DESC
-	`)
-	return stmt.all(memberId) as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
+	`,
+		args: [memberId],
+	})
+	return rs.rows as unknown as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
 }
 
-export function getPackages(): Package[] {
-	const stmt = db.prepare('SELECT * FROM packages ORDER BY display_order ASC')
-	return stmt.all() as Package[]
+export async function getPackages(): Promise<Package[]> {
+	const rs = await db.execute('SELECT * FROM packages ORDER BY display_order ASC')
+	return rs.rows as unknown as Package[]
 }
 
-export function addVisit(memberId: number): void {
-	const addVisitStmt = db.prepare('INSERT INTO visits (member_id) VALUES (?)')
-	addVisitStmt.run(memberId)
+export async function addVisit(memberId: number): Promise<void> {
+	await db.execute({
+		sql: 'INSERT INTO visits (member_id) VALUES (?)',
+		args: [memberId],
+	})
 
-	const updateMemberStmt = db.prepare('UPDATE members SET updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-	updateMemberStmt.run(memberId)
+	await db.execute({
+		sql: 'UPDATE members SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+		args: [memberId],
+	})
 }
 
-export function addMember(member: Omit<Member, 'id' | 'updated_at' | 'expires_at' | 'created_at'>): number {
-	const stmt = db.prepare(`
+export async function addMember(
+	member: Omit<Member, 'id' | 'updated_at' | 'expires_at' | 'created_at'>,
+): Promise<number> {
+	const rs = await db.execute({
+		sql: `
 		INSERT INTO members (first_name, last_name, email, phone, card_id, gov_id, package_id, expires_at, image, notes, address_street, address_number, address_city, guardian, guardian_first_name, guardian_last_name, guardian_gov_id, notify, year_of_birth)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`)
-	const result = stmt.run(
-		member.first_name,
-		member.last_name,
-		member.email,
-		member.phone,
-		member.card_id,
-		member.gov_id,
-		member.package_id,
-		null,
-		member.image,
-		member.notes,
-		member.address_street,
-		member.address_number,
-		member.address_city,
-		member.guardian,
-		member.guardian_first_name,
-		member.guardian_last_name,
-		member.guardian_gov_id,
-		member.notify,
-		member.year_of_birth,
-	)
-	return result.lastInsertRowid as number
+	`,
+		args: [
+			member.first_name,
+			member.last_name,
+			member.email || null,
+			member.phone || null,
+			member.card_id,
+			member.gov_id || null,
+			member.package_id || null,
+			null,
+			member.image || null,
+			member.notes || null,
+			member.address_street || null,
+			member.address_number || null,
+			member.address_city || null,
+			member.guardian,
+			member.guardian_first_name || null,
+			member.guardian_last_name || null,
+			member.guardian_gov_id || null,
+			member.notify,
+			member.year_of_birth,
+		],
+	})
+	return Number(rs.lastInsertRowid)
 }
 
-export function updateMember(id: number, member: Partial<Member>): void {
+export async function updateMember(id: number, member: Partial<Member>): Promise<void> {
 	const fields = Object.keys(member).filter((key) => key !== 'id' && key !== 'updated_at')
 	const setClause = fields.map((field) => `${field} = ?`).join(', ')
-	const values = fields.map((field) => member[field as keyof Member])
+	const values = fields.map((field) => {
+		const val = member[field as keyof Member]
+		return val === undefined ? null : val
+	})
 	values.push(id)
-	const stmt = db.prepare(`UPDATE members SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
-	stmt.run(...values)
+	await db.execute({
+		sql: `UPDATE members SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+		args: values as any[],
+	})
 }
 
-export function deleteMember(id: number): void {
-	const stmt = db.prepare('DELETE FROM members WHERE id = ?')
-	stmt.run(id)
+export async function deleteMember(id: number): Promise<void> {
+	await db.execute({
+		sql: 'DELETE FROM members WHERE id = ?',
+		args: [id],
+	})
 }
 
-export function deleteVisit(id: number): void {
-	const stmt = db.prepare('DELETE FROM visits WHERE id = ?')
-	stmt.run(id)
+export async function deleteVisit(id: number): Promise<void> {
+	await db.execute({
+		sql: 'DELETE FROM visits WHERE id = ?',
+		args: [id],
+	})
 }
 
-export function addPackage(pkg: Omit<Package, 'id' | 'created_at'>): number {
-	const stmt = db.prepare('INSERT INTO packages (name, price, description, display_order) VALUES (?, ?, ?, ?)')
-	const result = stmt.run(pkg.name, pkg.price, pkg.description, pkg.display_order)
-	return result.lastInsertRowid as number
+export async function addPackage(pkg: Omit<Package, 'id' | 'created_at'>): Promise<number> {
+	const rs = await db.execute({
+		sql: 'INSERT INTO packages (name, price, description, display_order) VALUES (?, ?, ?, ?)',
+		args: [pkg.name, pkg.price || null, pkg.description || null, pkg.display_order || null],
+	})
+	return Number(rs.lastInsertRowid)
 }
 
-export function updatePackage(id: number, pkg: Partial<Package>): void {
+export async function updatePackage(id: number, pkg: Partial<Package>): Promise<void> {
 	const fields = Object.keys(pkg).filter((key) => key !== 'id' && key !== 'created_at')
 	const setClause = fields.map((field) => `${field} = ?`).join(', ')
-	const values = fields.map((field) => pkg[field as keyof Package])
+	const values = fields.map((field) => {
+		const val = pkg[field as keyof Package]
+		return val === undefined ? null : val
+	})
 	values.push(id)
-	const stmt = db.prepare(`UPDATE packages SET ${setClause} WHERE id = ?`)
-	stmt.run(...values)
+	await db.execute({
+		sql: `UPDATE packages SET ${setClause} WHERE id = ?`,
+		args: values as any[],
+	})
 }
 
-export function deletePackage(id: number): void {
-	const stmt = db.prepare('DELETE FROM packages WHERE id = ?')
-	stmt.run(id)
+export async function deletePackage(id: number): Promise<void> {
+	await db.execute({
+		sql: 'DELETE FROM packages WHERE id = ?',
+		args: [id],
+	})
 }
 
-export function getMembersWithUpcomingExpiries(days: number = 7): Member[] {
-	const stmt = db.prepare(`
+export async function getMembersWithUpcomingExpiries(days: number = 7): Promise<Member[]> {
+	const rs = await db.execute({
+		sql: `
 		SELECT * FROM members
-		WHERE expires_at BETWEEN date('now') AND date('now', '+${days} days')
+		WHERE expires_at BETWEEN date('now') AND date('now', ?)
 		AND notify = 1
-	`)
-	return stmt.all() as Member[]
+	    `,
+		args: [`+${days} days`],
+	})
+	return rs.rows as unknown as Member[]
 }
 
-export function logMessage(memberId: number, subject: string, message: string, method: string = 'email'): void {
-	const stmt = db.prepare('INSERT INTO messages (member_id, subject, message, method) VALUES (?, ?, ?, ?)')
-	stmt.run(memberId, subject, message, method)
+export async function logMessage(
+	memberId: number,
+	subject: string,
+	message: string,
+	method: string = 'email',
+): Promise<void> {
+	await db.execute({
+		sql: 'INSERT INTO messages (member_id, subject, message, method) VALUES (?, ?, ?, ?)',
+		args: [memberId, subject, message, method],
+	})
 }
 
-export function getNewMembersLast30Days(): number {
-	const stmt = db.prepare("SELECT COUNT(*) as count FROM members WHERE created_at >= date('now', '-30 days')")
-	return (stmt.get() as { count: number }).count
+export async function getNewMembersLast30Days(): Promise<number> {
+	const rs = await db.execute("SELECT COUNT(*) as count FROM members WHERE created_at >= date('now', '-30 days')")
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisitsToday(): number {
-	const stmt = db.prepare("SELECT COUNT(*) as count FROM visits WHERE date(created_at) = date('now')")
-	return (stmt.get() as { count: number }).count
+export async function getVisitsToday(): Promise<number> {
+	const rs = await db.execute("SELECT COUNT(*) as count FROM visits WHERE date(created_at) = date('now')")
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisitsLast7Days(): number {
-	const stmt = db.prepare("SELECT COUNT(*) as count FROM visits WHERE created_at >= date('now', '-7 days')")
-	return (stmt.get() as { count: number }).count
+export async function getVisitsLast7Days(): Promise<number> {
+	const rs = await db.execute("SELECT COUNT(*) as count FROM visits WHERE created_at >= date('now', '-7 days')")
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisitsPrevious7Days(): number {
-	const stmt = db.prepare(
+export async function getVisitsPrevious7Days(): Promise<number> {
+	const rs = await db.execute(
 		"SELECT COUNT(*) as count FROM visits WHERE created_at BETWEEN date('now', '-14 days') AND date('now', '-7 days')",
 	)
-	return (stmt.get() as { count: number }).count
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisitsLast30Days(): number {
-	const stmt = db.prepare("SELECT COUNT(*) as count FROM visits WHERE created_at >= date('now', '-30 days')")
-	return (stmt.get() as { count: number }).count
+export async function getVisitsLast30Days(): Promise<number> {
+	const rs = await db.execute("SELECT COUNT(*) as count FROM visits WHERE created_at >= date('now', '-30 days')")
+	return (rs.rows[0] as unknown as { count: number }).count
 }
 
-export function getVisitsPrevious30Days(): number {
-	const stmt = db.prepare(
+export async function getVisitsPrevious30Days(): Promise<number> {
+	const rs = await db.execute(
 		"SELECT COUNT(*) as count FROM visits WHERE created_at BETWEEN date('now', '-60 days') AND date('now', '-30 days')",
 	)
-	return (stmt.get() as { count: number }).count
+	return (rs.rows[0] as unknown as { count: number }).count
 }

@@ -9,15 +9,15 @@ import { renderLoadMoreSentinel, renderVisitRows } from '../views/components/vis
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
-export function logVisit(memberId: number, t: TFn) {
-	q.addVisit(memberId)
-	const visits = q.getVisitsByMemberId(memberId)
+export async function logVisit(memberId: number, t: TFn) {
+	await q.addVisit(memberId)
+	const visits = await q.getVisitsByMemberId(memberId)
 	return VisitList({ visits, t })
 }
 
 const visitsRouter = new Hono()
 
-visitsRouter.get('/', (c) => {
+visitsRouter.get('/', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
 
@@ -25,8 +25,8 @@ visitsRouter.get('/', (c) => {
 	const limit = Number.parseInt(c.req.query('limit') || '100', 10)
 	const append = c.req.query('append') === '1'
 
-	const visits = q.getVisitsPaginated(page, limit)
-	const totalVisits = q.getVisitsCount()
+	const visits = await q.getVisitsPaginated(page, limit)
+	const totalVisits = await q.getVisitsCount()
 	const totalPages = Math.ceil(totalVisits / limit)
 
 	const pagination = {
@@ -60,25 +60,26 @@ visitsRouter.post('/', async (c) => {
 	const t = useTranslation(c)
 	const body = await c.req.parseBody()
 	const cardId = body.card_id as string
-	const member = q.searchMembers(cardId)[0]
+	const members = await q.searchMembers(cardId)
+	const member = members[0]
 	if (member) {
-		return c.html(logVisit(member.id, t))
+		return c.html(await logVisit(member.id, t))
 	}
 	return notFoundResponse(c, t, 'member')
 })
 
-visitsRouter.delete('/:id', (c) => {
+visitsRouter.delete('/:id', async (c) => {
 	const t = useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	q.deleteVisit(id)
+	await q.deleteVisit(id)
 	const referer = c.req.header('Referer') || ''
 	const memberMatch = referer.match(/\/members\/(\d+)/)
 	let visits: Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
 	if (memberMatch) {
 		const memberId = Number.parseInt(memberMatch[1], 10)
-		visits = q.getVisitsByMemberId(memberId)
+		visits = await q.getVisitsByMemberId(memberId)
 	} else {
-		visits = q.getVisits()
+		visits = await q.getVisits()
 	}
 
 	return c.html(VisitList({ visits, t }))

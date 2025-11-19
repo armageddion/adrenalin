@@ -7,10 +7,10 @@ import { PageLayout } from '../views/layouts'
 
 const registerRouter = new Hono()
 
-registerRouter.get('/register', (c) => {
+registerRouter.get('/register', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
-	const packages = q.getPackages()
+	const packages = await q.getPackages()
 
 	const signatureScript = html`
 		<script src="/public/signature_pad.js"></script>
@@ -190,7 +190,7 @@ registerRouter.post('/register', async (c) => {
 		notify: body.notify !== 'off' ? 1 : 0,
 		year_of_birth: Number.parseInt(body.year_of_birth as string, 10),
 	}
-	q.addMember(member)
+	await q.addMember(member)
 	c.header('HX-Redirect', '/members')
 	return c.text('', 200)
 })

@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import Database from 'better-sqlite3'
+import { createClient } from '@libsql/client'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dbPath = path.resolve(__dirname, '../db/adrenalin.db')
@@ -18,13 +18,15 @@ if (!cmd || !['init', 'migrate', 'seed'].includes(cmd)) {
 	process.exit(1)
 }
 
+const dbUrl = `file:${dbPath}`
+
 if (cmd === 'init') {
 	if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath)
-	const db = new Database(dbPath)
-	db.exec(schemaFile)
-	db.pragma('foreign_keys = OFF')
-	db.exec(seedFile)
-	db.pragma('foreign_keys = ON')
+	const db = createClient({ url: dbUrl })
+	await db.executeMultiple(schemaFile)
+	await db.execute('PRAGMA foreign_keys = OFF')
+	await db.executeMultiple(seedFile)
+	await db.execute('PRAGMA foreign_keys = ON')
 	db.close()
 	console.log('Database initialized and seeded.')
 	process.exit(0)
@@ -35,8 +37,8 @@ if (cmd === 'migrate') {
 		console.error('Database not found. Run `init` first.')
 		process.exit(1)
 	}
-	const db = new Database(dbPath)
-	db.exec(schemaFile)
+	const db = createClient({ url: dbUrl })
+	await db.executeMultiple(schemaFile)
 	db.close()
 	console.log('Database migrated.')
 	process.exit(0)
@@ -47,10 +49,10 @@ if (cmd === 'seed') {
 		console.error('Database not found. Run `init` first.')
 		process.exit(1)
 	}
-	const db = new Database(dbPath)
-	db.pragma('foreign_keys = OFF')
-	db.exec(seedFile)
-	db.pragma('foreign_keys = ON')
+	const db = createClient({ url: dbUrl })
+	await db.execute('PRAGMA foreign_keys = OFF')
+	await db.executeMultiple(seedFile)
+	await db.execute('PRAGMA foreign_keys = ON')
 	db.close()
 	console.log('Database seeded.')
 	process.exit(0)

@@ -20,10 +20,10 @@ export function parsePackageData(body: Record<string, unknown>, _isUpdate = fals
 
 const packagesRouter = new Hono()
 
-packagesRouter.get('/', (c) => {
+packagesRouter.get('/', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
-	const packages = q.getPackages()
+	const packages = await q.getPackages()
 	const content = html`
 		<div id="package-form">
 			${PackageForm({ t })}
@@ -54,11 +54,11 @@ packagesRouter.get('/new', (c) => {
 	)
 })
 
-packagesRouter.get('/:id/edit', (c) => {
+packagesRouter.get('/:id/edit', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	const packages = q.getPackages()
+	const packages = await q.getPackages()
 	const pkg = packages.find((p) => p.id === id)
 	if (pkg) {
 		const content = PackageForm({ package: pkg, t })
@@ -80,7 +80,7 @@ packagesRouter.get('/:id/edit', (c) => {
 packagesRouter.post('/', async (c) => {
 	const body = await c.req.parseBody()
 	const pkg = parsePackageData(body)
-	q.addPackage(pkg)
+	await q.addPackage(pkg)
 	c.header('HX-Redirect', '/packages')
 	return c.text('', 200)
 })
@@ -89,16 +89,16 @@ packagesRouter.post('/:id', async (c) => {
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const updates = parsePackageData(body, true)
-	q.updatePackage(id, updates)
+	await q.updatePackage(id, updates)
 	c.header('HX-Redirect', '/packages')
 	return c.text('', 200)
 })
 
-packagesRouter.delete('/:id', (c) => {
+packagesRouter.delete('/:id', async (c) => {
 	const t = useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	q.deletePackage(id)
-	const packages = q.getPackages()
+	await q.deletePackage(id)
+	const packages = await q.getPackages()
 	return c.html(PackageList({ packages, t }))
 })
 
