@@ -18,5 +18,6 @@ coverage
 cypress
 
 pnpm-lock.yaml
-package-lock.json
 yank.lock
+
+out/
