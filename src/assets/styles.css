@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* theming: https://tweakcn.com/editor/theme */
+
+:root {
+	--font-family: "Oxanium", monospace;
+	--base: 16px;
+	--radius: 0.625rem;
+
+	--background: oklch(0.9821 0 0);
+	--foreground: oklch(0.2435 0 0);
+	--card: oklch(0.9911 0 0);
+	--card-foreground: oklch(0.2435 0 0);
+	--popover: oklch(0.9911 0 0);
+	--popover-foreground: oklch(0.2435 0 0);
+	--primary: oklch(0.4341 0.0392 41.9938);
+	--primary-foreground: oklch(1 0 0);
+	--secondary: oklch(0.92 0.0651 74.3695);
+	--secondary-foreground: oklch(0.3499 0.0685 40.8288);
+	--muted: oklch(0.9521 0 0);
+	--muted-foreground: oklch(0.5032 0 0);
+	--accent: oklch(0.931 0 0);
+	--accent-foreground: oklch(0.2435 0 0);
+	--destructive: oklch(0.6271 0.1936 33.339);
+	--destructive-foreground: oklch(1 0 0);
+	--border: oklch(0.8822 0 0);
+	--input: oklch(0.8822 0 0);
+	--ring: oklch(0.4341 0.0392 41.9938);
+}
+
+.dark {
+	--background: oklch(0.1776 0 0);
+	--foreground: oklch(0.9491 0 0);
+	--card: oklch(0.2134 0 0);
+	--card-foreground: oklch(0.9491 0 0);
+	--popover: oklch(0.2134 0 0);
+	--popover-foreground: oklch(0.9491 0 0);
+	--primary: oklch(0.9247 0.0524 66.1732);
+	--primary-foreground: oklch(0.2029 0.024 200.1962);
+	--secondary: oklch(0.3163 0.019 63.6992);
+	--secondary-foreground: oklch(0.9247 0.0524 66.1732);
+	--muted: oklch(0.252 0 0);
+	--muted-foreground: oklch(0.7699 0 0);
+	--accent: oklch(0.285 0 0);
+	--accent-foreground: oklch(0.9491 0 0);
+	--destructive: oklch(0.6271 0.1936 33.339);
+	--destructive-foreground: oklch(1 0 0);
+	--border: oklch(0.2351 0.0115 91.7467);
+	--input: oklch(0.4017 0 0);
+	--ring: oklch(0.9247 0.0524 66.1732);
+}
+
+@theme inline {
+	--font-display: var(--font-family);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+		min-width: 0;
+	}
+
+	html {
+		@apply bg-background text-foreground;
+		font-family: var(--font-display);
+		font-size: var(--base);
+	}
+
+	body {
+		min-height: 100dvh;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+
+	select {
+		@apply bg-background text-foreground;
+	}
+
+	[data-scroll="hide"]::-webkit-scrollbar,
+	[data-scroll="hide"] *::-webkit-scrollbar,
+	.scrollbar-none::-webkit-scrollbar,
+	.scrollbar-none *::-webkit-scrollbar {
+		display: none !important;
+	}
+
+	[data-scroll="hide"],
+	[data-scroll="hide"] *,
+	.scrollbar-none,
+	.scrollbar-none * {
+		-ms-overflow-style: none !important;
+		scrollbar-width: none !important;
+	}
+
+	::-webkit-scrollbar {
+		width: 0.5rem;
+		height: 0.5rem;
+	}
+
+	::-webkit-scrollbar-track {
+		background: --alpha(var(--muted) / 20%);
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: var(--border);
+		border-radius: 1rem;
+	}
+
+	::-webkit-scrollbar-button {
+		display: none;
+	}
+
+	::-webkit-scrollbar-corner {
+		display: none;
+	}
+
+	[x-cloak] {
+		display: none !important;
+	}
+}
+
+@utility container {
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	padding-inline: --spacing(2);
+
+	@variant sm {
+		padding-inline: --spacing(3);
+	}
+
+	@variant lg {
+		padding-inline: --spacing(4);
+	}
+
+	@variant xl {
+		padding-inline: --spacing(6);
+	}
+}
