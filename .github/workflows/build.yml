@@ -1,44 +1,70 @@
-name: Build/release
-
-on: push
+name: Release app
+on:
+  workflow_dispatch:
 
 jobs:
-    release:
-        runs-on: ${{ matrix.os }}
+  build:
+    name: Build ${{ matrix.name }}
+    permissions:
+      contents: write
+      
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # --- Windows ---
+          - name: Windows 64-bit
+            os: windows-latest
+            node_arch: x64       # actions/setup-node expects 'x64'
+            electron_arch: x64   # electron-forge expects 'x64'
+            
+          - name: Windows 32-bit
+            os: windows-latest
+            node_arch: x64       # actions/setup-node expects 'x86'
+            electron_arch: ia32  # electron-forge expects 'ia32'
+          
+          # --- Linux ---
+          - name: Linux x64
+            os: ubuntu-latest
+            node_arch: x64
+            electron_arch: x64
+            
+          # --- macOS ---
+          - name: macOS Intel
+            os: macos-13
+            node_arch: x64
+            electron_arch: x64
+            
+          - name: macOS Apple Silicon
+            os: macos-14
+            node_arch: arm64
+            electron_arch: arm64
 
-        strategy:
-            matrix:
-                os: [windows-latest]
+    runs-on: ${{ matrix.os }}
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                node-version: '22'
+      # Install rpm to build Fedora apps on Ubuntu runners
+      - name: Install Linux Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
 
-            - name: Install dependencies
-              run: npm install
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # Use the specific name Node needs (x86 for win32)
+          architecture: ${{ matrix.node_arch }}
 
-            - name: Compile Electron App
-              uses: samuelmeuli/action-electron-builder@v1
-              with:
-                  # GitHub token, automatically provided to the action
-                  # (Optional)
-                  github_token: ${{ secrets.github_token }}
+      - name: Install Dependencies
+        run: npm ci
 
-                  # If the commit is tagged with a version (e.g. "v1.0.0"),
-                  # (Optional)
-                  release: true
-
-                  build_script_name: build:electron
-
-                  # Package manager. NPM, PNPM and Yarn supported. Install Yarn and PNPM yourself. Default is NPM
-                  # (Optional)
-                  package_manager: NPM
-
-                  # Skip buiding the application
-                  # (Optional)
-                  skip_build: false
+      - name: Publish App
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Use the specific name Electron needs (ia32 for win32)
+        run: npm run publish -- --arch=${{ matrix.electron_arch }}
