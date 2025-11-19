@@ -2,7 +2,7 @@
 	"name": "adrenalin",
 	"type": "module",
 	"main": "main.js",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"author": "Armageddion",
 	"description": "Adrenalin CRM application",
 	"license": "MIT",
