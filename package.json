@@ -10,6 +10,7 @@
 		"url": "https://github.com/armageddon/adrenalin"
 	},
 	"scripts": {
+		"build:server": "esbuild src/server.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/server.js --external:@libsql/client",
 		"start": "electron-forge start",
 		"css": "npx @tailwindcss/cli -i ./src/assets/styles.css -o ./public/styles.css",
 		"dev:css": "npm run css -- --watch",
@@ -21,18 +22,20 @@
 		"setup:dependencies": "node scripts/dependencies.js",
 		"setup:fonts": "npx -y google-fonts-offline outDir=public/fonts \"http://fonts.googleapis.com/css?family=Oxanium\"",
 		"setup:icon": "npx -y svg-to-ico src/assets/logo.svg public/favicon.ico",
-		"setup": "npm run setup:db && npm run setup:dependencies && npm run setup:fonts && npm run setup:icon",
+		"setup": "npm run css && npm run setup:db && npm run setup:dependencies && npm run setup:fonts && npm run setup:icon",
 		"test:e2e": "NODE_ENV=test start-server-and-test 'tsx src/server.ts' http://localhost:3001 'cypress run --config-file test/cypress.config.ts'",
 		"test:unit": "NODE_ENV=test vitest run --config test/vitest.config.ts",
 		"test:integration": "NODE_ENV=test vitest run --config test/vitest.integration.config.ts",
 		"test": "npm run test:unit && npm run test:integration && npm run test:e2e",
 		"electron": "electron .",
 		"electron:dev": "NODE_ENV=development electron .",
-		"package": "electron-forge package --platform=win32 --arch=ia32",
-		"publish": "electron-forge publish",
-		"make": "electron-forge make",
-		"make:zip": "electron-forge make --targets @electron-forge/maker-zip",
-		"make:appimage": "electron-forge make --targets @reforged/maker-appimage"
+		"electron:setup": "electron . --setup",
+		"electron:clear-db": "electron . --clear-db",
+		"package": "npm run build:server && electron-forge package --platform=win32 --arch=ia32",
+		"publish": "npm run build:server && electron-forge publish",
+		"make": "npm run build:server && electron-forge make",
+		"make:zip": "npm run build:server && electron-forge make --targets @electron-forge/maker-zip",
+		"make:appimage": "npm run build:server && electron-forge make --targets @reforged/maker-appimage"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.19.5",
@@ -41,7 +44,7 @@
 		"alpinejs": "^3.15.0",
 		"electron-squirrel-startup": "^1.0.1",
 		"electron-store": "^11.0.2",
-		"hono": "^4.9.9",
+		"hono": "^4.10.6",
 		"htmx.org": "^2.0.7",
 		"signature_pad": "^5.1.1",
 		"update-electron-app": "^3.1.1"
@@ -65,6 +68,7 @@
 		"@vitest/ui": "^3.2.4",
 		"cypress": "^15.4.0",
 		"electron": "^39.2.2",
+		"esbuild": "^0.27.0",
 		"jsdom": "^27.0.0",
 		"nodemon": "^3.1.10",
 		"patch-package": "^8.0.1",
@@ -75,31 +79,5 @@
 		"typed-htmx": "^0.3.1",
 		"typescript": "^5.9.2",
 		"vitest": "^3.2.4"
-	},
-	"build": {
-		"appId": "com.adrenalin.app",
-		"productName": "Adrenalin",
-		"directories": {
-			"output": "dist"
-		},
-		"npmRebuild": false,
-		"buildDependenciesFromSource": false,
-		"nodeGypRebuild": false,
-		"files": [
-			"src/**/*",
-			"main.js",
-			"package.json",
-			"db/**/*",
-			"public/**/*"
-		],
-		"mac": {
-			"category": "public.app-category.productivity"
-		},
-		"win": {
-			"target": "nsis"
-		},
-		"linux": {
-			"target": "AppImage"
-		}
 	}
 }

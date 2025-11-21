@@ -18,10 +18,10 @@ jobs:
             node_arch: x64       # actions/setup-node expects 'x64'
             electron_arch: x64   # electron-forge expects 'x64'
 
-          - name: Windows 32-bit
-            os: windows-latest
-            node_arch: x64       # actions/setup-node expects 'x86'
-            electron_arch: ia32  # electron-forge expects 'ia32'
+          # - name: Windows 32-bit
+          #   os: windows-latest
+          #   node_arch: x64       # actions/setup-node expects 'x86'
+          #   electron_arch: ia32  # electron-forge expects 'ia32'
 
           # --- Linux ---
           - name: Linux x64
@@ -30,15 +30,15 @@ jobs:
             electron_arch: x64
 
           # --- macOS ---
-          - name: macOS Intel
-            os: macos-13
-            node_arch: x64
-            electron_arch: x64
-
-          - name: macOS Apple Silicon
-            os: macos-14
-            node_arch: arm64
-            electron_arch: arm64
+          # - name: macOS Intel
+          #   os: macos-13
+          #   node_arch: x64
+          #   electron_arch: x64
+          #
+          # - name: macOS Apple Silicon
+          #   os: macos-14
+          #   node_arch: arm64
+          #   electron_arch: arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -65,6 +65,9 @@ jobs:
 
       - name: Setup App
         run: npm run setup
+
+      - name: Build Server
+        run: npm run build:server
 
       - name: Publish App
         env:

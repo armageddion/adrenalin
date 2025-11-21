@@ -7,41 +7,74 @@ import type { Member, Package, Visit } from './types'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isTest = process.env.NODE_ENV === 'test'
 
-let envDbPath = process.env.DB_PATH
-if (!isTest && !process.env.ELECTRON_RUN && !envDbPath) {
+let dbPath: any
+if (process.env.DB_PATH) {
+	// Provided via env var (e.g. from main.js user selection)
+	dbPath = process.env.DB_PATH
+} else if (process.env.ELECTRON_RUN_AS_NODE) {
+	// PRODUCTION: Running inside the packaged app
+	// The file structure in resources is flat for extraResources:
+	// resources/
+	//   ├── dist/server.js
+	//   ├── db/
+	//   └── public/
+	dbPath = path.join(process.cwd(), '..', 'db', 'adrenalin.db')
+	// Note: When spawned via electron, cwd is usually the app root or resources root depending on OS.
+	// A safer bet is usually passing it from main.js, but let's try to resolve relative to this file.
+	// If this file is in resources/dist/server.js, then ../db/adrenalin.db is resources/db/adrenalin.db
+	dbPath = path.resolve(__dirname, '../db/adrenalin.db')
+} else {
+	// DEVELOPMENT
 	const configPath = path.resolve(__dirname, '../config.json')
 	if (fs.existsSync(configPath)) {
 		const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-		envDbPath = config.dbPath
+		dbPath = config.dbPath
+	}
+	if (!dbPath) {
+		dbPath = path.resolve(__dirname, '../db/adrenalin.db')
 	}
 }
-const dbPath = isTest ? ':memory:' : envDbPath || path.resolve(__dirname, '../db/adrenalin.db')
-const dbUrl = dbPath === ':memory:' ? ':memory:' : `file:${dbPath}`
 
-const schemaPath = path.resolve(__dirname, '../db/schema.sqlite')
-const seedPath = path.resolve(__dirname, '../db/seed.sqlite')
+const dbUrl = isTest ? ':memory:' : `file:${dbPath}`
+// --- FIX END ---
+
+const schemaPath = process.env.ELECTRON_RUN_AS_NODE
+	? path.resolve(__dirname, '../schema.sqlite')
+	: path.resolve(__dirname, '../db/schema.sqlite')
+const seedPath = process.env.ELECTRON_RUN_AS_NODE
+	? path.resolve(__dirname, '../seed.sqlite')
+	: path.resolve(__dirname, '../db/seed.sqlite')
+
+// Ensure the database directory exists
+if (!isTest && dbPath) {
+	const dbDir = path.dirname(dbPath)
+	if (!fs.existsSync(dbDir)) {
+		fs.mkdirSync(dbDir, { recursive: true })
+	}
+}
 
 export const db = createClient({ url: dbUrl })
 
-// Initialize WAL mode
-await db.execute('PRAGMA journal_mode = WAL')
+export async function initDb() {
+	await db.execute('PRAGMA journal_mode = WAL')
 
-if (!isTest) {
-	const rs = await db.execute("SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='members'")
-	const tableCheck = rs.rows[0] as unknown as { count: number }
+	if (!isTest) {
+		const rs = await db.execute("SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='members'")
+		const tableCheck = rs.rows[0] as unknown as { count: number }
 
-	if (tableCheck.count === 0) {
-		console.log('Initializing new database at:', dbPath)
-		const schemaSql = fs.readFileSync(schemaPath, 'utf8')
-		await db.executeMultiple(schemaSql)
+		if (tableCheck.count === 0) {
+			console.log('Initializing new database at:', dbPath)
+			const schemaSql = fs.readFileSync(schemaPath, 'utf8')
+			await db.executeMultiple(schemaSql)
+		}
 	}
-}
 
-if (isTest) {
-	const schemaSql = fs.readFileSync(schemaPath, 'utf8')
-	const seedSql = fs.readFileSync(seedPath, 'utf8')
-	await db.executeMultiple(schemaSql)
-	await db.executeMultiple(seedSql)
+	if (isTest) {
+		const schemaSql = fs.readFileSync(schemaPath, 'utf8')
+		const seedSql = fs.readFileSync(seedPath, 'utf8')
+		await db.executeMultiple(schemaSql)
+		await db.executeMultiple(seedSql)
+	}
 }
 
 export async function getMembers(): Promise<Member[]> {
@@ -104,7 +137,7 @@ export async function searchMembersPaginated(query: string, page: number, limit:
 	if (words.length === 0) return []
 
 	const conditions: string[] = []
-	const params: any[] = [] // Using any[] to accommodate mixed types if needed
+	const params: (string | number)[] = []
 	words.forEach((word) => {
 		const wordParam = `%${word}%`
 		conditions.push(`(first_name LIKE ? OR last_name LIKE ? OR card_id LIKE ?)`)
@@ -253,7 +286,7 @@ export async function updateMember(id: number, member: Partial<Member>): Promise
 	values.push(id)
 	await db.execute({
 		sql: `UPDATE members SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-		args: values as any[],
+		args: values,
 	})
 }
 
@@ -289,7 +322,7 @@ export async function updatePackage(id: number, pkg: Partial<Package>): Promise<
 	values.push(id)
 	await db.execute({
 		sql: `UPDATE packages SET ${setClause} WHERE id = ?`,
-		args: values as any[],
+		args: values,
 	})
 }
 

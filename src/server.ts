@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import app from './routes'
+import { initDb } from './queries'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -20,6 +21,11 @@ app.use('*', async (c, next) => {
 	await next()
 })
 
-const port = process.env.NODE_ENV === 'test' ? 3001 : 3000
-console.log(`Server running on http://localhost:${port}`)
-serve({ fetch: app.fetch, port })
+async function main() {
+	await initDb()
+	const port = process.env.NODE_ENV === 'test' ? 3001 : 3000
+	console.log(`Server running on http://localhost:${port}`)
+	serve({ fetch: app.fetch, port })
+}
+
+main()
