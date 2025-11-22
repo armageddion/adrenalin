@@ -1,165 +1,181 @@
-Here is a comprehensive technical review and implementation guide for the Adrenalin application.
-
-This document is intended for the developer to address critical functional gaps, architectural inconsistencies, and maintenance issues found in the provided codebase.
+Here is a comprehensive developer documentation guide based on a code review of the **Adrenalin** application.
 
 ---
 
-# Adrenalin Application: Developer Implementation Guide
+# Adrenalin Application: Developer Review & Implementation Guide
 
 ## 1. Executive Summary
-The application is a solid start using Avalonia for the Desktop UI and ASP.NET Core for a local mobile registration interface. However, there are **critical functional gaps** (specifically regarding Signature capture on Desktop) and **Architecture violations** (DRY principles regarding Settings) that need immediate attention.
+This document outlines critical fixes, architectural improvements, and cleanup tasks for the Adrenalin .NET 9.0 Avalonia application. The application currently functions as a hybrid Desktop/Web server solution. While the core logic is functional, there are significant concurrency risks regarding database access and threading models that need immediate attention before production deployment.
 
-## 2. Critical Issues (High Priority)
+## 2. Critical Issues & Bug Fixes
 
-### 2.1. Desktop Signature Pad is Non-Functional
-**Location:** `Controls/SignaturePad.cs`
-**Issue:** The `GetSignatureBytes()` method currently returns placeholder text instead of the actual image data.
+### 2.1. Fix "Fire-and-Forget" Async in Constructors
+**Severity:** Critical
+**Location:** `DashboardViewModel`, `MembersViewModel`, `PackagesViewModel`, `VisitsViewModel`
+**Issue:** Calling `Task.Run(async () => await Load...())` inside a constructor is dangerous. Exceptions thrown here are swallowed or crash the application unpredictably. It also creates race conditions where the View might bind to data before the ViewModel is ready.
+
+**Implementation:**
+Use ReactiveUI's `IActivatableViewModel` or initialize data in the `MainWindow` initialization logic.
+
+**Refactor Example (`DashboardViewModel.cs`):**
 ```csharp
-// Current Code
-return System.Text.Encoding.UTF8.GetBytes("signature_present");
-```
-**Recommendation:**
-You must implement the rendering of the vector strokes to a bitmap.
-1.  Create a `RenderTargetBitmap` of the `Canvas` dimensions.
-2.  Render the visual tree of the Canvas to that bitmap.
-3.  Save the bitmap to a `MemoryStream` as PNG.
-4.  Return the byte array.
-
-### 2.2. SQLite Concurrency (Database Locking)
-**Location:** `Services/GymService.cs`
-**Issue:** The application accepts writes from the Desktop UI and the Web API concurrently. SQLite defaults to a rollback journal which handles concurrency poorly, leading to "Database is locked" exceptions.
-**Recommendation:**
-Enable Write-Ahead Logging (WAL) mode in the connection string or upon initialization.
-Update `GymService.cs` constructor or initialization:
-```csharp
-using var conn = new SqliteConnection(ConnectionString);
-await conn.OpenAsync();
-using var cmd = conn.CreateCommand();
-cmd.CommandText = "PRAGMA journal_mode = WAL;";
-await cmd.ExecuteNonQueryAsync();
-```
-
-### 2.3. CI/CD Artifact Path Mismatch
-**Location:** `.github/workflows/publish.yml`
-**Issue:** The Windows build step uploads `Adrenalin.x64.exe`. However, PupNet with `kind: setup` usually generates an installer file (e.g., `Adrenalin-Setup-[version].exe`) in the output directory, not just the raw executable.
-**Recommendation:**
-Check the PupNet output filename. You likely want to upload the **Setup** file, not the raw executable, or change `kind` to `zip` if you want a portable executable.
-
----
-
-## 3. Architectural Improvements & Refactoring
-
-### 3.1. Centralize Configuration Logic (DRY Violation)
-**Locations:** `App.axaml.cs`, `GymService.cs`, `SettingsViewModel.cs`
-**Issue:** Logic for finding `settings.json`, parsing it, determining the database path, and handling the API Key is duplicated across three files.
-**Recommendation:**
-1.  Create a `Services/ConfigurationService.cs`.
-2.  Move `GetSettingsPath`, `LoadSettings`, `SaveSettings`, `GetDatabasePath`, and `GetApiKey` logic into this service.
-3.  Inject `ConfigurationService` into `GymService`, `SettingsViewModel`, and `WebServerService`.
-
-### 3.2. Raw SQL Maintenance
-**Location:** `Services/GymService.cs`
-**Issue:** Large raw SQL strings are error-prone and hard to maintain.
-**Recommendation:**
-Since you are already using `Microsoft.Data.Sqlite`, consider adding **Dapper**. It allows you to map query results directly to your Models (`Member`, `Visit`) without manually reading every column (e.g., `reader.GetString(reader.GetOrdinal("first_name"))`).
-*Example:*
-```csharp
-// Replaces 20 lines of manual mapping
-return await conn.QueryAsync<Member>("SELECT * FROM members");
-```
-
-### 3.3. Web Server Asset Injection
-**Location:** `Services/WebServerService.cs`
-**Issue:** The API Key is injected via string replacement (`htmlContent.Replace("</head>"...`). This is fragile.
-**Recommendation:**
-Create a specific endpoint (e.g., `/api/config`) that the frontend JavaScript fetches on load to retrieve the API Key or public configuration, rather than modifying the HTML string at runtime.
-
----
-
-## 4. Code Cleanup & Dead Code
-
-### 4.1. Remove "Console" Logging
-**Location:** `Services/CameraService.cs`
-**Issue:** There are many `Console.WriteLine` calls.
-**Recommendation:**
-Replace all `Console.WriteLine` with the Serilog instance (`Log.Information`, `Log.Error`) used elsewhere in the app.
-
-### 4.2. Unused Project Reference
-**Location:** `Adrenalin.csproj`
-**Issue:**
-```xml
-<Compile Remove="Adrenalin.Tests\**" />
-```
-**Recommendation:**
-If the tests are in a separate folder but sharing the CSPROJ, this is bad practice. Move tests to their own project (`Adrenalin.Tests.csproj`) and remove this line. If the folder doesn't exist, remove the line.
-
-### 4.3. Duplicate Converters
-**Location:** `Converters/Converters.cs`
-**Issue:** `Int32GreaterThanConverter` and `Int32LessThanConverter` logic is nearly identical.
-**Recommendation:**
-Create a generic `Int32CompareConverter` with a parameter that specifies the operation (`>`, `<`, `=`) or keep them separate but ensure they inherit from a common base if logic grows.
-
----
-
-## 5. Security Considerations
-
-### 5.1. API Key Exposure
-**Location:** `WebServerService.cs` / `index.html`
-**Issue:** `window.API_KEY = '...'` exposes the key to anyone who can view the page source on the local network.
-**Analysis:** For a local intranet app, this is often "accepted risk," but be aware that this is **not secure**.
-**Recommendation:**
-If higher security is needed, the mobile app should require a user login (username/password) validated against the database, issuing a temporary session token, rather than a static global API key.
-
-### 5.2. File Access
-**Location:** `WebServerService.cs`
-**Issue:** `app.UseStaticFiles` uses `PhysicalFileProvider`.
-**Recommendation:**
-Ensure `wwwroot` does not contain any sensitive data. The current code correctly checks for directory existence, which is good.
-
----
-
-## 6. Implementation Plan (Checklist)
-
-1.  **Fix Desktop Signature:** Implement `RenderTargetBitmap` logic in `SignaturePad.cs`.
-2.  **Fix Database Locking:** Add `PRAGMA journal_mode = WAL;` to `GymService` initialization.
-3.  **Refactor Settings:** Create `ConfigurationService.cs` and refactor `App.axaml.cs`, `GymService.cs`, and `SettingsViewModel.cs`.
-4.  **Cleanup Logging:** Replace `Console.WriteLine` in `CameraService.cs` with Serilog.
-5.  **Fix CI/CD:** Verify the artifact name in `publish.yml` matches PupNet's output (check `bin/` output locally first).
-6.  **Web Frontend:** (Optional) Move API Key injection to a fetch request.
-
-## 7. Specific Code Fix for SignaturePad (Item 2.1)
-
-Here is the code to make the Desktop signature pad functional:
-
-```csharp
-// In Controls/SignaturePad.cs
-
-public byte[]? GetSignatureBytes()
+public class DashboardViewModel : ReactiveObject, IActivatableViewModel
 {
-    if (_strokes.Count == 0) return null;
+    public ViewModelActivator Activator { get; } = new ViewModelActivator();
 
-    // 1. Determine bounds
-    var width = this.Bounds.Width;
-    var height = this.Bounds.Height;
-    if (width <= 0 || height <= 0) width = 400; height = 200;
-
-    // 2. Render to bitmap
-    // Note: You might need to render the 'Child' (Canvas), not 'this' (Border) 
-    // depending on Avalonia version, usually rendering the Canvas works best.
-    if (Child is not Control canvasControl) return null;
-
-    // Force a layout pass to ensure everything is positioned
-    canvasControl.Measure(new Size(width, height));
-    canvasControl.Arrange(new Rect(0, 0, width, height));
-
-    var pixelSize = new PixelSize((int)width, (int)height);
-    var bitmap = new RenderTargetBitmap(pixelSize, new Vector(96, 96));
-    
-    bitmap.Render(canvasControl);
-
-    // 3. Save to Byte Array
-    using var stream = new MemoryStream();
-    bitmap.Save(stream);
-    return stream.ToArray();
+    public DashboardViewModel(...) {
+        // ... dependencies
+        
+        this.WhenActivated((CompositeDisposable disposables) => {
+            // Load stats when the view appears
+            LoadStats.Execute().Subscribe().DisposeWith(disposables);
+        });
+    }
 }
 ```
+*Note: You must adds `xmlns:rxui="http://reactiveui.net"` to your Views and change `UserControl` to `rxui:ReactiveUserControl<vm:DashboardViewModel>` for this to trigger automatically.*
+
+### 2.2. SQLite Concurrency & Locking
+**Severity:** High
+**Location:** `GymService.cs`
+**Issue:** The application runs an ASP.NET Core Web Server (background thread) and a UI Desktop App (main thread). Both access the SQLite database file. While WAL mode is enabled, simultaneous **writes** (e.g., a mobile user registering while a desk staff member logs a visit) will result in an `SQLITE_BUSY` or "Database is locked" exception because `GymService` creates a new connection for every call without a locking mechanism.
+
+**Implementation:**
+Implement a `SemaphoreSlim` in `GymService` to serialize write operations.
+
+```csharp
+public class GymService
+{
+    // Static or Singleton semaphore to control access across the instance
+    private static readonly SemaphoreSlim _dbLock = new SemaphoreSlim(1, 1);
+
+    public async Task<int> AddMemberAsync(Member member)
+    {
+        await _dbLock.WaitAsync();
+        try
+        {
+            using var conn = new SqliteConnection(_connectionString);
+            await conn.OpenAsync();
+            // ... Execute Command ...
+        }
+        finally
+        {
+            _dbLock.Release();
+        }
+    }
+    // Apply this pattern to Update, Delete, and Add methods.
+}
+```
+
+### 2.3. Web Server Shutdown Race Condition
+**Severity:** Medium
+**Location:** `App.axaml.cs`
+**Issue:** In `OnFrameworkInitializationCompleted`, `_webServerService` is stopped in `desktop.ShutdownRequested`. However, `_webServerService` is created inside the `if` block but started in a background `Task.Run`. If the app closes immediately after opening, `_webServerService` might be null or half-initialized.
+
+**Implementation:**
+Ensure the server task is tracked and cancelled gracefully using `IHostedService` patterns or ensuring the `_webServerService` instance is fully constructed before the background task starts.
+
+## 3. Architectural Improvements
+
+### 3.1. Introduce Dependency Injection (DI) Container
+**Current State:** Manual dependency injection in `App.axaml.cs` and `MainWindow.axaml.cs`.
+**Recommendation:** Use `Microsoft.Extensions.DependencyInjection`.
+**Benefit:** Simplifies the `App.axaml.cs` file and makes testing easier.
+
+**Implementation:**
+1.  Install `Avalonia.ReactiveUI` and `Microsoft.Extensions.DependencyInjection`.
+2.  Configure services in `App.axaml.cs`:
+    ```csharp
+    private IServiceProvider ConfigureServices() {
+        var services = new ServiceCollection();
+        services.AddSingleton<ConfigurationService>();
+        services.AddSingleton<GymService>(); // Now a singleton, helping with DB locking
+        services.AddSingleton<WebServerService>();
+        services.AddSingleton<LocalizationService>();
+        services.AddTransient<MainWindowViewModel>();
+        // ... add other ViewModels
+        return services.BuildServiceProvider();
+    }
+    ```
+
+### 3.2. Replace Raw ADO.NET with Dapper
+**Location:** `GymService.cs`
+**Recommendation:** The current SQL construction involves manual parameter adding and mapping `SqliteDataReader` to objects (`MapToMember`). This is verbose and error-prone.
+**Implementation:**
+Install `Dapper`.
+Refactor `GetMembersAsync`:
+```csharp
+// OLD
+while (await reader.ReadAsync()) { members.Add(MapToMember(reader)); }
+
+// NEW (Dapper)
+using var conn = new SqliteConnection(_connectionString);
+var members = await conn.QueryAsync<Member>("SELECT * FROM members");
+```
+
+## 4. Code Quality & Dead Code
+
+### 4.1. Redundant Converters
+**File:** `Converters/Converters.cs`
+**Issue:**
+*   `Int32CompareConverter`: This generic converter logic is duplicated by `Int32GreaterThanConverter` and `Int32LessThanConverter`.
+*   **Recommendation:** Keep only `Int32CompareConverter` and use parameters (e.g., `>:0`, `<:10`) in XAML, or strictly use the specific ones. Delete the unused ones to reduce noise.
+
+### 4.2. Configuration Service "Fire and Forget"
+**File:** `ConfigurationService.cs`
+**Method:** `GetApiKey()`
+**Issue:** `_ = SaveSettingsAsync(settings); // Fire and forget`
+**Risk:** If the application crashes immediately after generating a new API Key, the key is lost, but the user might have already noted it down.
+**Fix:** Make `GetApiKey` async or use `GetAwaiter().GetResult()` (less ideal) if strictly synchronous, or ensure `SaveSettingsAsync` handles file IO locking.
+
+### 4.3. Hardcoded Paths
+**File:** `App.axaml.cs`
+**Line:** `var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs" ...)`
+**Issue:** On Linux/macOS (AppImage), writing to `BaseDirectory` might be forbidden (read-only file system mount).
+**Fix:** Use `StandardPaths` via `Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)` or `UserProfile`.
+
+## 5. Security Recommendations
+
+### 5.1. API Key Storage
+**Current:** Stored in plain text in `settings.json`.
+**Risk:** Low (Desktop app), but visible.
+**Recommendation:** On Windows, use `ProtectedData` (DPAPI). On Linux, stick to file permissions (0600). For now, ensure `.gitignore` excludes `settings.json` if the repo is public.
+
+### 5.2. Web Server Security (CORS & Hosts)
+**File:** `WebServerService.cs`
+**Issue:** The server binds to `http://*:port`.
+1.  **CORS:** The current implementation doesn't explicitly handle CORS preflight (`OPTIONS`) requests. If a mobile browser enforces strict CORS on the embedded JS `fetch` (even though it's same-origin, sometimes mobile network layers interfere), it might fail.
+2.  **Firewall:** The app logs "Make sure firewall allows connections," but does not attempt to automate this.
+**Fix:** Ensure the `MapPost` and `Use` middleware handles `OPTIONS` requests if you plan to separate the frontend from the backend later.
+
+## 6. Frontend (Web) Improvements
+
+### 6.1. Javascript Validation Sync
+**File:** `script.js` vs `Member.cs`
+**Issue:** `script.js` checks `yearOfBirth < 1900`. `Member.cs` checks `yearOfBirth < 1900`.
+**Recommendation:** Ensure these rules are consistent. If you change the C# validation to `DateTime.Now.Year - 100`, update the JS.
+**Bug:** In `script.js`, `formData.yearOfBirth` is parsed as Int. If input is empty, it becomes `NaN`. The validation check needs to handle `NaN`.
+
+### 6.2. Input Masking
+**File:** `index.html`
+**Recommendation:** Add `inputmode="numeric"` to the Year of Birth and Card ID fields to trigger the numeric keyboard on mobile devices.
+
+## 7. CI/CD Adjustments
+
+### 7.1. PupNet Configuration
+**File:** `Adrenalin.pupnet.conf`
+**Line:** `AppVersionRelease = 1.0.0[1]`
+**Observation:** The `[1]` syntax is specific to PupNet for build numbers. Ensure that when `github.sha` is used in the workflow, this configuration doesn't conflict or cause versioning errors in the final AppImage metadata. It is safer to inject the version via the CLI arguments in `publish.yml` using `-p:Version=...`.
+
+## 8. Implementation Plan (Checklist)
+
+1.  [ ] **Refactor GymService:** Add `SemaphoreSlim` and switch to Dapper.
+2.  [ ] **Fix ViewModels:** Remove `Task.Run` in constructors; implement `IActivatableViewModel`.
+3.  [ ] **Setup DI:** Move service creation to a centralized `ConfigureServices` method.
+4.  [ ] **Fix Logging Path:** Change log location to User Profile/AppData.
+5.  [ ] **Frontend Tweak:** Add `inputmode="numeric"` to HTML fields.
+6.  [ ] **Testing:** Create a unit test project (`Adrenalin.Tests`) to verify `GymService` CRUD operations.
+
+## 9. Missing Code / Red Flags
+*   **Missing:** `Adrenalin.Tests` folder is referenced in the `.sln` but code is not provided. Remove from `.sln` or create the project.
+*   **Missing:** `assets` (Icons). Ensure `Adrenalin.x86_64.AppImage` builds have an icon defined in `Adrenalin.pupnet.conf` (`AppIcon = ...`) or the Linux desktop entry will look generic.
