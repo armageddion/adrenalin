@@ -42,13 +42,13 @@ jobs:
       run: choco install innosetup
     - name: Add Inno Setup to PATH
       run: echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-    - name: Build Zip
-      run: pupnet --runtime win-x64 --kind zip --skip-yes
+    - name: Build Setup
+      run: pupnet --runtime win-x64 --kind setup --skip-yes
     - name: Upload Windows Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Adrenalin-Windows
-        path: ./bin/Adrenalin-win-x64.zip
+        path: ./bin/Adrenalin.x64.exe
 
   release:
     needs: [build, build-windows]
@@ -69,4 +69,4 @@ jobs:
         name: Release ${{ github.sha }}
         files: |
           Adrenalin.x86_64.AppImage
-          Adrenalin-win-x64.zip
+          Adrenalin.x64.exe
