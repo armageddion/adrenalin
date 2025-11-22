@@ -1,23 +1,23 @@
-node_modules
-.vscode
-*.vim
-*.env
-!.env.example
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.tmp
+*.log
+*.vs/
+*.vscode/
 
-db/adrenalin.*
-public/
-config.json
-dist/
-out/
+# Database
+*.db
+*.db-shm
+*.db-wal
 
-.bak
+# OS
+.DS_Store
+Thumbs.db
 
-AGENTS*
-
-test-results
-playwright-report
-coverage
-cypress
-
-pnpm-lock.yaml
-yank.lock
+# IDE
+.idea/
+*.swp
+*.swo

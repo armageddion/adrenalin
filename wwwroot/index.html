@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adrenalin Member Registration</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Adrenalin Gym</h1>
+            <p>Member Registration</p>
+        </header>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="firstName">First Name *</label>
+                <input type="text" id="firstName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name *</label>
+                <input type="text" id="lastName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone">
+            </div>
+
+            <div class="form-group">
+                <label for="cardId">Card ID *</label>
+                <input type="text" id="cardId" required>
+            </div>
+
+            <div class="form-group">
+                <label for="govId">Government ID</label>
+                <input type="text" id="govId">
+            </div>
+
+            <div class="form-group">
+                <label for="yearOfBirth">Year of Birth *</label>
+                <input type="number" id="yearOfBirth" min="1900" max="2024" required>
+            </div>
+
+            <div class="form-group">
+                <label for="addressStreet">Street Address</label>
+                <input type="text" id="addressStreet">
+            </div>
+
+            <div class="form-group">
+                <label for="addressNumber">Street Number</label>
+                <input type="text" id="addressNumber">
+            </div>
+
+            <div class="form-group">
+                <label for="addressCity">City</label>
+                <input type="text" id="addressCity">
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" rows="3"></textarea>
+            </div>
+
+            <div class="form-group checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="guardian">
+                    <span class="checkmark"></span>
+                    Requires guardian
+                </label>
+            </div>
+
+            <div id="guardianFields" style="display: none;">
+                <div class="form-group">
+                    <label for="guardianFirstName">Guardian First Name</label>
+                    <input type="text" id="guardianFirstName">
+                </div>
+
+                <div class="form-group">
+                    <label for="guardianLastName">Guardian Last Name</label>
+                    <input type="text" id="guardianLastName">
+                </div>
+
+                <div class="form-group">
+                    <label for="guardianGovId">Guardian Government ID</label>
+                    <input type="text" id="guardianGovId">
+                </div>
+            </div>
+
+            <div class="form-group checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="notify" checked>
+                    <span class="checkmark"></span>
+                    Send notifications
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="signature">Signature (optional)</label>
+                <div id="signature-pad" class="signature-pad">
+                    <div class="signature-pad--body">
+                        <canvas></canvas>
+                    </div>
+                    <div class="signature-pad--footer">
+                        <div class="description">Sign above</div>
+                        <button type="button" class="button clear" data-action="clear">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register Member</button>
+        </form>
+
+        <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script src="/script.js"></script>
+</body>
+</html>

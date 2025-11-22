@@ -1,0 +1,221 @@
+    <UserControl xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:vm="using:Adrenalin.ViewModels"
+                xmlns:conv="using:Adrenalin.Converters"
+                x:Class="Adrenalin.Views.MemberDetailView" x:DataType="vm:MembersViewModel">
+     <ScrollViewer>
+         <StackPanel Margin="20" Spacing="10">
+             <TextBlock Text="{Binding SelectedMemberDetail.Member.FirstName} {Binding SelectedMemberDetail.Member.LastName}" FontSize="24" FontWeight="Bold" />
+
+             <Border IsVisible="{Binding SelectedMemberDetail.IsEditing}">
+                 <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="0,20,0,0">
+                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SelectedMemberDetail.FirstNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                     <TextBox x:Name="FirstNameTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.FirstName}" />
+
+                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SelectedMemberDetail.LastNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                 <TextBox x:Name="LastNameTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.LastName}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding SelectedMemberDetail.EmailLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.Email}" />
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding SelectedMemberDetail.PhoneLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.Phone}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding SelectedMemberDetail.CardIdLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.CardId}" />
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding SelectedMemberDetail.GovIdLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GovId}" />
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="{Binding SelectedMemberDetail.YearOfBirthLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.YearOfBirth}" />
+
+                 <TextBlock Grid.Row="7" Grid.Column="0" Text="{Binding SelectedMemberDetail.PackageLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                 <ComboBox Grid.Row="7" Grid.Column="1" ItemsSource="{Binding SelectedMemberDetail.AvailablePackages}" SelectedValue="{Binding SelectedMemberDetail.Member.PackageId}" SelectedValueBinding="{Binding Id}" DisplayMemberBinding="{Binding Name}" />
+
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="{Binding SelectedMemberDetail.ExpiryDateLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.ExpiresAt}" />
+
+                <TextBlock Grid.Row="9" Grid.Column="0" Text="{Binding SelectedMemberDetail.ImageLabel}" VerticalAlignment="Top" Margin="0,0,10,0" />
+                <StackPanel Grid.Row="9" Grid.Column="1" Spacing="10">
+                    <!-- Image Display -->
+                     <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="4" Width="200" Height="200">
+                        <Image Source="{Binding SelectedMemberDetail.CurrentImage}" Stretch="Uniform" />
+                    </Border>
+
+                    <!-- Camera Controls -->
+                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding SelectedMemberDetail.IsCameraAvailable}">
+                        <Button Content="{Binding SelectedMemberDetail.CameraStartLabel}"
+                                Command="{Binding SelectedMemberDetail.StartCamera}"
+                                IsVisible="{Binding !SelectedMemberDetail.IsCameraMode}" />
+                        <Button Content="{Binding SelectedMemberDetail.CameraCaptureLabel}"
+                                Command="{Binding SelectedMemberDetail.CaptureImage}"
+                                IsVisible="{Binding SelectedMemberDetail.IsCameraMode}" />
+                    </StackPanel>
+
+                    <!-- Image Action Controls -->
+                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding SelectedMemberDetail.HasCapturedImage}">
+                        <Button Content="{Binding SelectedMemberDetail.CameraKeepLabel}"
+                                Command="{Binding SelectedMemberDetail.KeepImage}" />
+                        <Button Content="{Binding SelectedMemberDetail.CameraRevertLabel}"
+                                Command="{Binding SelectedMemberDetail.RevertImage}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Grid.Row="10" Grid.Column="0" Text="{Binding SelectedMemberDetail.NotesLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="10" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.Notes}" />
+
+                <TextBlock Grid.Row="11" Grid.Column="0" Text="{Binding SelectedMemberDetail.StreetLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="11" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.AddressStreet}" />
+
+                <TextBlock Grid.Row="12" Grid.Column="0" Text="{Binding SelectedMemberDetail.NumberLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="12" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.AddressNumber}" />
+
+                <TextBlock Grid.Row="13" Grid.Column="0" Text="{Binding SelectedMemberDetail.CityLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="13" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.AddressCity}" />
+
+                <TextBlock Grid.Row="14" Grid.Column="0" Text="{Binding SelectedMemberDetail.IsGuardianLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <CheckBox Grid.Row="14" Grid.Column="1" IsChecked="{Binding SelectedMemberDetail.Member.Guardian}" />
+
+                <TextBlock Grid.Row="15" Grid.Column="0" Text="{Binding SelectedMemberDetail.GuardianFirstNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="15" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GuardianFirstName}" />
+
+                <TextBlock Grid.Row="16" Grid.Column="0" Text="{Binding SelectedMemberDetail.GuardianLastNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="16" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GuardianLastName}" />
+
+                <TextBlock Grid.Row="17" Grid.Column="0" Text="{Binding SelectedMemberDetail.GuardianGovIdLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox Grid.Row="17" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GuardianGovId}" />
+
+                <TextBlock Grid.Row="18" Grid.Column="0" Text="{Binding SelectedMemberDetail.SendNotificationsLabel}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <CheckBox Grid.Row="18" Grid.Column="1" IsChecked="{Binding SelectedMemberDetail.Member.Notify}" />
+                 </Grid>
+             </Border>
+
+             <!-- Detail View -->
+             <Border IsVisible="{Binding !SelectedMemberDetail.IsEditing}" Margin="0,20,0,0">
+                 <StackPanel Spacing="20">
+                     <Button Content="{Binding SelectedMemberDetail.EditLabel}" Command="{Binding SelectedMemberDetail.StartEdit}" HorizontalAlignment="Left" Margin="0,0,0,10" />
+                     <!-- Basic Information -->
+                     <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10">
+                         <StackPanel Margin="10">
+                             <TextBlock Text="Basic Information" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
+                              <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="10,0,0,0">
+                                  <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SelectedMemberDetail.FirstNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.FirstName}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SelectedMemberDetail.LastNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.LastName}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding SelectedMemberDetail.EmailLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.Email}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding SelectedMemberDetail.PhoneLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.Phone}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding SelectedMemberDetail.CardIdLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.CardId}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding SelectedMemberDetail.GovIdLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GovId}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="6" Grid.Column="0" Text="{Binding SelectedMemberDetail.YearOfBirthLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.YearOfBirth}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="7" Grid.Column="0" Text="{Binding SelectedMemberDetail.NotesLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.Notes}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="8" Grid.Column="0" Text="Address" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.AddressStreet} {Binding SelectedMemberDetail.Member.AddressNumber}, {Binding SelectedMemberDetail.Member.AddressCity}" VerticalAlignment="Center" />
+
+                                  <TextBlock Grid.Row="9" Grid.Column="0" Text="{Binding SelectedMemberDetail.ImageLabel}" VerticalAlignment="Top" Margin="0,10,10,0" FontWeight="Bold" />
+                                  <Border Grid.Row="9" Grid.Column="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="4" Width="200" Height="200" Margin="0,10,0,0">
+                                      <Image Source="{Binding SelectedMemberDetail.CurrentImage}" Stretch="Uniform" />
+                                  </Border>
+                              </Grid>
+                         </StackPanel>
+                     </Border>
+
+                     <!-- Package Information -->
+                     <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10">
+                         <StackPanel Margin="10">
+                             <TextBlock Text="{Binding SelectedMemberDetail.PackageInfoLabel}" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
+                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto" Margin="10,0,0,0">
+                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SelectedMemberDetail.PackageNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedMemberDetail.Package.Name}" VerticalAlignment="Center" />
+
+                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SelectedMemberDetail.PackagePriceLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                  <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMemberDetail.Package.Price, Converter={x:Static conv:PriceConverter.Instance}}" VerticalAlignment="Center" />
+
+                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding SelectedMemberDetail.PackageExpiryLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.ExpiresAt, StringFormat='{}{0:dd/MM/yyyy}'}" VerticalAlignment="Center" />
+                             </Grid>
+                         </StackPanel>
+                     </Border>
+
+                     <!-- Guardian Information (when applicable) -->
+                     <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" IsVisible="{Binding SelectedMemberDetail.Member.Guardian}">
+                         <StackPanel Margin="10">
+                             <TextBlock Text="{Binding SelectedMemberDetail.GuardianInfoLabel}" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
+                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto" Margin="10,0,0,0">
+                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SelectedMemberDetail.GuardianFirstNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GuardianFirstName}" VerticalAlignment="Center" />
+
+                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SelectedMemberDetail.GuardianLastNameLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GuardianLastName}" VerticalAlignment="Center" />
+
+                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding SelectedMemberDetail.GuardianGovIdLabel}" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold" />
+                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMemberDetail.Member.GuardianGovId}" VerticalAlignment="Center" />
+                             </Grid>
+                         </StackPanel>
+                     </Border>
+
+                     <!-- Visit History -->
+                     <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10">
+                         <StackPanel Margin="10">
+                             <TextBlock Text="{Binding SelectedMemberDetail.VisitHistoryLabel}" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
+                             <ListBox ItemsSource="{Binding SelectedMemberDetail.Visits}" Margin="10,0,0,0" Height="200">
+                                 <ListBox.ItemTemplate>
+                                     <DataTemplate>
+                                         <StackPanel Orientation="Horizontal" Spacing="10">
+                                             <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="150" />
+                                             <TextBlock Text="Visit logged" />
+                                         </StackPanel>
+                                     </DataTemplate>
+                                 </ListBox.ItemTemplate>
+                             </ListBox>
+                         </StackPanel>
+                     </Border>
+                 </StackPanel>
+             </Border>
+
+              <!-- Error Message Display -->
+              <Border Background="#FFF0F0" BorderBrush="Red" BorderThickness="1" CornerRadius="4" Margin="0,10,0,0" Padding="10"
+                     IsVisible="{Binding SelectedMemberDetail.ErrorMessage, Converter={x:Static conv:StringNotEmptyConverter.Instance}}">
+                  <TextBlock Text="{Binding SelectedMemberDetail.ErrorMessage}"
+                            Foreground="Red"
+                            FontWeight="Bold"
+                            TextWrapping="Wrap" />
+              </Border>
+
+              <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,20,0,0">
+                  <Button Content="{Binding SelectedMemberDetail.SaveLabel}" Command="{Binding SelectedMemberDetail.Save}" IsVisible="{Binding SelectedMemberDetail.IsEditing}" />
+                  <Button Content="{Binding SelectedMemberDetail.CancelLabel}" Command="{Binding SelectedMemberDetail.Cancel}" />
+                  <Button Content="{Binding SelectedMemberDetail.LogVisitLabel}" Command="{Binding SelectedMemberDetail.LogVisit}" IsVisible="{Binding !SelectedMemberDetail.IsEditing}" />
+                  <Button Content="{Binding SelectedMemberDetail.DeleteLabel}" Command="{Binding SelectedMemberDetail.Delete}" IsVisible="{Binding !SelectedMemberDetail.IsEditing}" />
+              </StackPanel>
+
+             <!-- Delete Confirmation Dialog -->
+             <Popup IsOpen="{Binding SelectedMemberDetail.ShowDeleteConfirmation}" Placement="Center" IsLightDismissEnabled="True" HorizontalOffset="0" VerticalOffset="0" Opened="OnPopupOpened">
+                 <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="2" CornerRadius="8" Padding="20" MinWidth="300">
+                     <StackPanel Spacing="15" HorizontalAlignment="Center">
+                         <TextBlock Text="{Binding SelectedMemberDetail.ConfirmDeleteMessage}" FontSize="16" TextAlignment="Center" />
+                         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                             <Button x:Name="YesButton" Content="Yes" Command="{Binding SelectedMemberDetail.ConfirmDelete}" Background="Red" Foreground="White" />
+                             <Button Content="No" Command="{Binding SelectedMemberDetail.CancelDelete}" />
+                         </StackPanel>
+                     </StackPanel>
+                 </Border>
+             </Popup>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

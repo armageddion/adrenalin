@@ -1,0 +1,55 @@
+   <UserControl xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:conv="using:Adrenalin.Converters"
+               xmlns:views="using:Adrenalin.Views"
+               xmlns:vm="using:Adrenalin.ViewModels"
+                x:Class="Adrenalin.Views.PackagesView" x:DataType="vm:PackagesViewModel">
+     <UserControl.Resources>
+         <conv:StringEqualsConverter x:Key="StringEqualsConverter" />
+         <conv:Int32GreaterThanConverter x:Key="Int32GreaterThanConverter" />
+         <conv:Int32LessThanConverter x:Key="Int32LessThanConverter" />
+     </UserControl.Resources>
+   <Grid>
+     <Grid.RowDefinitions>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="*"/>
+     </Grid.RowDefinitions>
+
+     <!-- Actions for List View -->
+     <StackPanel Grid.Row="0" Margin="20,20,20,10" Spacing="10" Orientation="Horizontal" IsVisible="{Binding CurrentView, Converter={StaticResource StringEqualsConverter}, ConverterParameter=list}">
+       <Button Content="{Binding AddPackageLabel}" Command="{Binding AddPackage}" />
+       <Button Content="Refresh" Command="{Binding LoadPackages}" />
+     </StackPanel>
+
+     <!-- Back Button for Detail -->
+     <Button Grid.Row="0" Content="{Binding BackToPackagesLabel}" Command="{Binding BackToList}" Margin="20" IsVisible="{Binding CurrentView, Converter={StaticResource StringEqualsConverter}, ConverterParameter=detail}" />
+
+      <!-- Packages List -->
+      <ListBox x:Name="PackagesList" Grid.Row="1" Margin="20,0,20,20"
+               ItemsSource="{Binding Packages}"
+               SelectedItem="{Binding SelectedPackage}"
+               IsVisible="{Binding CurrentView, Converter={StaticResource StringEqualsConverter}, ConverterParameter=list}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Spacing="5" Orientation="Horizontal">
+              <StackPanel Spacing="5">
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                <TextBlock Text="{Binding Price, Converter={x:Static conv:PriceConverter.Instance}}" />
+                <TextBlock Text="{Binding Description}" />
+              </StackPanel>
+              <StackPanel Spacing="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                <Button Content="{Binding $parent[ItemsControl].DataContext.EditLabel}" Command="{Binding $parent[ItemsControl].DataContext.EditPackage}" CommandParameter="{Binding}" />
+                <Button Content="{Binding $parent[ItemsControl].DataContext.DeleteLabel}" Command="{Binding $parent[ItemsControl].DataContext.DeletePackage}" CommandParameter="{Binding}" />
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- Package Detail -->
+      <views:PackageDetailView x:Name="PackageDetail" Grid.Row="1" IsVisible="{Binding IsDetailVisible}" />
+
+     <!-- Loading Indicator -->
+     <TextBlock Grid.Row="1" Text="Loading..." IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+   </Grid>
+ </UserControl>

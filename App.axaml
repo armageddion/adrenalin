@@ -1,0 +1,22 @@
+<Application xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:local="using:Adrenalin.Converters"
+               xmlns:views="using:Adrenalin.Views"
+               xmlns:vm="using:Adrenalin.ViewModels"
+              x:Class="Adrenalin.App">
+   <Application.Resources>
+     <local:StringEqualsConverter x:Key="StringEqualsConverter" />
+     <local:Int32GreaterThanConverter x:Key="Int32GreaterThanConverter" />
+     <local:Int32LessThanConverter x:Key="Int32LessThanConverter" />
+   </Application.Resources>
+
+   <Application.Styles>
+     <FluentTheme />
+     <Style Selector="Border.dashboard-card">
+       <Setter Property="CornerRadius" Value="8"/>
+       <Setter Property="Margin" Value="5"/>
+       <Setter Property="Padding" Value="15"/>
+       <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
+     </Style>
+   </Application.Styles>
+</Application>

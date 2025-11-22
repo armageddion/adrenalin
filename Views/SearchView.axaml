@@ -1,0 +1,104 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Adrenalin.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+        x:Class="Adrenalin.Views.SearchView"
+        x:DataType="vm:SearchViewModel"
+        Title="Search Members"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        SizeToContent="WidthAndHeight">
+
+    <Design.DataContext>
+        <vm:SearchViewModel/>
+    </Design.DataContext>
+
+        <Window.KeyBindings>
+            <KeyBinding Gesture="Escape" Command="{Binding CloseCommand}" />
+            <KeyBinding Gesture="Enter" Command="{Binding SelectMemberCommand}" CommandParameter="{Binding SelectedMember}" />
+        </Window.KeyBindings>
+
+    <Grid Margin="20" Width="500">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Search Input -->
+        <TextBox x:Name="SearchInput"
+                 Grid.Row="0"
+                 Text="{Binding SearchQuery}"
+                 Watermark="{Binding SearchPlaceholder}"
+                 Margin="0,0,0,10"
+                 FontSize="14">
+            <TextBox.KeyBindings>
+                <KeyBinding Gesture="Down" Command="{Binding NavigateDownCommand}" />
+                <KeyBinding Gesture="Up" Command="{Binding NavigateUpCommand}" />
+            </TextBox.KeyBindings>
+        </TextBox>
+
+        <!-- Results -->
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                MaxHeight="300">
+
+            <ScrollViewer>
+                <ListBox ItemsSource="{Binding SearchResults}"
+                         SelectedItem="{Binding SelectedMember}"
+                         Background="Transparent"
+                         BorderThickness="0">
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Button Background="Transparent"
+                                    BorderThickness="0"
+                                    HorizontalContentAlignment="Stretch"
+                                    Command="{Binding $parent[Window].DataContext.SelectMemberCommand}"
+                                    CommandParameter="{Binding}">
+
+                                <Grid Margin="10,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Image Grid.Column="0"
+                                           Source="{Binding Image}"
+                                           Width="40"
+                                           Height="40"
+                                           Margin="0,0,10,0"
+                                           VerticalAlignment="Center" />
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding FirstName}" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding LastName}" />
+                                        <TextBlock Text="{Binding CardId}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Loading/No Results -->
+        <TextBlock Grid.Row="1"
+                   Text="{Binding SearchingMessage}"
+                   IsVisible="{Binding IsLoading}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+
+        <TextBlock Grid.Row="1"
+                   Text="{Binding NoResultsMessage}"
+                   IsVisible="{Binding !HasResults}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    </Grid>
+</Window>

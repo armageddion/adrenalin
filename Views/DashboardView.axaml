@@ -1,0 +1,64 @@
+ <UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Adrenalin.ViewModels"
+              x:Class="Adrenalin.Views.DashboardView" x:DataType="vm:DashboardViewModel">
+  <Grid>
+    <ScrollViewer>
+      <StackPanel Margin="20" Spacing="20">
+        <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,20,0,0">
+           <!-- New Members Last 30 Days -->
+           <Border Grid.Row="0" Grid.Column="0" Classes="dashboard-card">
+             <StackPanel>
+               <TextBlock Text="{Binding NewMembersLabel}" FontSize="16" FontWeight="SemiBold"/>
+               <TextBlock Text="{Binding NewMembers30Days}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}"/>
+             </StackPanel>
+           </Border>
+
+           <!-- Visits Today -->
+           <Border Grid.Row="0" Grid.Column="1" Classes="dashboard-card">
+             <StackPanel>
+               <TextBlock Text="{Binding VisitsTodayLabel}" FontSize="16" FontWeight="SemiBold"/>
+               <TextBlock Text="{Binding VisitsToday}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}"/>
+             </StackPanel>
+           </Border>
+
+           <!-- Visits Last 7 Days -->
+           <Border Grid.Row="0" Grid.Column="2" Classes="dashboard-card">
+             <StackPanel>
+               <TextBlock Text="{Binding VisitsLast7DaysLabel}" FontSize="16" FontWeight="SemiBold"/>
+               <TextBlock Text="{Binding VisitsLast7Days}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}"/>
+             </StackPanel>
+           </Border>
+
+           <!-- Visits Previous 7 Days -->
+           <Border Grid.Row="1" Grid.Column="0" Classes="dashboard-card">
+             <StackPanel>
+               <TextBlock Text="{Binding FromPrevious7Days}" FontSize="16" FontWeight="SemiBold"/>
+               <TextBlock Text="{Binding VisitsPrevious7Days}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}"/>
+             </StackPanel>
+           </Border>
+
+           <!-- Visits Last 30 Days -->
+           <Border Grid.Row="1" Grid.Column="1" Classes="dashboard-card">
+             <StackPanel>
+               <TextBlock Text="{Binding VisitsLast30DaysLabel}" FontSize="16" FontWeight="SemiBold"/>
+               <TextBlock Text="{Binding VisitsLast30Days}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}"/>
+             </StackPanel>
+           </Border>
+
+           <!-- Visits Previous 30 Days -->
+           <Border Grid.Row="1" Grid.Column="2" Classes="dashboard-card">
+             <StackPanel>
+               <TextBlock Text="{Binding FromPrevious30Days}" FontSize="16" FontWeight="SemiBold"/>
+               <TextBlock Text="{Binding VisitsPrevious30Days}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}"/>
+             </StackPanel>
+           </Border>
+         </Grid>
+
+        <Button Content="Refresh Stats" Command="{Binding LoadStats}" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

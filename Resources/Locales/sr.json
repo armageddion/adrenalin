@@ -1,0 +1,218 @@
+{
+  "app": {
+    "name": "Adrenalin"
+  },
+  "nav": {
+    "home": "Početna",
+    "members": "Članovi",
+    "visits": "Posete",
+    "packages": "Paketi",
+    "searchPlaceholder": "Pretraži članove...",
+    "cardIdQuery": "Upit ID kartice",
+    "enterCardId": "Unesite ID kartice",
+    "query": "Upit",
+    "cancel": "Otkaži",
+    "settings": {
+      "title": "Podešavanja"
+    }
+  },
+  "settings": {
+    "title": "Podešavanja",
+    "theme": "Režim",
+    "lightMode": "Svetli režim",
+    "darkMode": "Tamni režim",
+    "language": "Jezik",
+    "english": "Engleski",
+    "serbian": "Srpski",
+    "resendApiKey": "Resend API Ključ"
+  },
+   "languages": {
+     "en": "Engleski",
+     "sr": "Srpski"
+   },
+   "themes": {
+     "light": "Svetla",
+     "dark": "Tamna"
+   },
+  "welcome": "Dobrodošli",
+  "home": "Početna",
+  "about": "O nama",
+  "contact": "Kontakt",
+     "save": "Sačuvaj",
+     "reset": "Resetuj",
+     "cancel": "Otkaži",
+  "delete": "Obriši",
+  "loading": "Učitavanje...",
+  "error": "Greška",
+  "success": "Uspeh",
+  "image": "Slika",
+    "buttons": {
+      "login": "Prijava",
+      "logout": "Odjava",
+      "register": "Registracija",
+      "logVisit": "Zabeleži posetu",
+       "backToMembers": "Nazad na članove",
+       "backToPackages": "Nazad na pakete",
+       "addMember": "Dodaj člana",
+       "addPackage": "Dodaj paket",
+      "editMember": "Izmeni člana",
+      "delete": "Obriši",
+      "save": "Sačuvaj",
+      "reset": "Resetuj",
+      "cancel": "Otkaži",
+      "search": "Pretraži",
+      "new": "Novo",
+      "edit": "Izmeni",
+      "view": "Pogledaj",
+      "browse": "Pretraži..."
+    },
+  "labels": {
+    "cardId": "ID kartice",
+    "email": "Email",
+    "phone": "Telefon",
+    "govId": "JMBG",
+    "expiryDate": "Datum isteka",
+    "lastUpdated": "Poslednja izmena",
+    "name": "Ime",
+    "price": "Cena",
+    "firstName": "Ime",
+    "lastName": "Prezime",
+    "package": "Paket",
+    "notes": "Beleške",
+    "visitDate": "Datum posete",
+    "createdAt": "Kreirano"
+  },
+  "messages": {
+    "memberNotFound": "Član nije pronađen",
+    "packageNotFound": "Paket nije pronađen",
+    "noMembers": "Nema članova",
+    "noVisits": "Nema poseta",
+    "noPackages": "Nema paketa",
+    "confirmDelete": "Da li ste sigurni?",
+    "visitLogged": "Poseta zabeležena za {0}"
+  },
+  "address": {
+    "street": "Ulica",
+    "number": "Broj",
+    "city": "Grad"
+  },
+   "components": {
+      "settings": {
+        "title": "Podešavanja",
+        "theme": "Tema",
+        "language": "Jezik",
+        "emailApiKey": "API ključ za email",
+        "databasePath": "Putanja baze podataka",
+        "apiPort": "Port API servera",
+        "networkAccess": "Pristup mobilnoj registraciji",
+        "networkAccessDescription": "Podelite ove URL-ove sa korisnicima da pristupe mobilnom formularu za registraciju sa bilo kog uređaja:",
+        "networkAccessNote": "Proverite da vaš firewall dozvoljava konekcije na konfigurisanom portu."
+      },
+     "members": {
+      "title": "Članovi",
+      "searchPlaceholder": "Pretraži članove...",
+      "name": "Ime",
+      "email": "Email",
+      "actions": "Akcije"
+    },
+    "visits": {
+      "title": "Nedavne posete",
+      "member": "Član",
+      "date": "Datum",
+      "notes": "Beleške"
+    },
+    "dashboard": {
+      "title": "Kontrolna tabla",
+      "welcome": "Dobrodošli u Adrenalin CRM sistem. Koristite navigaciju iznad za upravljanje članovima, paketima i posetama.",
+      "newMembers": "Novi članovi (poslednjih 30 dana)",
+      "visitsToday": "Posete danas",
+      "visitsLast7Days": "Posete (poslednjih 7 dana)",
+      "visitsLast30Days": "Posete (poslednjih 30 dana)",
+      "fromPrevious7Days": "od prethodnih 7 dana",
+      "fromPrevious30Days": "od prethodnih 30 dana"
+    },
+    "searchResults": {
+      "edit": "Izmeni",
+      "delete": "Obriši"
+    },
+    "memberCard": {
+      "cardId": "ID kartice",
+      "lastUpdated": "Poslednja izmena"
+    },
+    "memberForm": {
+      "addTitle": "Dodaj člana",
+      "editTitle": "Izmeni člana",
+      "firstName": "Ime",
+      "lastName": "Prezime",
+      "email": "Email",
+      "phone": "Telefon",
+      "cardId": "ID kartice",
+      "govId": "JMBG",
+      "package": "Paket",
+      "expiryDate": "Datum isteka",
+      "expiry1Month": "1 Mesec",
+      "expiry6Months": "6 Meseci",
+      "expiry1Year": "1 Godina",
+      "cameraStart": "Pokreni Kameru",
+      "cameraCapture": "Snimi",
+      "cameraStop": "Zaustavi Kameru",
+      "cameraKeep": "Zadrži Novu Sliku",
+      "cameraRevert": "Vrati na Original",
+      "guardianFirstName": "Ime Staratelja",
+      "guardianLastName": "Prezime Staratelja",
+      "guardianGovId": "JMBG Staratelja",
+      "create": "Kreiraj",
+      "update": "Ažuriraj",
+      "cancel": "Otkaži",
+      "isGuardian": "Da li je staratelj?",
+      "hasGuardian": "Ima staratelja?",
+      "sendNotifications": "Šalji obaveštenja",
+      "year_of_birth": "Godina rođenja"
+    },
+    "packageList": {
+      "title": "Paketi",
+      "edit": "Izmeni",
+      "delete": "Obriši"
+    },
+    "packageForm": {
+      "addTitle": "Dodaj paket",
+      "editTitle": "Izmeni paket",
+      "name": "Ime",
+      "description": "Opis",
+      "price": "Cena",
+      "create": "Kreiraj",
+      "update": "Ažuriraj",
+      "cancel": "Otkaži"
+    }
+  },
+  "placeholders": {
+    "searchMembers": "Pretraži članove..."
+  },
+   "search": {
+     "placeholder": "Pretraži članove...",
+     "noResults": "Nema pronađenih članova",
+     "searching": "Pretraživanje..."
+   },
+   "register": {
+     "title": "Registracija",
+     "firstName": "Ime",
+     "lastName": "Prezime",
+     "email": "Email",
+     "phone": "Telefon",
+     "cardId": "Broj kartice",
+     "govId": "JMBG",
+     "package": "Paket",
+     "expiresAt": "Ističe",
+     "notes": "Napomene",
+     "address": "Adresa",
+     "guardian": "Potreban staratelj",
+     "guardianFirstName": "Ime staratelja",
+     "guardianLastName": "Prezime staratelja",
+     "guardianGovId": "JMBG staratelja",
+     "notify": "Pošalji obaveštenja",
+     "yearOfBirth": "Godina rođenja",
+     "signature": "Potpis",
+     "register": "Registruj člana",
+     "clearSignature": "Obriši potpis"
+   }
+}

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adrenalin", "Adrenalin.csproj", "{AFA6C5E0-9E1A-4547-AD9F-4A6F9DB77D49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adrenalin.Tests", "Adrenalin.Tests\Adrenalin.Tests.csproj", "{E4941BC7-CB7D-43EB-85FD-06F86E71CDFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFA6C5E0-9E1A-4547-AD9F-4A6F9DB77D49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFA6C5E0-9E1A-4547-AD9F-4A6F9DB77D49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFA6C5E0-9E1A-4547-AD9F-4A6F9DB77D49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFA6C5E0-9E1A-4547-AD9F-4A6F9DB77D49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4941BC7-CB7D-43EB-85FD-06F86E71CDFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4941BC7-CB7D-43EB-85FD-06F86E71CDFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4941BC7-CB7D-43EB-85FD-06F86E71CDFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4941BC7-CB7D-43EB-85FD-06F86E71CDFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
