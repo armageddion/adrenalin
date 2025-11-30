@@ -32,17 +32,27 @@ public class GymService
         public string? DatabasePath { get; set; }
     }
 
-
+    private async Task<bool> CheckDatabaseIntegrityAsync()
+    {
+        try
+        {
+            using var conn = new SqliteConnection(_connectionString);
+            await conn.OpenAsync();
+            using var integrityCmd = conn.CreateCommand();
+            integrityCmd.CommandText = "PRAGMA integrity_check;";
+            var integrityResult = await integrityCmd.ExecuteScalarAsync();
+            return integrityResult?.ToString() == "ok";
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     private async Task EnsureTableExistsAsync()
     {
         using var conn = new SqliteConnection(_connectionString);
         await conn.OpenAsync();
-
-        // Enable Write-Ahead Logging for better concurrency
-        using var walCmd = conn.CreateCommand();
-        walCmd.CommandText = "PRAGMA journal_mode = WAL;";
-        await walCmd.ExecuteNonQueryAsync();
 
         // Check if tables already exist (e.g., from uploaded database)
         using var checkCmd = conn.CreateCommand();
@@ -101,6 +111,17 @@ public class GymService
         if (!string.IsNullOrEmpty(dbDirectory))
         {
             Directory.CreateDirectory(dbDirectory);
+        }
+
+        // Check database integrity before proceeding
+        if (!await CheckDatabaseIntegrityAsync())
+        {
+            // Database is corrupted, backup and recreate
+            var backupPath = _dbPath + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
+            if (File.Exists(_dbPath))
+            {
+                File.Move(_dbPath, backupPath);
+            }
         }
 
         await EnsureTableExistsAsync();
