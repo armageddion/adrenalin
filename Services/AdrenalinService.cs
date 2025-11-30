@@ -630,11 +630,11 @@ public class GymService
             AddressStreet = reader.IsDBNull(reader.GetOrdinal("address_street")) ? null : reader.GetString(reader.GetOrdinal("address_street")),
             AddressNumber = reader.IsDBNull(reader.GetOrdinal("address_number")) ? null : reader.GetString(reader.GetOrdinal("address_number")),
             AddressCity = reader.IsDBNull(reader.GetOrdinal("address_city")) ? null : reader.GetString(reader.GetOrdinal("address_city")),
-            Guardian = reader.GetBoolean(reader.GetOrdinal("guardian")),
+            Guardian = reader.IsDBNull(reader.GetOrdinal("guardian")) ? false : reader.GetBoolean(reader.GetOrdinal("guardian")),
             GuardianFirstName = reader.IsDBNull(reader.GetOrdinal("guardian_first_name")) ? null : reader.GetString(reader.GetOrdinal("guardian_first_name")),
             GuardianLastName = reader.IsDBNull(reader.GetOrdinal("guardian_last_name")) ? null : reader.GetString(reader.GetOrdinal("guardian_last_name")),
             GuardianGovId = reader.IsDBNull(reader.GetOrdinal("guardian_gov_id")) ? null : reader.GetString(reader.GetOrdinal("guardian_gov_id")),
-            Notify = reader.GetBoolean(reader.GetOrdinal("notify")),
+            Notify = reader.IsDBNull(reader.GetOrdinal("notify")) ? true : reader.GetBoolean(reader.GetOrdinal("notify")),
             YearOfBirth = reader.IsDBNull(reader.GetOrdinal("year_of_birth")) ? 0 : reader.GetInt32(reader.GetOrdinal("year_of_birth")),
             PackageOld = reader.IsDBNull(reader.GetOrdinal("package_old")) ? null : reader.GetString(reader.GetOrdinal("package_old")),
             Signature = GetSignatureSafe(reader)
