@@ -12,6 +12,8 @@ obj/
 *.db
 *.db-shm
 *.db-wal
+.bak/migration/script/*
+PGPASSORD.txt
 
 # OS
 .DS_Store
