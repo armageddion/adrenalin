@@ -1,49 +1,50 @@
 <Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AvaloniaGenerateAssemblyInfo>false</AvaloniaGenerateAssemblyInfo>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AvaloniaGenerateAssemblyInfo>false</AvaloniaGenerateAssemblyInfo>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<ItemGroup>
+		<Content Include="Database\**" CopyToOutputDirectory="PreserveNewest"
+			CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="Resources\Locales\*.json" CopyToOutputDirectory="PreserveNewest"
+			CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="wwwroot\**" CopyToOutputDirectory="PreserveNewest"
+			CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
 
-  </PropertyGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Locales\*.json" />
+		<EmbeddedResource Include="wwwroot\**" />
+	</ItemGroup>
 
+	<ItemGroup>
+		<Compile Remove="Adrenalin.Tests\**" />
+	</ItemGroup>
 
-
-  <ItemGroup>
-    <Content Include="Database\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="Resources\Locales\*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="wwwroot\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Locales\*.json" />
-    <EmbeddedResource Include="wwwroot\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Adrenalin.Tests\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.9" />
-     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
-      <PackageReference Include="FlashCap" Version="1.11.0" />
-      <PackageReference Include="SkiaSharp" Version="2.88.9" />
-      <PackageReference Include="Serilog" Version="4.0.0" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-      <FrameworkReference Include="Microsoft.AspNetCore.App" />
-
-   </ItemGroup>
-
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.3.9" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.9" />
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
+		<PackageReference Include="FlashCap" Version="1.11.0" />
+		<PackageReference Include="SkiaSharp" Version="2.88.9" />
+		<PackageReference Include="Serilog" Version="4.0.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 </Project>

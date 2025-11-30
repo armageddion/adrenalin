@@ -5,7 +5,7 @@ using Adrenalin;
 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
 static AppBuilder BuildAvaloniaApp()
-    => AppBuilder.Configure<App>()
-        .UsePlatformDetect()
-        .UseReactiveUI()
-        .LogToTrace();
+	=> AppBuilder.Configure<App>()
+		.UsePlatformDetect()
+		.UseReactiveUI()
+		.LogToTrace();

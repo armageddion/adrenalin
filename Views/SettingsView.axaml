@@ -1,68 +1,77 @@
-  <UserControl xmlns="https://github.com/avaloniaui"
-               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-               xmlns:vm="using:Adrenalin.ViewModels"
-                x:Class="Adrenalin.Views.SettingsView" x:DataType="vm:SettingsViewModel">
-    <Grid Margin="20">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:Adrenalin.ViewModels"
+	x:Class="Adrenalin.Views.SettingsView" x:DataType="vm:SettingsViewModel">
+	<Grid Margin="20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
 
-      <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" />
+		<TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="24" FontWeight="Bold"
+			Margin="0,0,0,20" />
 
-      <ScrollViewer Grid.Row="1">
-        <StackPanel Spacing="20">
-          <!-- Theme Selection -->
-          <StackPanel Spacing="10">
-            <TextBlock Text="{Binding ThemeLabel}" FontWeight="SemiBold" />
-            <ComboBox ItemsSource="{Binding AvailableThemes}" SelectedItem="{Binding SelectedTheme}" />
-          </StackPanel>
+		<ScrollViewer Grid.Row="1">
+			<StackPanel Spacing="20">
+				<!-- Theme Selection -->
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding ThemeLabel}" FontWeight="SemiBold" />
+					<ComboBox ItemsSource="{Binding AvailableThemes}"
+						SelectedItem="{Binding SelectedTheme}" />
+				</StackPanel>
 
-          <!-- Language Selection -->
-          <StackPanel Spacing="10">
-            <TextBlock Text="{Binding LanguageLabel}" FontWeight="SemiBold" />
-            <ComboBox ItemsSource="{Binding AvailableLanguages}" SelectedItem="{Binding SelectedLanguage}" />
-          </StackPanel>
+				<!-- Language Selection -->
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding LanguageLabel}" FontWeight="SemiBold" />
+					<ComboBox ItemsSource="{Binding AvailableLanguages}"
+						SelectedItem="{Binding SelectedLanguage}" />
+				</StackPanel>
 
-           <!-- Email API Key -->
-           <StackPanel Spacing="10">
-             <TextBlock Text="{Binding EmailApiKeyLabel}" FontWeight="SemiBold" />
-             <TextBox Text="{Binding EmailApiKey}" Watermark="Enter your Resend API key" />
-           </StackPanel>
+				<!-- Email API Key -->
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding EmailApiKeyLabel}" FontWeight="SemiBold" />
+					<TextBox Text="{Binding EmailApiKey}" Watermark="Enter your Resend API key" />
+				</StackPanel>
 
-            <!-- Database Path -->
-            <StackPanel Spacing="10">
-              <TextBlock Text="{Binding DatabasePathLabel}" FontWeight="SemiBold" />
-              <Grid ColumnDefinitions="*, Auto">
-                <TextBox Grid.Column="0" Text="{Binding DatabasePath}" Watermark="Leave empty to use default location" />
-                <Button Grid.Column="1" Content="{Binding BrowseButtonLabel}" Command="{Binding BrowseDatabasePath}" Margin="5,0,0,0" />
-              </Grid>
-            </StackPanel>
+				<!-- Database Path -->
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding DatabasePathLabel}" FontWeight="SemiBold" />
+					<Grid ColumnDefinitions="*, Auto">
+						<TextBox Grid.Column="0" Text="{Binding DatabasePath}"
+							Watermark="Leave empty to use default location" />
+						<Button Grid.Column="1" Content="{Binding BrowseButtonLabel}"
+							Command="{Binding BrowseDatabasePath}" Margin="5,0,0,0" />
+					</Grid>
+				</StackPanel>
 
-             <!-- API Port -->
-             <StackPanel Spacing="10">
-               <TextBlock Text="{Binding ApiPortLabel}" FontWeight="SemiBold" />
-               <NumericUpDown Value="{Binding ApiPort}" Minimum="1024" Maximum="65535" />
-             </StackPanel>
+				<!-- API Port -->
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding ApiPortLabel}" FontWeight="SemiBold" />
+					<NumericUpDown Value="{Binding ApiPort}" Minimum="1024" Maximum="65535" />
+				</StackPanel>
 
-             <!-- Network Access Information -->
-             <StackPanel Spacing="10">
-               <TextBlock Text="{Binding NetworkAccessLabel}" FontWeight="SemiBold" />
-               <TextBlock Text="{Binding NetworkAccessDescription}" FontSize="12" Foreground="#666666" />
-               <TextBox Text="{Binding NetworkAccessInfo}" IsReadOnly="True" FontFamily="Monospace" />
-               <TextBlock Text="{Binding NetworkAccessNote}" FontSize="12" Foreground="#666666" />
-             </StackPanel>
-        </StackPanel>
-      </ScrollViewer>
+				<!-- Network Access Information -->
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding NetworkAccessLabel}" FontWeight="SemiBold" />
+					<TextBlock Text="{Binding NetworkAccessDescription}" FontSize="12"
+						Foreground="#666666" />
+					<TextBox Text="{Binding NetworkAccessInfo}" IsReadOnly="True"
+						FontFamily="Monospace" />
+					<TextBlock Text="{Binding NetworkAccessNote}" FontSize="12" Foreground="#666666" />
+				</StackPanel>
+			</StackPanel>
+		</ScrollViewer>
 
-      <!-- Action Buttons -->
-      <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-        <Button Content="{Binding ResetButtonLabel}" Command="{Binding ResetSettings}" />
-        <Button Content="{Binding SaveButtonLabel}" Command="{Binding SaveSettings}" Background="#2D3748" Foreground="White" />
-      </StackPanel>
+		<!-- Action Buttons -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+			<Button Content="{Binding ResetButtonLabel}" Command="{Binding ResetSettings}" />
+			<Button Content="{Binding SaveButtonLabel}" Command="{Binding SaveSettings}"
+				Background="#2D3748" Foreground="White" />
+		</StackPanel>
 
-      <!-- Loading Indicator -->
-      <TextBlock Grid.Row="1" Text="Saving..." IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-    </Grid>
-  </UserControl>
+		<!-- Loading Indicator -->
+		<TextBlock Grid.Row="1" Text="Saving..." IsVisible="{Binding IsLoading}"
+			HorizontalAlignment="Center" VerticalAlignment="Center" />
+	</Grid>
+</UserControl>

@@ -9,33 +9,33 @@ namespace Adrenalin.Views;
 
 public partial class SearchView : Window
 {
-    public SearchView()
-    {
-        InitializeComponent();
-    }
+	public SearchView()
+	{
+		InitializeComponent();
+	}
 
-    public SearchView(SearchViewModel viewModel) : this()
-    {
-        DataContext = viewModel;
-        viewModel.WhenAnyValue(x => x.IsVisible)
-            .Subscribe(visible =>
-            {
-                if (!visible)
-                {
-                    Close();
-                }
-            });
+	public SearchView(SearchViewModel viewModel) : this()
+	{
+		DataContext = viewModel;
+		viewModel.WhenAnyValue(x => x.IsVisible)
+			.Subscribe(visible =>
+			{
+				if (!visible)
+				{
+					Close();
+				}
+			});
 
-        // Auto-focus the search input when opened
-        Opened += (s, e) =>
-        {
-            var textBox = this.FindControl<TextBox>("SearchInput");
-            textBox?.Focus();
-        };
-    }
+		// Auto-focus the search input when opened
+		Opened += (s, e) =>
+		{
+			var textBox = this.FindControl<TextBox>("SearchInput");
+			textBox?.Focus();
+		};
+	}
 
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
+	private void InitializeComponent()
+	{
+		AvaloniaXamlLoader.Load(this);
+	}
 }

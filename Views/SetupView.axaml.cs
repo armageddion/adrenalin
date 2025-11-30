@@ -7,16 +7,21 @@ namespace Adrenalin.Views;
 
 public partial class SetupView : Window
 {
-    public SetupView(ConfigurationService configurationService)
-    {
-        InitializeComponent();
-        var service = new GymService(configurationService);
-        var vm = new SetupViewModel(service, this, configurationService);
-        DataContext = vm;
-    }
+	public SetupView()
+	{
+		throw new System.NotSupportedException("Use the parameterized constructor for dependency injection.");
+	}
 
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
+	public SetupView(ConfigurationService configurationService)
+	{
+		InitializeComponent();
+		var service = new GymService(configurationService);
+		var vm = new SetupViewModel(service, this, configurationService);
+		DataContext = vm;
+	}
+
+	private void InitializeComponent()
+	{
+		AvaloniaXamlLoader.Load(this);
+	}
 }

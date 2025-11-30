@@ -7,13 +7,13 @@ namespace Adrenalin.Views;
 
 public partial class PackageDetailView : UserControl
 {
-    public PackageDetailView()
-    {
-        InitializeComponent();
-    }
+	public PackageDetailView()
+	{
+		InitializeComponent();
+	}
 
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
+	private void InitializeComponent()
+	{
+		AvaloniaXamlLoader.Load(this);
+	}
 }

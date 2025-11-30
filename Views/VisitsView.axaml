@@ -1,48 +1,64 @@
- <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:Adrenalin.ViewModels"
-              x:Class="Adrenalin.Views.VisitsView" x:DataType="vm:VisitsViewModel">
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="using:Adrenalin.Converters"
+	xmlns:vm="using:Adrenalin.ViewModels"
+	x:Class="Adrenalin.Views.VisitsView" x:DataType="vm:VisitsViewModel">
+	<UserControl.Resources>
+		<local:Int32GreaterThanConverter x:Key="Int32GreaterThanConverter" />
+		<local:Int32LessThanConverter x:Key="Int32LessThanConverter" />
+	</UserControl.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
 
-      <!-- Log Visit Section -->
-      <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" CornerRadius="8" Margin="20,20,20,10" Padding="15">
-       <StackPanel Spacing="10">
-         <TextBlock Text="Log Visit" FontSize="18" FontWeight="SemiBold"/>
-         <StackPanel Orientation="Horizontal" Spacing="10">
-           <TextBox Text="{Binding CardId}" Watermark="Enter Card ID" Width="200" />
-           <Button Content="Log Visit" Command="{Binding LogVisit}" />
-           <Button Content="Refresh" Command="{Binding LoadVisits}" />
-         </StackPanel>
-       </StackPanel>
-     </Border>
+		<!-- Log Visit Section -->
+		<Border Grid.Row="0"
+			Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+			CornerRadius="8" Margin="20,20,20,10" Padding="15">
+			<StackPanel Spacing="10">
+				<TextBlock Text="Log Visit" FontSize="18" FontWeight="SemiBold" />
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<TextBox Text="{Binding CardId}" Watermark="Enter Card ID" Width="200" />
+					<Button Content="Log Visit" Command="{Binding LogVisit}" />
+					<Button Content="Refresh" Command="{Binding LoadVisits}" />
+				</StackPanel>
+			</StackPanel>
+		</Border>
 
-     <!-- Visits List -->
-     <ListBox Grid.Row="1" Margin="20,0,20,20" ItemsSource="{Binding Visits}">
-       <ListBox.ItemTemplate>
-         <DataTemplate>
-            <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" CornerRadius="5" Margin="5" Padding="10">
-             <StackPanel Spacing="5">
-               <TextBlock Text="{Binding MemberFirstName, StringFormat='Member: {0} {1}'}" FontWeight="Bold" />
-               <TextBlock Text="{Binding CreatedAt, StringFormat='Date: {0:g}'}" />
-               <TextBlock Text="{Binding Notes}" />
-             </StackPanel>
-           </Border>
-         </DataTemplate>
-       </ListBox.ItemTemplate>
-     </ListBox>
+		<!-- Visits List -->
+		<ListBox Grid.Row="1" Margin="20,0,20,20" ItemsSource="{Binding Visits}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+						BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+						BorderThickness="1" CornerRadius="5" Margin="5" Padding="10">
+						<StackPanel Spacing="5">
+							<TextBlock
+								Text="{Binding MemberFirstName, StringFormat='Member: {0} {1}'}"
+								FontWeight="Bold" />
+							<TextBlock Text="{Binding CreatedAt, StringFormat='Date: {0:g}'}" />
+							<TextBlock Text="{Binding Notes}" />
+						</StackPanel>
+					</Border>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
 
-    <!-- Loading Indicator -->
-    <TextBlock Grid.Row="1" Text="Loading..." IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+		<!-- Loading Indicator -->
+		<TextBlock Grid.Row="1" Text="Loading..." IsVisible="{Binding IsLoading}"
+			HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-    <!-- Pagination -->
-    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="20" Spacing="10">
-      <Button Content="Previous" Command="{Binding PreviousPage}" IsEnabled="{Binding CurrentPage, Converter={StaticResource Int32GreaterThanConverter}, ConverterParameter=1}" />
-      <TextBlock Text="{Binding CurrentPage, StringFormat='Page {0} of {1}'}" VerticalAlignment="Center" />
-      <Button Content="Next" Command="{Binding NextPage}" IsEnabled="{Binding CurrentPage, Converter={StaticResource Int32LessThanConverter}, ConverterParameter={Binding TotalPages}}" />
-    </StackPanel>
-  </Grid>
+		<!-- Pagination -->
+		<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="20"
+			Spacing="10">
+			<Button Content="Previous" Command="{Binding PreviousPage}"
+				IsEnabled="{Binding HasPreviousPage}" />
+			<TextBlock Text="{Binding CurrentPage, StringFormat='Page {0} of {1}'}"
+				VerticalAlignment="Center" />
+			<Button Content="Next" Command="{Binding NextPage}" IsEnabled="{Binding HasNextPage}" />
+		</StackPanel>
+	</Grid>
 </UserControl>

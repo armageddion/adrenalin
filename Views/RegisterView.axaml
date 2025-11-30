@@ -1,88 +1,106 @@
-   <UserControl xmlns="https://github.com/avaloniaui"
-               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-               xmlns:local="using:Adrenalin.Converters"
-               xmlns:vm="using:Adrenalin.ViewModels"
-               xmlns:controls="using:Adrenalin.Controls"
-                x:Class="Adrenalin.Views.RegisterView" x:DataType="vm:RegisterViewModel">
-     <UserControl.Resources>
-         <local:StringEqualsConverter x:Key="StringEqualsConverter" />
-     </UserControl.Resources>
-    <ScrollViewer>
-        <StackPanel Margin="20" Spacing="15" MaxWidth="600">
-            <!-- Title -->
-            <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" />
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="using:Adrenalin.Converters"
+	xmlns:vm="using:Adrenalin.ViewModels"
+	xmlns:controls="using:Adrenalin.Controls"
+	x:Class="Adrenalin.Views.RegisterView" x:DataType="vm:RegisterViewModel">
+	<UserControl.Resources>
+		<local:StringEqualsConverter x:Key="StringEqualsConverter" />
+	</UserControl.Resources>
+	<ScrollViewer>
+		<StackPanel Margin="20" Spacing="15" MaxWidth="600">
+			<!-- Title -->
+			<TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold"
+				HorizontalAlignment="Center" />
 
-            <!-- Basic Information -->
-            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Basic Information" FontWeight="Bold" FontSize="16" />
-                    <TextBox Text="{Binding FirstName}" Watermark="{Binding FirstNameLabel}" />
-                    <TextBox Text="{Binding LastName}" Watermark="{Binding LastNameLabel}" />
-                    <TextBox Text="{Binding Email}" Watermark="{Binding EmailLabel}" />
-                    <TextBox Text="{Binding Phone}" Watermark="{Binding PhoneLabel}" />
-                    <TextBox Text="{Binding CardId}" Watermark="{Binding CardIdLabel}" />
-                    <TextBox Text="{Binding GovId}" Watermark="{Binding GovIdLabel}" />
-                    <TextBox Text="{Binding YearOfBirth, StringFormat='\{0\}'}" Watermark="{Binding YearOfBirthLabel}" />
-                </StackPanel>
-            </Border>
+			<!-- Basic Information -->
+			<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10"
+				Margin="0,0,0,10">
+				<StackPanel Spacing="10">
+					<TextBlock Text="Basic Information" FontWeight="Bold" FontSize="16" />
+					<TextBox Text="{Binding FirstName}" Watermark="{Binding FirstNameLabel}" />
+					<TextBox Text="{Binding LastName}" Watermark="{Binding LastNameLabel}" />
+					<TextBox Text="{Binding Email}" Watermark="{Binding EmailLabel}" />
+					<TextBox Text="{Binding Phone}" Watermark="{Binding PhoneLabel}" />
+					<TextBox Text="{Binding CardId}" Watermark="{Binding CardIdLabel}" />
+					<TextBox Text="{Binding GovId}" Watermark="{Binding GovIdLabel}" />
+					<TextBox Text="{Binding YearOfBirth, StringFormat='\{0\}'}"
+						Watermark="{Binding YearOfBirthLabel}" />
+				</StackPanel>
+			</Border>
 
-            <!-- Package and Dates -->
-            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Package Information" FontWeight="Bold" FontSize="16" />
-                    <ComboBox ItemsSource="{Binding Packages}" SelectedValue="{Binding PackageId}" SelectedValueBinding="{Binding Id}" DisplayMemberBinding="{Binding Name}" />
-                    <CalendarDatePicker SelectedDate="{Binding ExpiresAt}" Watermark="{Binding ExpiresAtLabel}" />
-                </StackPanel>
-            </Border>
+			<!-- Package and Dates -->
+			<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10"
+				Margin="0,0,0,10">
+				<StackPanel Spacing="10">
+					<TextBlock Text="Package Information" FontWeight="Bold" FontSize="16" />
+					<ComboBox ItemsSource="{Binding Packages}" SelectedValue="{Binding PackageId}"
+						SelectedValueBinding="{Binding Id}" DisplayMemberBinding="{Binding Name}" />
+					<CalendarDatePicker SelectedDate="{Binding ExpiresAt}"
+						Watermark="{Binding ExpiresAtLabel}" />
+				</StackPanel>
+			</Border>
 
-            <!-- Address -->
-            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Address" FontWeight="Bold" FontSize="16" />
-                    <TextBox Text="{Binding AddressStreet}" Watermark="Street" />
-                    <TextBox Text="{Binding AddressNumber}" Watermark="Number" />
-                    <TextBox Text="{Binding AddressCity}" Watermark="City" />
-                </StackPanel>
-            </Border>
+			<!-- Address -->
+			<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10"
+				Margin="0,0,0,10">
+				<StackPanel Spacing="10">
+					<TextBlock Text="Address" FontWeight="Bold" FontSize="16" />
+					<TextBox Text="{Binding AddressStreet}" Watermark="Street" />
+					<TextBox Text="{Binding AddressNumber}" Watermark="Number" />
+					<TextBox Text="{Binding AddressCity}" Watermark="City" />
+				</StackPanel>
+			</Border>
 
-            <!-- Guardian Information -->
-            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Guardian Information" FontWeight="Bold" FontSize="16" />
-                    <CheckBox Content="{Binding GuardianLabel}" IsChecked="{Binding Guardian}" />
-                    <TextBox Text="{Binding GuardianFirstName}" Watermark="{Binding GuardianFirstNameLabel}" IsEnabled="{Binding Guardian}" />
-                    <TextBox Text="{Binding GuardianLastName}" Watermark="{Binding GuardianLastNameLabel}" IsEnabled="{Binding Guardian}" />
-                    <TextBox Text="{Binding GuardianGovId}" Watermark="{Binding GuardianGovIdLabel}" IsEnabled="{Binding Guardian}" />
-                </StackPanel>
-            </Border>
+			<!-- Guardian Information -->
+			<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10"
+				Margin="0,0,0,10">
+				<StackPanel Spacing="10">
+					<TextBlock Text="Guardian Information" FontWeight="Bold" FontSize="16" />
+					<CheckBox Content="{Binding GuardianLabel}" IsChecked="{Binding Guardian}" />
+					<TextBox Text="{Binding GuardianFirstName}"
+						Watermark="{Binding GuardianFirstNameLabel}" IsEnabled="{Binding Guardian}" />
+					<TextBox Text="{Binding GuardianLastName}"
+						Watermark="{Binding GuardianLastNameLabel}" IsEnabled="{Binding Guardian}" />
+					<TextBox Text="{Binding GuardianGovId}" Watermark="{Binding GuardianGovIdLabel}"
+						IsEnabled="{Binding Guardian}" />
+				</StackPanel>
+			</Border>
 
-            <!-- Additional Options -->
-            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Additional Options" FontWeight="Bold" FontSize="16" />
-                    <CheckBox Content="{Binding NotifyLabel}" IsChecked="{Binding Notify}" />
-                    <TextBox Text="{Binding Notes}" Watermark="{Binding NotesLabel}" AcceptsReturn="True" Height="60" />
-                </StackPanel>
-            </Border>
+			<!-- Additional Options -->
+			<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10"
+				Margin="0,0,0,10">
+				<StackPanel Spacing="10">
+					<TextBlock Text="Additional Options" FontWeight="Bold" FontSize="16" />
+					<CheckBox Content="{Binding NotifyLabel}" IsChecked="{Binding Notify}" />
+					<TextBox Text="{Binding Notes}" Watermark="{Binding NotesLabel}"
+						AcceptsReturn="True" Height="60" />
+				</StackPanel>
+			</Border>
 
-            <!-- Signature -->
-            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="{Binding SignatureLabel}" FontWeight="Bold" FontSize="16" />
-                    <!-- Signature Pad Control -->
-                    <controls:SignaturePad x:Name="SignaturePadControl" />
-                    <Button Content="{Binding ClearSignatureLabel}" Click="ClearSignatureClicked" HorizontalAlignment="Center" />
-                </StackPanel>
-            </Border>
+			<!-- Signature -->
+			<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10"
+				Margin="0,0,0,10">
+				<StackPanel Spacing="10">
+					<TextBlock Text="{Binding SignatureLabel}" FontWeight="Bold" FontSize="16" />
+					<!-- Signature Pad Control -->
+					<controls:SignaturePad x:Name="SignaturePadControl" />
+					<Button Content="{Binding ClearSignatureLabel}" Click="ClearSignatureClicked"
+						HorizontalAlignment="Center" />
+				</StackPanel>
+			</Border>
 
-            <!-- Register Button -->
-            <Button Content="{Binding RegisterButtonLabel}" x:Name="RegisterButton" HorizontalAlignment="Center" IsEnabled="{Binding !IsLoading}" />
+			<!-- Register Button -->
+			<Button Content="{Binding RegisterButtonLabel}" x:Name="RegisterButton"
+				HorizontalAlignment="Center" IsEnabled="{Binding !IsLoading}" />
 
-            <!-- Error Message -->
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" HorizontalAlignment="Center" Margin="0,10,0,0" />
+			<!-- Error Message -->
+			<TextBlock Text="{Binding ErrorMessage}" Foreground="Red" HorizontalAlignment="Center"
+				Margin="0,10,0,0" />
 
-            <!-- Loading Indicator -->
-            <TextBlock Text="Registering..." IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" />
-        </StackPanel>
-    </ScrollViewer>
-  </UserControl>
+			<!-- Loading Indicator -->
+			<TextBlock Text="Registering..." IsVisible="{Binding IsLoading}"
+				HorizontalAlignment="Center" />
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>
