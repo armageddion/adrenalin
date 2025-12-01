@@ -23,7 +23,8 @@
 		"darkMode": "Dark Mode",
 		"language": "Language",
 		"english": "English",
-		"serbian": "Serbian"
+		"serbian": "Serbian",
+		"resend": "Resend API Key"
 	},
 	"languages": {
 		"en": "English",

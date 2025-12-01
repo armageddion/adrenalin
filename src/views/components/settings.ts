@@ -86,7 +86,7 @@ export function Settings({ t, locale }: { t: TFn; locale: string }) {
 				</div>
 				<div>
 					<label class="block text-sm font-medium text-muted-foreground mb-2">
-						${t('settings.resendApiKey') || 'Resend API Key'}
+						${t('settings.resend') || 'Resend API Key'}
 					</label>
 					<div class="flex items-center space-x-2">
 						<input
