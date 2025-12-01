@@ -63,13 +63,15 @@ public class PackagesViewTests
         view.Arrange(new Avalonia.Rect(0, 0, 1000, 1000));
 
         // Assert
-        var listBox = view.FindControl<ListBox>("PackagesList");
-        Assert.NotNull(listBox);
-        Assert.NotNull(listBox.ItemsSource);
-        var items = listBox.ItemsSource as System.Collections.IEnumerable;
+        var scrollViewer = view.FindControl<ScrollViewer>("PackagesList");
+        Assert.NotNull(scrollViewer);
+        var itemsControl = scrollViewer.Content as ItemsControl;
+        Assert.NotNull(itemsControl);
+        Assert.NotNull(itemsControl.ItemsSource);
+        var items = itemsControl.ItemsSource as System.Collections.IEnumerable;
         Assert.NotNull(items);
         var count = 0;
         foreach (var item in items) count++;
-        Assert.True(count > 0, "ListBox should display loaded packages");
+        Assert.True(count > 0, "ItemsControl should display loaded packages");
     }
 }

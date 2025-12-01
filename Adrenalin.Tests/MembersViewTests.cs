@@ -23,16 +23,17 @@ public class MembersViewTests
         var vm = new MembersViewModel(service, localizationService);
         vm.CurrentView = "list";
         var view = new MembersView { DataContext = vm };
+        view.ApplyTemplate();
         view.Measure(new Avalonia.Size(1000, 1000));
         view.Arrange(new Avalonia.Rect(0, 0, 1000, 1000));
 
         // Assert
-        var scrollViewer = view.FindControl<ScrollViewer>("MembersList");
+        var listBox = view.FindControl<ListBox>("MembersList");
         var detailView = view.FindControl<MemberDetailView>("MemberDetail");
 
-        Assert.NotNull(scrollViewer);
+        Assert.NotNull(listBox);
         Assert.NotNull(detailView);
-        Assert.True(scrollViewer.IsVisible);
+        Assert.True(listBox.IsVisible);
         Assert.False(detailView.IsVisible);
     }
 
@@ -45,16 +46,17 @@ public class MembersViewTests
         var vm = new MembersViewModel(service, localizationService);
         vm.CurrentView = "detail";
         var view = new MembersView { DataContext = vm };
+        view.ApplyTemplate();
         view.Measure(new Avalonia.Size(1000, 1000));
         view.Arrange(new Avalonia.Rect(0, 0, 1000, 1000));
 
         // Assert
-        var scrollViewer = view.FindControl<ScrollViewer>("MembersList");
+        var listBox = view.FindControl<ListBox>("MembersList");
         var detailView = view.FindControl<MemberDetailView>("MemberDetail");
 
-        Assert.NotNull(scrollViewer);
+        Assert.NotNull(listBox);
         Assert.NotNull(detailView);
-        Assert.False(scrollViewer.IsVisible);
+        Assert.False(listBox.IsVisible);
         Assert.True(detailView.IsVisible);
     }
 
@@ -79,14 +81,25 @@ public class MembersViewTests
     public async Task MembersView_HasDetailView_WhenSelectedMemberDetailIsSet()
     {
         // Arrange
-        var service = new GymService(new TestHelpers.TestConfigurationService());
+        var service = new TestHelpers.TestGymService();
         var localizationService = new LocalizationService();
         var vm = new MembersViewModel(service, localizationService);
-        var member = await service.GetMemberAsync(1);
+        var testMember = new Member
+        {
+            FirstName = "Test",
+            LastName = "Member",
+            CardId = "HASDETAIL001",
+            YearOfBirth = 1990,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+        var memberId = await service.AddMemberAsync(testMember);
+        var member = await service.GetMemberAsync(memberId);
         Assert.NotNull(member);
         vm.SelectedMemberDetail = new MemberDetailViewModel(service, localizationService, member, () => { });
         vm.CurrentView = "detail";
         var view = new MembersView { DataContext = vm };
+        view.ApplyTemplate();
         view.Measure(new Avalonia.Size(1000, 1000));
         view.Arrange(new Avalonia.Rect(0, 0, 1000, 1000));
 
@@ -149,9 +162,20 @@ public class MembersViewTests
     public async Task MemberDetail_LogVisit_AddsVisitToDatabase()
     {
         // Arrange
-        var service = new GymService(new TestHelpers.TestConfigurationService());
+        var service = new TestHelpers.TestGymService();
         var localizationService = new LocalizationService();
-        var member = new Member { Id = 1, FirstName = "Test" };
+        var testMember = new Member
+        {
+            FirstName = "Test",
+            LastName = "Member",
+            CardId = "LOGVISIT001",
+            YearOfBirth = 1990,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+        var memberId = await service.AddMemberAsync(testMember);
+        var member = await service.GetMemberAsync(memberId);
+        Assert.NotNull(member);
         var vm = new MemberDetailViewModel(service, localizationService, member, () => { });
 
         // Act
@@ -160,6 +184,6 @@ public class MembersViewTests
 
         // Assert
         var visits = await service.GetVisitsAsync();
-        Assert.Contains(visits, v => v.MemberId == 1);
+        Assert.Contains(visits, v => v.MemberId == memberId);
     }
 }
