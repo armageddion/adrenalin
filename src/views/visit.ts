@@ -1,6 +1,7 @@
 import { html } from 'hono/html'
+import type { TFn } from '../middleware/i18n'
 
-export function Visit() {
+export function Visit(t?: TFn) {
 	const script = html`
 		<script>
 			document.addEventListener('alpine:init', () => {
@@ -17,6 +18,12 @@ export function Visit() {
 						this.isCancelled = false;
 						this.isQuerying = false;
 						sessionStorage.removeItem('visitQueryInProgress');
+						this.$watch('cardDigits', (newVal) => {
+							this.$el.querySelector('[x-ref="cardResults"]').innerHTML = '';
+							if (newVal.length === 11) {
+								this.queryCard();
+							}
+						});
 						if (this.keydownListener) {
 							window.removeEventListener('keydown', this.keydownListener);
 						}
@@ -28,10 +35,12 @@ export function Visit() {
 								this.cardDigits += e.key;
 								this.showVisitPopup = true;
 								this.isCancelled = false;
-								if (this.cardTimeout) clearTimeout(this.cardTimeout);
-								this.cardTimeout = setTimeout(() => {
+								this.$nextTick(() => {
+									this.$el.querySelector('[x-model="cardDigits"]').focus();
+								});
+								if (this.cardDigits.length === 11) {
 									this.queryCard();
-								}, 1500); // Query after 1.5 seconds of no input
+								}
 							}
 						};
 						window.addEventListener('keydown', this.keydownListener);
@@ -40,6 +49,7 @@ export function Visit() {
 						if (sessionStorage.getItem('visitQueryInProgress') === 'true') return;
 						if (this.cardTimeout) clearTimeout(this.cardTimeout);
 						if (this.isQuerying) return;
+						if (this.cardDigits.length !== 11) return;
 						if (this.cardDigits && !this.isCancelled) {
 							this.isQuerying = true;
 							sessionStorage.setItem('visitQueryInProgress', 'true');
@@ -50,15 +60,18 @@ export function Visit() {
 									if (redirectUrl) {
 										// Handle redirect manually since we're using fetch, not HTMX
 										window.location.href = redirectUrl;
-										return;
+										return { redirect: true };
 									}
-									return response.text();
+									return response.text().then(html => ({ html, ok: response.ok }));
 								})
-								.then(html => {
-									if (html) {
-										this.$el.querySelector('[x-ref="cardResults"]').innerHTML = html;
+								.then(result => {
+									if (result.redirect) return;
+									if (result.html) {
+										this.$el.querySelector('[x-ref="cardResults"]').innerHTML = result.html;
 									}
-									this.cardDigits = '';
+									if (result.ok) {
+										this.cardDigits = '';
+									}
 									this.isCancelled = false;
 									if (this.cardTimeout) clearTimeout(this.cardTimeout);
 									this.isQuerying = false;
@@ -88,11 +101,11 @@ export function Visit() {
 			x-data="visitPopup"
 			x-cloak
 			x-show="showVisitPopup"
-			class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300"
+			class="fixed inset-0 bg-foreground/20 backdrop-blur-md flex items-center justify-center z-50 transition-opacity duration-300"
 		>
 			<div class="bg-background p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
 				<div class="flex justify-between items-center mb-4">
-					<h3 class="text-lg font-semibold">Card ID Query</h3>
+					<h3 class="text-lg font-semibold">${t?.('nav.cardIdQuery')}</h3>
 					<button @click="closeCardPopup()" class="text-muted-foreground hover:text-foreground">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-5">
 							<path
@@ -108,30 +121,30 @@ export function Visit() {
 				</div>
 				<div class="mb-4">
 					<label class="block text-sm font-medium text-muted-foreground mb-2">
-						Enter Card ID
+						${t?.('nav.enterCardId')}
 					</label>
 					<input
 						type="text"
 						x-model="cardDigits"
 						@keydown.enter="queryCard()"
 						class="w-full p-2 border rounded"
-						placeholder="Type digits..."
+						placeholder="${t?.('query.typeDigitsPlaceholder')}"
 						autofocus
 					/>
 				</div>
 				<div x-ref="cardResults" class="min-h-16"></div>
 				<div class="flex justify-end space-x-2 mt-4">
-					<button
-						@click="queryCard()"
-						class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded"
+					<a
+						href="/members/new"
+						class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded inline-block"
 					>
-						Query
-					</button>
+						${t?.('query.createNewMember')}
+					</a>
 					<button
 						@click="closeCardPopup()"
 						class="text-muted-foreground hover:text-foreground px-4 py-2 rounded border"
 					>
-						Cancel
+						${t?.('query.cancel')}
 					</button>
 				</div>
 			</div>

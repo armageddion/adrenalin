@@ -1,5 +1,5 @@
 import { useTranslation } from '@intlify/hono'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import * as q from '../queries'
 import { SearchResults } from '../views/nav'
 import { logVisit } from './visits'
@@ -23,11 +23,7 @@ searchRouter.get('/members-search', async (c) => {
 
 	// Multiple results - show search dropdown
 	const results = SearchResults({ members, t })
-	return c.html(`
-		<div id="search-results" class="absolute top-full left-0 right-0 bg-background border rounded shadow-lg max-h-96 overflow-y-auto">
-			${results}
-		</div>
-	`)
+	return renderSearchResults(c, results)
 })
 
 searchRouter.get('/visit-input', async (c) => {
@@ -46,19 +42,22 @@ searchRouter.get('/visit-input', async (c) => {
 		return c.text('', 200)
 	}
 
-	// If no results, redirect to new member form
+	// If no results, return error
 	if (members.length === 0) {
-		c.header('HX-Redirect', '/members/new')
-		return c.text('', 200)
+		return c.text(t('nav.cardIdNotFound'), 404)
 	}
 
 	// Multiple results - show search dropdown
 	const results = SearchResults({ members, t })
+	return renderSearchResults(c, results)
+})
+
+function renderSearchResults(c: Context, results: ReturnType<typeof SearchResults>) {
 	return c.html(`
-		<div id="search-results" class="absolute top-full left-0 right-0 bg-background border rounded shadow-lg max-h-96 overflow-y-auto">
+		<div id="search-results" class="fixed top-12 left-0 right-0 bg-background/50 backdrop-blur-lg border rounded shadow-lg max-h-96 overflow-y-auto">
 			${results}
 		</div>
 	`)
-})
+}
 
 export default searchRouter

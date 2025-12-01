@@ -3,8 +3,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
-import app from './routes'
 import { initDb } from './queries'
+import app from './routes'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

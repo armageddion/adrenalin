@@ -13,7 +13,7 @@ interface LayoutProps {
 }
 
 export function PageLayout({ title, content, script, locale, t }: LayoutProps) {
-	const { script: visitScript, markup: visitMarkup } = Visit()
+	const { script: visitScript, markup: visitMarkup } = Visit(t)
 	return html`
 		<!DOCTYPE html>
 		<html

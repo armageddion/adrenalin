@@ -61,7 +61,7 @@ export function Nav({ t }: { t: TFn }) {
 				}
 			}"
 			x-init="init()"
-			class="w-full text-muted-foreground border border-b shrink-0"
+			class="w-full text-muted-foreground border border-b shrink-0 sticky top-0 bg-background/50 backdrop-blur-lg"
 		>
 			<nav class="h-full flex gap-1 items-center p-2">
 				${Button({ href: '/', children: t('nav.home') })}
@@ -73,7 +73,7 @@ export function Nav({ t }: { t: TFn }) {
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
-						class="absolute size-5 left-2 top-1/2 transform -translate-y-1/2 text-muted"
+						class="absolute size-5 left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground/50"
 					>
 						<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
 							<circle cx="11" cy="11" r="8" />
@@ -111,7 +111,7 @@ export function SearchResults({ members, t }: { members: Member[]; t: TFn }) {
 		<div id="member-list" class="space-y-2">
 			${members.map(
 				(m) => html`
-				<div class="flex justify-between items-center p-3 bg-background rounded">
+				<div class="flex justify-between items-center p-3">
 					<div>
 						<a href="/members/${m.id}" class="text-primary hover:underline font-semibold">
 							${m.first_name} ${m.last_name}

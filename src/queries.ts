@@ -7,7 +7,7 @@ import type { Member, Package, Visit } from './types'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isTest = process.env.NODE_ENV === 'test'
 
-let dbPath: any
+let dbPath: string | undefined
 if (process.env.DB_PATH) {
 	// Provided via env var (e.g. from main.js user selection)
 	dbPath = process.env.DB_PATH

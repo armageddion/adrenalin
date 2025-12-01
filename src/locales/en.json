@@ -8,13 +8,19 @@
 		"visits": "Visits",
 		"packages": "Packages",
 		"searchPlaceholder": "Search members...",
-		"cardIdQuery": "Card ID Query",
-		"enterCardId": "Enter Card ID",
 		"query": "Query",
 		"cancel": "Cancel",
 		"settings": {
 			"title": "Settings"
-		}
+		},
+		"cardIdQuery": "Card ID Query",
+		"enterCardId": "Enter Card ID",
+		"cardIdNotFound": "Card not found"
+	},
+	"query": {
+		"typeDigitsPlaceholder": "Type digits...",
+		"createNewMember": "Create New Member",
+		"cancel": "Cancel"
 	},
 	"settings": {
 		"title": "Settings",

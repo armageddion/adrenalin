@@ -8,13 +8,19 @@
 		"visits": "Posete",
 		"packages": "Paketi",
 		"searchPlaceholder": "Pretraži članove...",
-		"cardIdQuery": "Upit ID kartice",
-		"enterCardId": "Unesite ID kartice",
 		"query": "Upit",
 		"cancel": "Otkaži",
 		"settings": {
 			"title": "Podešavanja"
-		}
+		},
+		"cardIdQuery": "Upit ID kartice",
+		"enterCardId": "Unesite ID kartice",
+		"cardIdNotFound": "Kartica nije pronađena"
+	},
+	"query": {
+		"typeDigitsPlaceholder": "Unesite cifre...",
+		"createNewMember": "Kreiraj Novog Člana",
+		"cancel": "Otkaži"
 	},
 	"settings": {
 		"title": "Podešavanja",
