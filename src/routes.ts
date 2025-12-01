@@ -13,6 +13,25 @@ import visitsRouter from './routes/visits'
 const app = new Hono()
 app.use('*', i18nMiddleware)
 
+app.get('/manifest.json', (c) => {
+  return c.json({
+    name: 'Adrenalin',
+    short_name: 'Adrenalin',
+    description: 'Adrenalin App',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#000000',
+    icons: [
+      {
+        src: '/public/logo.svg',
+        sizes: 'any',
+        type: 'image/svg+xml'
+      }
+    ]
+  })
+})
+
 // Mount all routers
 app.route('', dashboardRouter)
 app.route('', searchRouter)

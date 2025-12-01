@@ -28,6 +28,7 @@ export function PageLayout({ title, content, script, locale, t }: LayoutProps) {
 				<title>${title} - ${t ? t('app.name') : 'Adrenalin'}</title>
 				<link rel="icon" href="/public/favicon.ico">
 				<link rel="icon" type="image/svg+xml" href="/public/favicon.svg">
+				<link rel="manifest" href="/manifest.json">
 				<link href="/public/fonts/fonts.css" rel="stylesheet">
 				<script>
 					(function() {
