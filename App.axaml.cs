@@ -56,11 +56,11 @@ public partial class App : Application
 
 			// Create and start the web server
 			_webServerService = new WebServerService();
-			desktop.ShutdownRequested += async (sender, e) =>
+			desktop.ShutdownRequested += (sender, e) =>
 			{
 				if (_webServerService != null)
 				{
-					await _webServerService.StopAsync();
+					_webServerService.StopAsync().GetAwaiter().GetResult();
 					_webServerService.Dispose();
 				}
 			};
