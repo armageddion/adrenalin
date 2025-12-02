@@ -20,7 +20,7 @@ export interface Member {
 	guardian_last_name?: string
 	guardian_gov_id?: string
 	notify: number
-	year_of_birth: number
+	year_of_birth?: number
 }
 
 export interface Package {

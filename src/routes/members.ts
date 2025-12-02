@@ -5,7 +5,7 @@ import { customLocaleDetector } from '../middleware/i18n'
 import * as q from '../queries'
 import type { Member } from '../types'
 import { MemberForm, MemberList, VisitList } from '../views/components'
-import { renderLoadMoreSentinel, renderMemberRows } from '../views/components/members'
+import { MemberCard, renderLoadMoreSentinel, renderMemberRows } from '../views/components/members'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
@@ -20,7 +20,12 @@ export function parseMemberData(
 		phone: (body.phone as string) || undefined,
 		card_id: body.card_id as string,
 		gov_id: (body.gov_id as string) || undefined,
-		package_id: body.package_id ? Number.parseInt(body.package_id as string, 10) : undefined,
+		package_id: body.package_id
+			? (() => {
+					const p = Number.parseInt(body.package_id as string, 10)
+					return isNaN(p) ? undefined : p
+				})()
+			: undefined,
 		expires_at: (body.expires_at as string) || undefined,
 		image: (body.image as string) || undefined,
 		notes: (body.notes as string) || undefined,
@@ -32,7 +37,10 @@ export function parseMemberData(
 		guardian_last_name: (body.guardian_last_name as string) || undefined,
 		guardian_gov_id: (body.guardian_gov_id as string) || undefined,
 		notify: body.notify !== 'off' ? 1 : 0,
-		year_of_birth: Number.parseInt(body.year_of_birth as string, 10),
+		year_of_birth: (() => {
+			const y = Number.parseInt(body.year_of_birth as string, 10)
+			return isNaN(y) ? undefined : y
+		})(),
 	}
 	return member
 }
@@ -135,40 +143,10 @@ membersRouter.get('/:id', async (c) => {
 		const packages = await q.getPackages()
 		const memberPackage = packages.find((p) => p.id === member.package_id)
 		const memberContent = html`
-			<div class="bg-card p-6 rounded-lg shadow-md">
-				<h2 class="text-2xl font-bold mb-4">${member.first_name} ${member.last_name}</h2>
-				<div class="flex flex-col md:flex-row gap-6">
-					<div class="flex-1 space-y-2">
-						<p><strong>${t('labels.cardId')}:</strong> ${member.card_id}</p>
-						<p><strong>${t('labels.email')}:</strong> ${member.email || 'N/A'}</p>
-						<p><strong>${t('labels.phone')}:</strong> ${member.phone || 'N/A'}</p>
-						<p><strong>${t('labels.govId')}:</strong> ${member.gov_id || 'N/A'}</p>
-						<p><strong>${t('labels.package')}:</strong> ${memberPackage ? `${memberPackage.name} - ${memberPackage.price} RSD` : 'None'}</p>
-						<p><strong>${t('labels.expiryDate')}:</strong> ${member.expires_at || 'N/A'}</p>
-						<p><strong>Year of Birth:</strong> ${member.year_of_birth || 'N/A'}</p>
-						<p><strong>Address:</strong> ${member.address_street ? `${member.address_street} ${member.address_number}, ${member.address_city}` : 'N/A'}</p>
-						<p><strong>Guardian:</strong> ${member.guardian ? `Yes - ${member.guardian_first_name} ${member.guardian_last_name} (Gov ID: ${member.guardian_gov_id})` : 'N/A'}</p>
-						<p><strong>Notifications:</strong> ${member.notify ? 'Enabled' : 'Disabled'}</p>
-						<p><strong>${t('labels.notes')}:</strong> ${member.notes || 'N/A'}</p>
-						<p><strong>${t('labels.lastUpdated')}:</strong> ${new Date(member.updated_at).toLocaleString()}</p>
-						<div class="flex flex-wrap gap-2 mt-4">
-							<button hx-post="/visits" hx-vals='{"card_id": "${member.card_id}"}' hx-target="#visits-list" hx-swap="outerHTML" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
-								${t('buttons.logVisit')}
-							</button>
-							<a href="/members" class="text-primary hover:bg-primary/20 px-4 py-2 rounded">${t('buttons.backToMembers')}</a>
-							<a href="/members/${member.id}/edit" class="text-primary hover:bg-primary/20 px-4 py-2 rounded">${t('buttons.editMember')}</a>
-						</div>
-					</div>
-					${
-						member.image
-							? html`<div class="md:ml-auto md:flex-shrink-0">
-						<img src="${member.image}" alt="Member Image" class="w-48 h-48 object-cover rounded shadow-md">
-					</div>`
-							: ''
-					}
-				</div>
+			<div class="flex max-w-6xl mx-auto my-6">
+				${MemberCard({ member, memberPackage, t })}
+				${VisitList({ visits, t })}
 			</div>
-			${VisitList({ visits, t })}
 		`
 		if (c.req.header('HX-Request')) {
 			return c.html(memberContent)

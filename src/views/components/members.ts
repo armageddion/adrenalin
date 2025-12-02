@@ -17,88 +17,6 @@ interface Pagination {
 	hasPrev: boolean
 }
 
-function _renderPagination(pagination: Pagination, search?: string) {
-	const { currentPage, totalPages, hasNext, hasPrev } = pagination
-
-	if (totalPages <= 1) return ''
-
-	const pages = []
-	const startPage = Math.max(1, currentPage - 2)
-	const endPage = Math.min(totalPages, currentPage + 2)
-
-	for (let i = startPage; i <= endPage; i++) {
-		pages.push(i)
-	}
-
-	return html`
-		<div class="flex items-center justify-between mt-4">
-			<div class="text-sm text-muted-foreground">
-				Showing ${pagination.totalItems} members
-			</div>
-			<div class="flex items-center space-x-2">
-				${
-					hasPrev
-						? html`
-					<a href="?page=${currentPage - 1}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}"
-					   hx-get="?page=${currentPage - 1}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}"
-					   hx-target="#member-list-wrapper"
-					   hx-swap="outerHTML"
-					   class="px-3 py-1 text-sm border rounded hover:bg-muted">
-						Previous
-					</a>
-				`
-						: ''
-				}
-				${pages.map(
-					(page) => html`
-					<a href="?page=${page}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}"
-					   hx-get="?page=${page}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}"
-					   hx-target="#member-list-wrapper"
-					   hx-swap="outerHTML"
-					   class="px-3 py-1 text-sm border rounded hover:bg-muted ${page === currentPage ? 'bg-primary text-primary-foreground' : ''}">
-						${page}
-					</a>
-				`,
-				)}
-				${
-					hasNext
-						? html`
-					<a href="?page=${currentPage + 1}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}"
-					   hx-get="?page=${currentPage + 1}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}"
-					   hx-target="#member-list-wrapper"
-					   hx-swap="outerHTML"
-					   class="px-3 py-1 text-sm border rounded hover:bg-muted">
-						Next
-					</a>
-				`
-						: ''
-				}
-				${
-					hasNext
-						? html`
-					<button hx-get="?page=${currentPage + 1}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}&append=1"
-					   hx-target="#members-table-body"
-					   hx-swap="beforeend"
-					   class="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/80 ml-4">
-						Load More
-					</button>
-				`
-						: ''
-				}
-			</div>
-		</div>
-	`
-}
-
-interface Pagination {
-	currentPage: number
-	totalPages: number
-	limit: number
-	totalItems: number
-	hasNext: boolean
-	hasPrev: boolean
-}
-
 export function renderMemberRows(members: Member[], t: TFn) {
 	return members.map(
 		(member) => html`
@@ -195,18 +113,78 @@ export function MemberList({
 	return { content, script }
 }
 
-export function MemberCard({ member, t }: { member: Member; t: TFn }) {
+export function MemberCard({ member, memberPackage, t }: { member: Member; memberPackage?: Package; t: TFn }) {
 	return html`
-		<div class="member-card">
-			<h3>
-				${member.first_name} ${member.last_name}
-			</h3>
-			<p>
-				${t('components.memberCard.cardId')}:${member.card_id}
-			</p>
-			<p>
-				${t('components.memberCard.lastUpdated')}:${member.updated_at}
-			</p>
+		<div class="bg-card max-w-lg w-full p-6 rounded-lg shadow-md">
+			<h2 class="text-2xl font-bold mb-4">${member.first_name} ${member.last_name}</h2>
+			${
+				member.image
+					? html`<div class="my-8">
+						<img src="${member.image}" alt="Member Image" class="w-full aspect-square object-cover rounded shadow-md">
+					</div>`
+					: ''
+			}
+			<div class="flex flex-col md:flex-row gap-6">
+				<div class="flex-1">
+					<dl class="space-y-2">
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.cardId')}</dt>
+							<dd>${member.card_id}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.email')}</dt>
+							<dd>${member.email || 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.phone')}</dt>
+							<dd>${member.phone || 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.govId')}</dt>
+							<dd>${member.gov_id || 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.package')}</dt>
+							<dd>${memberPackage ? `${memberPackage.name} - ${memberPackage.price} RSD` : 'None'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.expiryDate')}</dt>
+							<dd>${member.expires_at || 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">Year of Birth</dt>
+							<dd>${member.year_of_birth || 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">Address</dt>
+							<dd>${member.address_street ? `${member.address_street} ${member.address_number}, ${member.address_city}` : 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">Guardian</dt>
+							<dd>${member.guardian ? `Yes - ${member.guardian_first_name} ${member.guardian_last_name} (Gov ID: ${member.guardian_gov_id})` : 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">Notifications</dt>
+							<dd>${member.notify ? 'Enabled' : 'Disabled'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.notes')}</dt>
+							<dd>${member.notes || 'N/A'}</dd>
+						</div>
+						<div class="flex justify-between">
+							<dt class="font-medium">${t('labels.lastUpdated')}</dt>
+							<dd>${new Date(member.updated_at).toLocaleString()}</dd>
+						</div>
+					</dl>
+					<div class="flex flex-wrap gap-2 mt-4">
+						<button hx-post="/visits" hx-vals='{"card_id": "${member.card_id}"}' hx-target="#visits-list" hx-swap="outerHTML" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
+							${t('buttons.logVisit')}
+						</button>
+						<!-- <a href="/members" class="text-primary hover:bg-primary/20 px-4 py-2 rounded">${t('buttons.backToMembers')}</a> -->
+						<a href="/members/${member.id}/edit" class="text-primary hover:bg-primary/20 px-4 py-2 rounded">${t('buttons.editMember')}</a>
+					</div>
+				</div>
+			</div>
 		</div>
 	`
 }
@@ -334,7 +312,7 @@ export function MemberForm({
 	`
 
 	const content = html`
-		<div class="bg-background p-6 rounded-lg shadow-md mb-6">
+		<div class="bg-card p-6 rounded-xl shadow my-6 max-w-xl mx-auto">
 			<h3 class="text-xl font-bold mb-4">
 				${isEdit ? t('components.memberForm.editTitle') : t('components.memberForm.addTitle')}
 			</h3>
@@ -474,7 +452,7 @@ export function MemberForm({
 					<div x-data="cameraCapture()">
 						<template x-if="displayMode === 'existing'">
 							<div class="space-y-2">
-								<div class="max-w-80 w-full aspect-square bg-muted border rounded overflow-hidden">
+								<div class="w-full aspect-square bg-muted border rounded overflow-hidden">
 									<template x-if="originalImage">
 										<img
 											x-bind:src="originalImage || '/placeholder-image.png'"
@@ -496,7 +474,7 @@ export function MemberForm({
 						</template>
 						<template x-if="displayMode === 'camera'">
 							<div class="space-y-2">
-								<div class="max-w-80 w-full aspect-square bg-muted border rounded overflow-hidden">
+								<div class="w-full aspect-square bg-muted border rounded overflow-hidden">
 									<video id="video" class="size-full object-cover" autoplay muted></video>
 								</div>
 								<div class="flex space-x-2">
@@ -519,7 +497,7 @@ export function MemberForm({
 						</template>
 						<template x-if="displayMode === 'captured'">
 							<div class="space-y-2">
-								<div class="max-w-80 w-full aspect-square bg-muted border rounded overflow-hidden">
+								<div class="w-full aspect-square bg-muted border rounded overflow-hidden">
 									<img id="captured-image" class="size-full object-cover" />
 								</div>
 								<div class="flex space-x-2">
@@ -627,15 +605,30 @@ export function MemberForm({
 					<button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
 						${isEdit ? t('components.memberForm.update') : t('components.memberForm.create')}
 					</button>
-					<button
-						type="button"
-						hx-get="${isEdit ? `/members/${member.id}` : '/members'}"
-						hx-target="#member-form"
-						class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded"
+					<a
+						href="${isEdit ? `/members/${member.id}` : '/members'}"
+						class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded inline-block"
 					>
 						${t('buttons.cancel')}
-					</button>
-				</div>
+					</a>
+					<span class="flex-auto"></span>
+					${
+						isEdit
+							? html`
+								<button
+									type="button"
+									hx-delete="/members/${member.id}"
+									hx-confirm="${t('messages.confirmDelete')}"
+									hx-target="#member-list-wrapper"
+									hx-swap="outerHTML"
+									class="bg-destructive text-destructive-foreground hover:bg-destructive/80 px-4 py-2 rounded"
+								>
+									${t('delete')}
+								</button>
+								`
+							: ''
+					}
+ 				</div>
 			</form>
 		</div>
 	`

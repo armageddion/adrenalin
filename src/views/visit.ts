@@ -31,7 +31,7 @@ export function Visit(t?: TFn) {
 							if (e.key === 'Escape') {
 								this.isCancelled = true;
 								this.closeCardPopup();
-							} else if (e.key.length === 1 && /[0-9]/.test(e.key) && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+							} else if (e.key.length === 1 && /[0-9]/.test(e.key) && !e.altKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
 								this.cardDigits += e.key;
 								this.showVisitPopup = true;
 								this.isCancelled = false;
