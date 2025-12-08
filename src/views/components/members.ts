@@ -124,6 +124,14 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 					</div>`
 					: ''
 			}
+			${
+				member.signature
+					? html`<div class="my-8">
+						<h3 class="text-lg font-semibold mb-4">Signature</h3>
+						<img src="${member.signature}" alt="Member Signature" class="border rounded shadow-md">
+					</div>`
+					: ''
+			}
 			<div class="flex flex-col md:flex-row gap-6">
 				<div class="flex-1">
 					<dl class="space-y-2">

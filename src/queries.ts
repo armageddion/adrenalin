@@ -248,8 +248,8 @@ export async function addMember(
 ): Promise<number> {
 	const rs = await db.execute({
 		sql: `
-		INSERT INTO members (first_name, last_name, email, phone, card_id, gov_id, package_id, expires_at, image, notes, address_street, address_number, address_city, guardian, guardian_first_name, guardian_last_name, guardian_gov_id, notify, year_of_birth)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO members (first_name, last_name, email, phone, card_id, gov_id, package_id, expires_at, image, signature, notes, address_street, address_number, address_city, guardian, guardian_first_name, guardian_last_name, guardian_gov_id, notify, year_of_birth)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`,
 		args: [
 			member.first_name,
@@ -261,6 +261,7 @@ export async function addMember(
 			member.package_id || null,
 			null,
 			member.image || null,
+			member.signature || null,
 			member.notes || null,
 			member.address_street || null,
 			member.address_number || null,
@@ -270,7 +271,7 @@ export async function addMember(
 			member.guardian_last_name || null,
 			member.guardian_gov_id || null,
 			member.notify,
-			member.year_of_birth,
+			member.year_of_birth || null,
 		],
 	})
 	return Number(rs.lastInsertRowid)

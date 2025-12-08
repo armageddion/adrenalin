@@ -23,7 +23,7 @@ export function parseMemberData(
 		package_id: body.package_id
 			? (() => {
 					const p = Number.parseInt(body.package_id as string, 10)
-					return isNaN(p) ? undefined : p
+					return Number.isNaN(p) ? undefined : p
 				})()
 			: undefined,
 		expires_at: (body.expires_at as string) || undefined,
@@ -39,7 +39,7 @@ export function parseMemberData(
 		notify: body.notify !== 'off' ? 1 : 0,
 		year_of_birth: (() => {
 			const y = Number.parseInt(body.year_of_birth as string, 10)
-			return isNaN(y) ? undefined : y
+			return Number.isNaN(y) ? undefined : y
 		})(),
 	}
 	return member

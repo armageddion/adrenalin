@@ -9,6 +9,7 @@ export interface Member {
 	package_id?: number
 	expires_at?: string
 	image?: string
+	signature?: string
 	notes?: string
 	created_at: string
 	updated_at: string

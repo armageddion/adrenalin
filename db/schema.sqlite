@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS members (
 	package_id INTEGER,
 	expires_at DATE,
 	image TEXT,
+	signature TEXT,
 	notes TEXT,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
