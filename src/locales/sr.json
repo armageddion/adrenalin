@@ -61,7 +61,8 @@
 		"search": "Pretraži",
 		"new": "Novi",
 		"edit": "Izmeni",
-		"view": "Pogledaj"
+		"view": "Pogledaj",
+		"printConsent": "Štampaj Izjavu o Saglasnosti"
 	},
 	"labels": {
 		"cardId": "ID kartice",

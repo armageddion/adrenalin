@@ -190,6 +190,11 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 						</button>
 						<!-- <a href="/members" class="text-primary hover:bg-primary/20 px-4 py-2 rounded">${t('buttons.backToMembers')}</a> -->
 						<a href="/members/${member.id}/edit" class="text-primary hover:bg-primary/20 px-4 py-2 rounded">${t('buttons.editMember')}</a>
+						${
+							member.signature
+								? html`						<a href="/members/${member.id}/consent" class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded">${t('buttons.printConsent')}</a>`
+								: ''
+						}
 					</div>
 				</div>
 			</div>

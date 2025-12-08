@@ -169,11 +169,11 @@ describe('logVisit', () => {
 		}))
 	})
 
-	it('should log visit and return VisitList JSX', () => {
+	it('should log visit and return VisitList JSX', async () => {
 		const mockT = vi.fn((key) => key)
 		const memberId = 1
 
-		const result = logVisit(memberId, mockT)
+		const result = await logVisit(memberId, mockT)
 
 		expect(q.addVisit).toHaveBeenCalledWith(memberId)
 		expect(q.getVisitsByMemberId).toHaveBeenCalledWith(memberId)

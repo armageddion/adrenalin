@@ -61,7 +61,8 @@
 		"search": "Search",
 		"new": "New",
 		"edit": "Edit",
-		"view": "View"
+		"view": "View",
+		"printConsent": "Print Consent Declaration"
 	},
 	"labels": {
 		"cardId": "Card ID",
