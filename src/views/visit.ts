@@ -3,106 +3,121 @@ import type { TFn } from '../middleware/i18n'
 
 export function Visit(t?: TFn) {
 	const script = html`
-		<script>
-			document.addEventListener('alpine:init', () => {
-				Alpine.data('visitPopup', () => ({
-					showVisitPopup: false,
-					cardDigits: '',
-					cardTimeout: null,
-					keydownListener: null,
-					isCancelled: false,
-					isQuerying: false,
-					init() {
-						this.showVisitPopup = false;
-						this.cardDigits = '';
-						this.isCancelled = false;
-						this.isQuerying = false;
-						sessionStorage.removeItem('visitQueryInProgress');
-						this.$watch('cardDigits', (newVal) => {
-							this.$el.querySelector('[x-ref="cardResults"]').innerHTML = '';
-							if (newVal.length === 11) {
-								this.queryCard();
-							}
-						});
-						if (this.keydownListener) {
-							window.removeEventListener('keydown', this.keydownListener);
-						}
-						this.keydownListener = (e) => {
-							if (e.key === 'Escape') {
-								this.isCancelled = true;
-								this.closeCardPopup();
-							} else if (e.key.length === 1 && /[0-9]/.test(e.key) && !e.altKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-								this.cardDigits += e.key;
-								this.showVisitPopup = true;
-								this.isCancelled = false;
-								this.$nextTick(() => {
-									this.$el.querySelector('[x-model="cardDigits"]').focus();
-								});
-								if (this.cardDigits.length === 11) {
-									this.queryCard();
-								}
-							}
-						};
-						window.addEventListener('keydown', this.keydownListener);
-					},
-					queryCard() {
-						if (sessionStorage.getItem('visitQueryInProgress') === 'true') return;
-						if (this.cardTimeout) clearTimeout(this.cardTimeout);
-						if (this.isQuerying) return;
-						if (this.cardDigits.length !== 11) return;
-						if (this.cardDigits && !this.isCancelled) {
-							this.isQuerying = true;
-							sessionStorage.setItem('visitQueryInProgress', 'true');
-							fetch('/visit-input?q=' + encodeURIComponent(this.cardDigits))
-								.then(response => {
-									// Check if it's a redirect response
-									const redirectUrl = response.headers.get('HX-Redirect');
-									if (redirectUrl) {
-										// Handle redirect manually since we're using fetch, not HTMX
-										window.location.href = redirectUrl;
-										return { redirect: true };
-									}
-									return response.text().then(html => ({ html, ok: response.ok }));
-								})
-								.then(result => {
-									if (result.redirect) return;
-									if (result.html) {
-										this.$el.querySelector('[x-ref="cardResults"]').innerHTML = result.html;
-									}
-									if (result.ok) {
-										this.cardDigits = '';
-									}
-									this.isCancelled = false;
-									if (this.cardTimeout) clearTimeout(this.cardTimeout);
-									this.isQuerying = false;
-									sessionStorage.removeItem('visitQueryInProgress');
-								})
-								.catch(err => {
-									console.error('Error querying card:', err);
-									this.isQuerying = false;
-									sessionStorage.removeItem('visitQueryInProgress');
-								});
-						}
-					},
-					closeCardPopup() {
-						if (this.cardTimeout) clearTimeout(this.cardTimeout);
-						this.showVisitPopup = false;
-						this.cardDigits = '';
-						this.isQuerying = false;
-						sessionStorage.removeItem('visitQueryInProgress');
-					}
-				}));
-			});
-		</script>
-	`
+ 		<script>
+ 			document.addEventListener('alpine:init', () => {
+ 				Alpine.store('visitPopup', {
+ 					el: null,
+ 					showVisitPopup: false,
+ 					cardDigits: '',
+ 					prevLength: 0,
+ 					cardTimeout: null,
+ 					keydownListener: null,
+ 					isCancelled: false,
+ 					isQuerying: false,
+ 					init(el) {
+ 						this.el = el;
+ 						this.showVisitPopup = false;
+ 						this.cardDigits = '';
+ 						this.prevLength = 0;
+ 						this.isCancelled = false;
+ 						this.isQuerying = false;
+ 						sessionStorage.removeItem('visitQueryInProgress');
+ 						Alpine.effect(() => {
+ 							if (this.cardDigits.length !== this.prevLength) {
+ 								this.el.querySelector('[x-ref="cardResults"]').innerHTML = '';
+ 								this.prevLength = this.cardDigits.length;
+ 							}
+ 							if (this.cardDigits.length === 11) {
+ 								this.queryCard();
+ 							}
+ 						});
+ 						Alpine.effect(() => {
+ 							if (this.showVisitPopup) {
+ 								setTimeout(() => {
+ 									this.el.querySelector('[x-model="cardDigits"]').focus();
+ 								}, 0);
+ 							}
+ 						});
+ 						if (this.keydownListener) {
+ 							window.removeEventListener('keydown', this.keydownListener);
+ 						}
+ 						this.keydownListener = (e) => {
+ 							if (e.key === 'Escape') {
+ 								this.isCancelled = true;
+ 								this.closeCardPopup();
+ 							} else if (e.key.length === 1 && /[0-9]/.test(e.key) && !e.altKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+ 								this.cardDigits += e.key;
+ 								this.showVisitPopup = true;
+ 								this.isCancelled = false;
+ 								setTimeout(() => {
+ 									this.el.querySelector('[x-model="cardDigits"]').focus();
+ 								}, 0);
+ 								if (this.cardDigits.length === 11) {
+ 									this.queryCard();
+ 								}
+ 							}
+ 						};
+ 						window.addEventListener('keydown', this.keydownListener);
+ 					},
+ 					queryCard() {
+ 						if (sessionStorage.getItem('visitQueryInProgress') === 'true') return;
+ 						if (this.cardTimeout) clearTimeout(this.cardTimeout);
+ 						if (this.isQuerying) return;
+ 						if (this.cardDigits.length !== 11) return;
+ 						if (this.cardDigits && !this.isCancelled) {
+ 							this.isQuerying = true;
+ 							sessionStorage.setItem('visitQueryInProgress', 'true');
+ 							fetch('/visit-input?q=' + encodeURIComponent(this.cardDigits))
+ 								.then(response => {
+ 									// Check if it's a redirect response
+ 									const redirectUrl = response.headers.get('HX-Redirect');
+ 									if (redirectUrl) {
+ 										// Handle redirect manually since we're using fetch, not HTMX
+ 										window.location.href = redirectUrl;
+ 										return { redirect: true };
+ 									}
+ 									return response.text().then(html => ({ html, ok: response.ok }));
+ 								})
+ 								.then(result => {
+ 									if (result.redirect) return;
+ 									if (result.html) {
+ 										document.querySelector('[x-ref="cardResults"]').innerHTML = result.html;
+ 									}
+ 									if (result.ok) {
+ 										this.cardDigits = '';
+ 									}
+ 									this.isCancelled = false;
+ 									if (this.cardTimeout) clearTimeout(this.cardTimeout);
+ 									this.isQuerying = false;
+ 									sessionStorage.removeItem('visitQueryInProgress');
+ 								})
+ 								.catch(err => {
+ 									console.error('Error querying card:', err);
+ 									this.isQuerying = false;
+ 									sessionStorage.removeItem('visitQueryInProgress');
+ 								});
+ 						}
+ 					},
+ 					closeCardPopup() {
+ 						if (this.cardTimeout) clearTimeout(this.cardTimeout);
+ 						this.showVisitPopup = false;
+ 						this.cardDigits = '';
+ 						this.isQuerying = false;
+ 						sessionStorage.removeItem('visitQueryInProgress');
+ 					}
+ 				});
+ 			});
+ 		</script>
+ 	`
 
 	const markup = html`
-		<div
-			x-data="visitPopup"
-			x-cloak
-			x-show="showVisitPopup"
-			class="fixed inset-0 bg-foreground/20 backdrop-blur-md flex items-center justify-center z-50 transition-opacity duration-300"
-		>
+ 		<div
+ 			x-data="$store.visitPopup"
+ 			x-init="init($el)"
+ 			x-cloak
+ 			x-show="showVisitPopup"
+ 			class="fixed inset-0 bg-foreground/20 backdrop-blur-md flex items-center justify-center z-50 transition-opacity duration-300"
+ 		>
 			<div class="bg-background p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
 				<div class="flex justify-between items-center mb-4">
 					<h3 class="text-lg font-semibold">${t?.('nav.cardIdQuery')}</h3>

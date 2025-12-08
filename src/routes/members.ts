@@ -5,7 +5,7 @@ import { customLocaleDetector } from '../middleware/i18n'
 import * as q from '../queries'
 import type { Member } from '../types'
 import { MemberForm, MemberList, VisitList } from '../views/components'
-import { MemberCard, renderLoadMoreSentinel, renderMemberRows } from '../views/components/members'
+import { MemberCard, renderMemberRows } from '../views/components/members'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
@@ -72,9 +72,7 @@ membersRouter.get('/', async (c) => {
 
 	// If append mode, return only the table rows and next sentinel
 	if (append) {
-		return c.html(
-			html`${renderMemberRows(members, t)}${pagination.hasNext ? renderLoadMoreSentinel(pagination, search) : ''}`,
-		)
+		return c.html(html`${renderMemberRows(members, t)}`)
 	}
 
 	const { content: _content, script } = MemberList({ members, t, pagination, search })
@@ -143,9 +141,9 @@ membersRouter.get('/:id', async (c) => {
 		const packages = await q.getPackages()
 		const memberPackage = packages.find((p) => p.id === member.package_id)
 		const memberContent = html`
-			<div class="flex max-w-6xl mx-auto my-6">
+			<div class="flex max-w-6xl w-full mx-auto my-6 gap-6">
 				${MemberCard({ member, memberPackage, t })}
-				${VisitList({ visits, t })}
+				${VisitList({ visits, t }).content}
 			</div>
 		`
 		if (c.req.header('HX-Request')) {

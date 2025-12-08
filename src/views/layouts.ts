@@ -9,10 +9,11 @@ interface LayoutProps {
 	content: ReturnType<typeof html> | JSXNode | string
 	script?: ReturnType<typeof html>
 	locale?: string
+	hideNav?: boolean
 	t?: TFn
 }
 
-export function PageLayout({ title, content, script, locale, t }: LayoutProps) {
+export function PageLayout({ title, content, script, locale, hideNav, t }: LayoutProps) {
 	const { script: visitScript, markup: visitMarkup } = Visit(t)
 	return html`
 		<!DOCTYPE html>
@@ -58,17 +59,17 @@ export function PageLayout({ title, content, script, locale, t }: LayoutProps) {
 				</script>
 				<script src="/public/htmx.js"></script>
 				<script src="/public/alpine.js" defer></script>
-				${visitScript}
+				${hideNav ? '' : visitScript}
 				${script ?? ''}
 				<link href="/public/styles.css" rel="stylesheet">
 			</head>
-			<body class="min-h-screen" x-data="visitPopup">
-				${t ? Nav({ t }) : Nav({ t: () => '' })}
+ 			<body class="min-h-screen">
+				${hideNav ? '' : t ? Nav({ t }) : Nav({ t: () => '' })}
 				<div id="search-results" class="relative z-10"></div>
-				${visitMarkup}
-				<div id="main-content">
+				${hideNav ? '' : visitMarkup}
+				<main>
 					${content}
-				</div>
+				</main>
 			</body>
 		</html>
 	`

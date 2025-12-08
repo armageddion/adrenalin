@@ -11,6 +11,8 @@ dist/
 out/
 
 .bak
+*.pem
+*.key
 
 AGENTS*
 

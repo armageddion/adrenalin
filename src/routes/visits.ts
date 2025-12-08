@@ -5,14 +5,15 @@ import { customLocaleDetector, type TFn } from '../middleware/i18n'
 import * as q from '../queries'
 import type { Member, Visit } from '../types'
 import { VisitList } from '../views/components'
-import { renderLoadMoreSentinel, renderVisitRows } from '../views/components/visits'
+import { renderVisitRows } from '../views/components/visits'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
 export async function logVisit(memberId: number, t: TFn) {
 	await q.addVisit(memberId)
 	const visits = await q.getVisitsByMemberId(memberId)
-	return VisitList({ visits, t })
+	const { content } = VisitList({ visits, t })
+	return String(content)
 }
 
 const visitsRouter = new Hono()
@@ -40,16 +41,18 @@ visitsRouter.get('/', async (c) => {
 
 	// If append mode, return only the table rows and next sentinel
 	if (append) {
-		return c.html(html`${renderVisitRows(visits, t)}${pagination.hasNext ? renderLoadMoreSentinel(pagination) : ''}`)
+		return c.html(html`${renderVisitRows(visits, t)}`)
 	}
 
 	if (c.req.header('HX-Request')) {
-		return c.html(VisitList({ visits, t, pagination }))
+		const { content } = VisitList({ visits, t, pagination })
+		return c.html(String(content))
 	}
+	const { content } = VisitList({ visits, t, pagination })
 	return c.html(
 		PageLayout({
 			title: t('components.visits.title'),
-			content: VisitList({ visits, t, pagination }),
+			content: String(content),
 			locale,
 			t,
 		}),
@@ -82,7 +85,8 @@ visitsRouter.delete('/:id', async (c) => {
 		visits = await q.getVisits()
 	}
 
-	return c.html(VisitList({ visits, t }))
+	const { content } = VisitList({ visits, t })
+	return c.html(String(content))
 })
 
 export default visitsRouter

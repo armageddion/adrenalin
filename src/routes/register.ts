@@ -64,6 +64,129 @@ registerRouter.get('/register', async (c) => {
 						}
 					}
 				}));
+				Alpine.data('cameraCapture', () => ({
+					stream: null,
+					displayMode: 'existing', // 'existing', 'camera', 'captured'
+					originalImage: '',
+					cameras: [],
+					currentCameraIndex: 0,
+					init() {
+						console.log('Camera component initialized')
+						this.originalImage = document.getElementById('image-input').value
+					},
+				async startCamera() {
+					console.log('startCamera called')
+					if (this.displayMode === 'camera') return
+					this.displayMode = 'camera'
+					this.$nextTick(async () => {
+						const video = document.getElementById('video')
+						if (!video) {
+							console.error('Video element not found')
+							this.displayMode = 'existing'
+							return
+						}
+						console.log('Requesting camera access')
+						if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+							try {
+								this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+								if (navigator.mediaDevices.enumerateDevices) {
+									const devices = await navigator.mediaDevices.enumerateDevices()
+									this.cameras = devices.filter(device => device.kind === 'videoinput')
+								}
+								console.log('Camera access granted')
+								video.srcObject = this.stream
+								await video.play()
+								console.log('Video playing')
+							} catch (err) {
+								console.error("Error accessing camera: ", err)
+								alert('Could not access the camera. Please ensure you have given permission.')
+								this.displayMode = 'existing'
+							}
+						} else {
+							console.error("getUserMedia not supported")
+							alert('Camera not supported on this device.')
+							this.displayMode = 'existing'
+						}
+					})
+				},
+					async switchCamera() {
+						if (this.cameras.length < 2) return
+						if (this.stream) {
+							this.stream.getTracks().forEach(track => track.stop())
+						}
+						this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length
+						const deviceId = this.cameras[this.currentCameraIndex].deviceId
+						try {
+							this.stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } })
+							const video = document.getElementById('video')
+							if (video) {
+								video.srcObject = this.stream
+								await video.play()
+							}
+						} catch (err) {
+							console.error("Error switching camera:", err)
+						}
+					},
+					captureImage() {
+						if (this.displayMode !== 'camera') return
+						const video = document.getElementById('video')
+						if (!video) {
+							console.error('Video element not found for capture')
+							return
+						}
+						const canvas = document.getElementById('canvas')
+						const capturedImage = document.getElementById('captured-image')
+						const imageInput = document.getElementById('image-input')
+
+						// Set canvas dimensions to match video
+						canvas.width = video.videoWidth
+						canvas.height = video.videoHeight
+
+						// Draw the current video frame to the canvas
+						const context = canvas.getContext('2d')
+						context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+						// Get the image data from the canvas as a base64 string
+						const dataUrl = canvas.toDataURL('image/png')
+
+						// Show the captured image and set the hidden input value
+						if (imageInput) imageInput.value = dataUrl
+						this.displayMode = 'captured'
+						this.$nextTick(() => {
+							const capturedImg = document.getElementById('captured-image')
+							if (capturedImg) capturedImg.src = dataUrl
+						})
+						this.stopCamera()
+					},
+					killCamera() {
+						this.stopCamera()
+						this.displayMode = 'existing'
+					},
+					stopCamera() {
+						if (this.stream) {
+							this.stream.getTracks().forEach(track => track.stop())
+							const video = document.getElementById('video')
+							if (video) {
+								video.srcObject = null
+							}
+							this.stream = null
+						}
+					},
+					keepImage() {
+						// Update originalImage to the new captured image so it displays in existing mode
+						this.originalImage = document.getElementById('image-input').value
+						this.displayMode = 'existing'
+					},
+					revertImage() {
+						this.$nextTick(() => {
+							const imageInput = document.getElementById('image-input')
+							const capturedImage = document.getElementById('captured-image')
+							if (imageInput) imageInput.value = this.originalImage
+							if (capturedImage) capturedImage.src = this.originalImage
+							this.displayMode = 'existing'
+						})
+					}
+				}));
 			});
 		</script>
 	`
@@ -71,7 +194,7 @@ registerRouter.get('/register', async (c) => {
 	const content = html`
 		<div class="p-4 w-full">
 			<div class="bg-background p-6 rounded-lg shadow-md mb-6 max-w-2xl mx-auto">
-				<h3 class="text-xl font-bold mb-4">Member Registration</h3>
+				<h3 class="text-xl font-bold mb-4">${t('register.title')}</h3>
 				<form
 					hx-post="/register"
 					hx-target="body"
@@ -82,44 +205,44 @@ registerRouter.get('/register', async (c) => {
 				>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">First Name:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.firstName')}:</label>
 							<input type="text" name="first_name" x-model="member.first_name" required class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Last Name:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.lastName')}:</label>
 							<input type="text" name="last_name" x-model="member.last_name" required class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Email:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.email')}:</label>
 							<input type="email" name="email" x-model="member.email" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Phone:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.phone')}:</label>
 							<input type="tel" name="phone" x-model="member.phone" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Card ID:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.cardId')}:</label>
 							<input type="text" name="card_id" required class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Gov ID:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.govId')}:</label>
 							<input type="text" name="gov_id" x-model="member.gov_id" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Year of Birth:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.yearOfBirth')}:</label>
 							<input type="number" name="year_of_birth" x-model.number="member.year_of_birth" required class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Package:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.package')}:</label>
 							<select name="package_id" class="mt-1 block w-full p-2 border rounded">
 								<option value="">None</option>
 								${packages.map(
-									(p) => html`
+		(p) => html`
 									<option value="${p.id}">
 										${p.name}-${p.price}€
 									</option>
 								`,
-								)}
+	)}
 							</select>
 						</div>
 						<div>
@@ -127,17 +250,100 @@ registerRouter.get('/register', async (c) => {
 							<input type="date" name="expires_at" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 					</div>
+					<div>
+						<label class="block text-sm font-medium text-muted-foreground">${t('image')}:</label>
+						<input type="hidden" name="image" id="image-input" value="" />
+						<div x-data="cameraCapture()">
+							<template x-if="displayMode === 'existing'">
+								<div class="space-y-2">
+									<div class="w-full aspect-square bg-muted border rounded overflow-hidden">
+										<template x-if="originalImage">
+											<img
+												x-bind:src="originalImage || '/placeholder-image.png'"
+												alt="Current member image"
+												class="size-full object-cover"
+											/>
+										</template>
+									</div>
+									<div class="flex space-x-2">
+										<button
+											type="button"
+											x-on:click="startCamera()"
+											class="bg-secondary text-secondary-foreground px-3 py-1 rounded hover:bg-secondary/80"
+										>
+											${t('components.memberForm.cameraStart')}
+										</button>
+									</div>
+								</div>
+							</template>
+							<template x-if="displayMode === 'camera'">
+								<div class="space-y-2">
+								<div class="w-full aspect-square bg-muted border rounded overflow-hidden">
+									<video id="video" class="size-full object-cover" autoplay muted playsinline></video>
+								</div>
+									<div class="flex space-x-2">
+										<button
+											type="button"
+											x-show="cameras.length > 1"
+											x-on:click="switchCamera()"
+											class="bg-secondary text-secondary-foreground px-3 py-1 rounded hover:bg-secondary/80"
+										>
+											${t('components.memberForm.cameraSwitch')}
+										</button>
+										<button
+											type="button"
+											x-on:click="captureImage()"
+											class="bg-primary text-primary-foreground px-3 py-1 rounded hover:bg-primary/80"
+										>
+											${t('components.memberForm.cameraCapture')}
+										</button>
+										<button
+											type="button"
+											x-on:click="killCamera()"
+											class="text-destructive hover:bg-destructive/20 px-3 py-1 rounded"
+										>
+											${t('components.memberForm.cameraStop')}
+										</button>
+									</div>
+								</div>
+							</template>
+							<template x-if="displayMode === 'captured'">
+								<div class="space-y-2">
+									<div class="w-full aspect-square bg-muted border rounded overflow-hidden">
+										<img id="captured-image" class="size-full object-cover" />
+									</div>
+									<div class="flex space-x-2">
+										<button
+											type="button"
+											x-on:click="keepImage()"
+											class="bg-primary text-primary-foreground px-3 py-1 rounded hover:bg-primary/80"
+										>
+											${t('components.memberForm.cameraKeep')}
+										</button>
+										<button
+											type="button"
+											x-on:click="revertImage()"
+											class="bg-secondary text-secondary-foreground px-3 py-1 rounded hover:bg-secondary/80"
+										>
+											${t('components.memberForm.cameraRevert')}
+										</button>
+									</div>
+								</div>
+							</template>
+							<canvas id="canvas" class="hidden"></canvas>
+						</div>
+					</div>
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Address Street:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('address.street')}:</label>
 							<input type="text" name="address_street" x-model="member.address_street" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Address Number:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('address.number')}:</label>
 							<input type="text" name="address_number" x-model="member.address_number" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 						<div>
-							<label class="block text-sm font-medium text-muted-foreground">Address City:</label>
+							<label class="block text-sm font-medium text-muted-foreground">${t('address.city')}:</label>
 							<input type="text" name="address_city" x-model="member.address_city" class="mt-1 block w-full p-2 border rounded" />
 						</div>
 					</div>
@@ -151,15 +357,15 @@ registerRouter.get('/register', async (c) => {
 							class="border-l-2 border-primary pl-4 mt-2 space-y-4 grid grid-cols-1 md:grid-cols-3 gap-4"
 						>
 							<div>
-								<label class="block text-sm font-medium text-muted-foreground">Guardian First Name:</label>
+								<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.guardianFirstName')}:</label>
 								<input type="text" name="guardian_first_name" x-model="member.guardian_first_name" class="mt-1 block w-full p-2 border rounded" />
 							</div>
 							<div>
-								<label class="block text-sm font-medium text-muted-foreground">Guardian Last Name:</label>
+								<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.guardianLastName')}:</label>
 								<input type="text" name="guardian_last_name" x-model="member.guardian_last_name" class="mt-1 block w-full p-2 border rounded" />
 							</div>
 							<div>
-								<label class="block text-sm font-medium text-muted-foreground">Guardian Gov ID:</label>
+								<label class="block text-sm font-medium text-muted-foreground">${t('components.memberForm.guardianGovId')}:</label>
 								<input type="text" name="guardian_gov_id" x-model="member.guardian_gov_id" class="mt-1 block w-full p-2 border rounded" />
 							</div>
 						</div>
@@ -217,7 +423,7 @@ registerRouter.get('/register', async (c) => {
 						</div>
 					</div>
 					<div>
-						<label class="block text-sm font-medium text-muted-foreground">Signature:</label>
+						<label class="block text-sm font-medium text-muted-foreground">${t('register.signature')}:</label>
 						<div class="space-y-2">
 							<canvas id="signature-pad" class="border rounded" width="400" height="200"></canvas>
 							<div class="flex space-x-2">
@@ -234,7 +440,7 @@ registerRouter.get('/register', async (c) => {
 					</div>
 					<div class="flex space-x-2">
 						<button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
-							Register
+							${t('buttons.register')}
 						</button>
 					</div>
 				</form>
@@ -242,7 +448,7 @@ registerRouter.get('/register', async (c) => {
 		</div>
 	`
 
-	return c.html(PageLayout({ title: 'Register', content, script: signatureScript, t, locale }))
+	return c.html(PageLayout({ title: 'Register', content, script: signatureScript, hideNav: true, t, locale }))
 })
 
 registerRouter.post('/register', async (c) => {
@@ -270,7 +476,7 @@ registerRouter.post('/register', async (c) => {
 		year_of_birth: Number.parseInt(body.year_of_birth as string, 10),
 	}
 	await q.addMember(member)
-	c.header('HX-Redirect', '/members')
+	c.header('HX-Redirect', '/register')
 	return c.text('', 200)
 })
 

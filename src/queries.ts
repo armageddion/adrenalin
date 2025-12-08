@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createClient } from '@libsql/client'
+import { createClient, type InValue } from '@libsql/client'
 import type { Member, Package, Visit } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -153,7 +153,7 @@ export async function searchMembersPaginated(query: string, page: number, limit:
 	`
 	params.push(limit, offset)
 
-	const rs = await db.execute({ sql, args: params })
+	const rs = await db.execute(sql, params)
 	return rs.rows as unknown as Member[]
 }
 
@@ -165,7 +165,7 @@ export async function searchMembersCount(query: string): Promise<number> {
 	if (words.length === 0) return 0
 
 	const conditions: string[] = []
-	const params: string[] = []
+	const params: InValue[] = []
 	words.forEach((word) => {
 		const wordParam = `%${word}%`
 		conditions.push(`(first_name LIKE ? OR last_name LIKE ? OR card_id LIKE ?)`)
@@ -173,7 +173,7 @@ export async function searchMembersCount(query: string): Promise<number> {
 	})
 
 	const sql = `SELECT COUNT(*) as count FROM members WHERE ${conditions.join(' AND ')}`
-	const rs = await db.execute({ sql, args: params })
+	const rs = await db.execute(sql, params)
 	return (rs.rows[0] as unknown as { count: number }).count
 }
 
@@ -207,6 +207,60 @@ export async function getVisitsPaginated(
 
 export async function getVisitsCount(): Promise<number> {
 	const rs = await db.execute('SELECT COUNT(*) as count FROM visits')
+	return (rs.rows[0] as unknown as { count: number }).count
+}
+
+export async function searchVisitsPaginated(
+	query: string,
+	page: number,
+	limit: number,
+): Promise<Array<Visit & Pick<Member, 'first_name' | 'last_name'>>> {
+	const words = query
+		.trim()
+		.split(/\s+/)
+		.filter((word) => word.length > 0)
+	if (words.length === 0) return []
+
+	const conditions: string[] = []
+	const params: InValue[] = []
+	words.forEach((word) => {
+		const wordParam = `%${word}%`
+		conditions.push(`(m.first_name LIKE ? OR m.last_name LIKE ?)`)
+		params.push(wordParam, wordParam)
+	})
+
+	const offset = (page - 1) * limit
+	const sql = `
+		SELECT v.*, m.first_name, m.last_name
+		FROM visits v
+		JOIN members m ON v.member_id = m.id
+		WHERE ${conditions.join(' AND ')}
+		ORDER BY v.created_at DESC
+		LIMIT ? OFFSET ?
+	`
+	params.push(limit, offset)
+
+	const rs = await db.execute(sql, params)
+	return rs.rows as unknown as Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
+}
+
+export async function searchVisitsCount(query: string): Promise<number> {
+	const words = query
+		.trim()
+		.split(/\s+/)
+		.filter((word) => word.length > 0)
+	if (words.length === 0) return 0
+
+	const conditions: string[] = []
+	const params: InValue[] = []
+	words.forEach((word) => {
+		const wordParam = `%${word}%`
+		conditions.push(`(m.first_name LIKE ? OR m.last_name LIKE ?)`)
+		params.push(wordParam, wordParam)
+	})
+
+	const sql = `SELECT COUNT(*) as count FROM visits v JOIN members m ON v.member_id = m.id WHERE ${conditions.join(' AND ')}`
+	const rs = await db.execute(sql, params)
 	return (rs.rows[0] as unknown as { count: number }).count
 }
 
@@ -356,38 +410,4 @@ export async function logMessage(
 		sql: 'INSERT INTO messages (member_id, subject, message, method) VALUES (?, ?, ?, ?)',
 		args: [memberId, subject, message, method],
 	})
-}
-
-export async function getNewMembersLast30Days(): Promise<number> {
-	const rs = await db.execute("SELECT COUNT(*) as count FROM members WHERE created_at >= date('now', '-30 days')")
-	return (rs.rows[0] as unknown as { count: number }).count
-}
-
-export async function getVisitsToday(): Promise<number> {
-	const rs = await db.execute("SELECT COUNT(*) as count FROM visits WHERE date(created_at) = date('now')")
-	return (rs.rows[0] as unknown as { count: number }).count
-}
-
-export async function getVisitsLast7Days(): Promise<number> {
-	const rs = await db.execute("SELECT COUNT(*) as count FROM visits WHERE created_at >= date('now', '-7 days')")
-	return (rs.rows[0] as unknown as { count: number }).count
-}
-
-export async function getVisitsPrevious7Days(): Promise<number> {
-	const rs = await db.execute(
-		"SELECT COUNT(*) as count FROM visits WHERE created_at BETWEEN date('now', '-14 days') AND date('now', '-7 days')",
-	)
-	return (rs.rows[0] as unknown as { count: number }).count
-}
-
-export async function getVisitsLast30Days(): Promise<number> {
-	const rs = await db.execute("SELECT COUNT(*) as count FROM visits WHERE created_at >= date('now', '-30 days')")
-	return (rs.rows[0] as unknown as { count: number }).count
-}
-
-export async function getVisitsPrevious30Days(): Promise<number> {
-	const rs = await db.execute(
-		"SELECT COUNT(*) as count FROM visits WHERE created_at BETWEEN date('now', '-60 days') AND date('now', '-30 days')",
-	)
-	return (rs.rows[0] as unknown as { count: number }).count
 }

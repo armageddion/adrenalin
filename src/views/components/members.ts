@@ -17,51 +17,23 @@ interface Pagination {
 	hasPrev: boolean
 }
 
-export function renderMemberRows(members: Member[], t: TFn) {
+export function renderMemberRows(members: Member[], _t: TFn) {
 	return members.map(
 		(member) => html`
-		<tr class="border-b hover:bg-muted">
-			<td class="py-2 px-4 truncate">
-				<a
-					href="/members/${member.id}"
-					class="text-primary hover:underline"
-				>
-					${member.first_name} ${member.last_name}
-				</a>
-			</td>
-			<td class="py-2 px-4">${member.email || 'N/A'}</td>
-			<td class="py-2 px-4 space-x-2">
-				<a
-					href="/members/${member.id}"
-					class="px-1 py-0.5 bg-primary text-primary-foreground hover:bg-primary/80 rounded"
-				>
-					${t('buttons.view')}
-				</a>
-				<a
-					href="/members/${member.id}/edit"
-					class="px-1 py-0.5 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded"
-				>
-					${t('buttons.edit')}
-				</a>
-			<button
-				hx-delete="/members/${member.id}"
-				hx-confirm="${t('messages.confirmDelete')}"
-				hx-target="#member-list-wrapper"
-				hx-swap="outerHTML"
-				class="px-1 py-0.5 text-destructive hover:bg-destructive/20 rounded border-none inline-flex items-center h-5"
-			>
-					${t('buttons.delete')}
-				</button>
-			</td>
-		</tr>
-	`,
+			<tr class="hover:bg-muted cursor-pointer" onclick="window.location.href='/members/${member.id}'">
+				<td class="py-2 px-4 truncate">
+				${member.first_name} ${member.last_name}
+				</td>
+				<td class="py-2 px-4">${member.email || 'N/A'}</td>
+			</tr>
+		`,
 	)
 }
 
-export function renderLoadMoreSentinel(pagination: Pagination, search?: string) {
+export function renderLoadMoreSentinel(pagination: Pagination, search?: string, paramPrefix: string = '') {
 	return html`
 		<div
-			hx-get="?page=${pagination.currentPage + 1}&limit=${pagination.limit}${search ? `&search=${encodeURIComponent(search)}` : ''}&append=1"
+			hx-get="?${paramPrefix}page=${pagination.currentPage + 1}&${paramPrefix}limit=${pagination.limit}${search ? `&${paramPrefix}search=${encodeURIComponent(search)}` : ''}&append=1"
 			hx-trigger="revealed"
 			hx-target="#members-table-body"
 			hx-swap="beforeend"
@@ -75,38 +47,39 @@ export function MemberList({
 	t,
 	pagination,
 	search,
+	paramPrefix = '',
 }: {
 	members: Member[]
 	t: TFn
 	pagination?: Pagination
 	search?: string
+	paramPrefix?: string
 }): ComponentWithScript {
 	const script = html``
 
 	const content = html`
 		<div
 			id="member-list-wrapper"
-			class="bg-background p-6 rounded-lg shadow-md"
+			class="bg-card py-6 rounded-lg shadow-md"
 		>
-			<div class="flex justify-between items-center mb-4">
+			<div class="h-10 px-6 flex justify-between items-center mb-4">
 				<h2 class="text-2xl font-bold">${t('components.members.title')}</h2>
 				<a href="/members/new" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
 					${t('buttons.addMember')}
 				</a>
 			</div>
-			<table class="w-full border-collapse border">
-				<thead>
-					<tr class="bg-card">
+			<table class="w-full border-collapse">
+				<thead class="bg-background">
+					<tr>
 						<th class="py-2 px-4 text-left">${t('components.members.name')}</th>
 						<th class="py-2 px-4 text-left">${t('components.members.email')}</th>
-						<th class="py-2 px-4 text-left">${t('components.members.actions')}</th>
 					</tr>
 				</thead>
 				<tbody id="members-table-body">
 					${renderMemberRows(members, t)}
 				</tbody>
 			</table>
-			${pagination?.hasNext ? renderLoadMoreSentinel(pagination, search) : ''}
+			${pagination?.hasNext ? renderLoadMoreSentinel(pagination, search, paramPrefix) : ''}
 		</div>
 	`
 
@@ -115,7 +88,7 @@ export function MemberList({
 
 export function MemberCard({ member, memberPackage, t }: { member: Member; memberPackage?: Package; t: TFn }) {
 	return html`
-		<div class="bg-card max-w-lg w-full p-6 rounded-lg shadow-md">
+		<div class="bg-card max-w-lg w-full p-6 rounded-lg shadow-md self-start">
 			<h2 class="text-2xl font-bold mb-4">${member.first_name} ${member.last_name}</h2>
 			${
 				member.image
@@ -160,20 +133,20 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 							<dd>${member.expires_at || 'N/A'}</dd>
 						</div>
 						<div class="flex justify-between">
-							<dt class="font-medium">Year of Birth</dt>
+							<dt class="font-medium">${t('components.memberForm.yearOfBirth')}</dt>
 							<dd>${member.year_of_birth || 'N/A'}</dd>
 						</div>
 						<div class="flex justify-between">
-							<dt class="font-medium">Address</dt>
+							<dt class="font-medium">${t('address.label')}</dt>
 							<dd>${member.address_street ? `${member.address_street} ${member.address_number}, ${member.address_city}` : 'N/A'}</dd>
 						</div>
 						<div class="flex justify-between">
-							<dt class="font-medium">Guardian</dt>
+							<dt class="font-medium">${t('components.memberForm.guardian')}</dt>
 							<dd>${member.guardian ? `Yes - ${member.guardian_first_name} ${member.guardian_last_name} (Gov ID: ${member.guardian_gov_id})` : 'N/A'}</dd>
 						</div>
 						<div class="flex justify-between">
-							<dt class="font-medium">Notifications</dt>
-							<dd>${member.notify ? 'Enabled' : 'Disabled'}</dd>
+							<dt class="font-medium">${t('components.memberForm.sendNotifications')}</dt>
+							<dd>${member.notify ? t('enabled') : t('disabled')}</dd>
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('labels.notes')}</dt>
@@ -198,6 +171,45 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 					</div>
 				</div>
 			</div>
+		</div>
+	`
+}
+
+export function MembersSection({
+	members,
+	t,
+	pagination,
+	search,
+	paramPrefix = '',
+}: {
+	members: Member[]
+	t: TFn
+	pagination: Pagination
+	search?: string
+	paramPrefix?: string
+}) {
+	const searchInput = html`
+		<div class="mb-6">
+			<input
+				type="text"
+				placeholder="${t('components.members.searchPlaceholder')}"
+				class="w-full p-2 border rounded"
+				hx-get="?${paramPrefix}page=1&${paramPrefix}limit=${pagination.limit}"
+				hx-target="#member-list-wrapper"
+				hx-swap="outerHTML"
+				hx-trigger="input changed delay:300ms"
+				name="${paramPrefix}search"
+				value="${search || ''}"
+			/>
+		</div>
+	`
+
+	const { content: listContent } = MemberList({ members, t, pagination, search, paramPrefix })
+
+	return html`
+		<div id="members-section" class="flex-1">
+			${searchInput}
+			${listContent}
 		</div>
 	`
 }
@@ -396,7 +408,7 @@ export function MemberForm({
 				</div>
 				<div>
 					<label class="block text-sm font-medium text-muted-foreground">
-						${t('components.memberForm.year_of_birth')}:
+						${t('components.memberForm.yearOfBirth')}:
 					</label>
 					<input
 						type="text"
@@ -632,7 +644,7 @@ export function MemberForm({
 									type="button"
 									hx-delete="/members/${member.id}"
 									hx-confirm="${t('messages.confirmDelete')}"
-									hx-target="#member-list-wrapper"
+				hx-target="#members-section"
 									hx-swap="outerHTML"
 									class="bg-destructive text-destructive-foreground hover:bg-destructive/80 px-4 py-2 rounded"
 								>
