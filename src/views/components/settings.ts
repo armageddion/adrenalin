@@ -86,6 +86,17 @@ export function Settings({ t, locale }: { t: TFn; locale: string }) {
 				</div>
 				<div>
 					<label class="block text-sm font-medium text-muted-foreground mb-2">
+						${t('nav.packages') || 'Language'}
+					</label>
+					<a
+						href="/packages"
+						class="inline-block h-10 px-4 py-2 rounded bg-primary text-primary-foreground"
+					>
+						${t('nav.packages') || 'Packages'}
+					</a>
+				</div>
+				<div>
+					<label class="block text-sm font-medium text-muted-foreground mb-2">
 						${t('settings.resend') || 'Resend API Key'}
 					</label>
 					<div class="flex items-center space-x-2">

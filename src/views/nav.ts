@@ -65,32 +65,30 @@ export function Nav({ t }: { t: TFn }) {
 		>
 			<nav class="h-full flex gap-1 items-center p-2">
 				${Button({ href: '/', children: t('nav.home') })}
-				${Button({ href: '/members', children: t('nav.members') })}
-				${Button({ href: '/visits', children: t('nav.visits') })}
-				${Button({ href: '/packages', children: t('nav.packages') })}
-				<div class="flex-auto"></div>
-				<div class="relative bg-background text-muted-foreground hover:bg-accent rounded border">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						class="absolute size-5 left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground/50"
-					>
-						<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-							<circle cx="11" cy="11" r="8" />
-							<path d="m21 21l-4.3-4.3" />
-						</g>
-					</svg>
-					<input
-						type="search"
-						placeholder="${t('nav.searchPlaceholder')}"
-						class="pl-10 pr-2 py-1 max-w-48 w-full"
-						x-ref="globalSearch"
-						hx-get="/members-search"
-						hx-target="#search-results"
-						name="q"
-						hx-trigger="keyup changed delay:300ms"
-						@keydown="handleKeydown"
-					/>
+				<div class="flex-auto">
+					<div class="relative bg-background text-muted-foreground hover:bg-accent rounded border">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							class="absolute size-5 left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground/50"
+						>
+							<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+								<circle cx="11" cy="11" r="8" />
+								<path d="m21 21l-4.3-4.3" />
+							</g>
+						</svg>
+						<input
+							type="search"
+							placeholder="${t('nav.searchPlaceholder')}"
+							class="pl-10 pr-2 py-1 max-w-48 w-full"
+							x-ref="globalSearch"
+							hx-get="/members-search"
+							hx-target="#search-results"
+							name="q"
+							hx-trigger="keyup changed delay:300ms"
+							@keydown="handleKeydown"
+						/>
+					</div>
 				</div>
 				<a href="/settings" class="flex items-center justify-center size-8 rounded border hover:bg-accent">
 					<span class="sr-only">${t('nav.settings.title') || 'Settings'}</span>

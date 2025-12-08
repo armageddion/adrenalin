@@ -46,6 +46,8 @@
 	"loading": "Loading...",
 	"error": "Error",
 	"success": "Success",
+	"enabled": "Enabled",
+	"disabled": "Disabled",
 	"image": "Image",
 	"buttons": {
 		"login": "Login",
@@ -61,7 +63,8 @@
 		"search": "Search",
 		"new": "New",
 		"edit": "Edit",
-		"view": "View"
+		"view": "View",
+		"printConsent": "Print Consent Declaration"
 	},
 	"labels": {
 		"cardId": "Card ID",
@@ -89,6 +92,7 @@
 		"visitLogged": "Visit logged for {name}"
 	},
 	"address": {
+		"label": "Address",
 		"street": "Street",
 		"number": "Number",
 		"city": "City"
@@ -102,7 +106,8 @@
 			"actions": "Actions"
 		},
 		"visits": {
-			"title": "Recent Visits",
+			"title": "Visits",
+			"searchPlaceholder": "Search visits by member name...",
 			"member": "Member",
 			"date": "Date",
 			"notes": "Notes"
@@ -144,6 +149,7 @@
 			"cameraStop": "Stop Camera",
 			"cameraKeep": "Keep New Image",
 			"cameraRevert": "Revert to Original",
+			"guardian": "Guardian",
 			"guardianFirstName": "Guardian First Name",
 			"guardianLastName": "Guardian Last Name",
 			"guardianGovId": "Guardian Gov ID",
@@ -153,7 +159,7 @@
 			"isGuardian": "Is Guardian?",
 			"hasGuardian": "Has Guardian?",
 			"sendNotifications": "Send Notifications",
-			"year_of_birth": "Year of Birth"
+			"yearOfBirth": "Year of Birth"
 		},
 		"packageList": {
 			"title": "Packages",

@@ -36,8 +36,9 @@ registerRouter.get('/register', async (c) => {
 					init() {
 						const canvas = document.getElementById('signature-pad');
 						if (canvas) {
+							canvas.style.backgroundColor = 'white';
 							this.signaturePad = new SignaturePad(canvas, {
-								penColor: document.documentElement.classList.contains('dark') ? 'white' : 'black'
+								penColor: 'black'
 							});
 						}
 					},
@@ -48,7 +49,17 @@ registerRouter.get('/register', async (c) => {
 					},
 					setSignatureData(e) {
 						if (this.signaturePad && !this.signaturePad.isEmpty()) {
-							const dataUrl = this.signaturePad.toDataURL();
+							const data = this.signaturePad.toData();
+							const canvas = document.getElementById('signature-pad');
+							const tempCanvas = document.createElement('canvas');
+							tempCanvas.width = canvas.width;
+							tempCanvas.height = canvas.height;
+							const tempCtx = tempCanvas.getContext('2d');
+							tempCtx.fillStyle = 'white';
+							tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+							const tempPad = new SignaturePad(tempCanvas, { penColor: 'black' });
+							tempPad.fromData(data);
+							const dataUrl = tempPad.toDataURL();
 							document.getElementById('signature-input').value = dataUrl;
 						}
 					}

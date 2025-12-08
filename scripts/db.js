@@ -39,6 +39,14 @@ if (cmd === 'migrate') {
 	}
 	const db = createClient({ url: dbUrl })
 	await db.executeMultiple(schemaFile)
+	// Add signature column if it doesn't exist
+	try {
+		await db.execute('ALTER TABLE members ADD COLUMN signature TEXT;')
+		console.log('Added signature column to members table.')
+	} catch (_err) {
+		// Column might already exist, ignore error
+		console.log('Signature column already exists or could not be added.')
+	}
 	db.close()
 	console.log('Database migrated.')
 	process.exit(0)

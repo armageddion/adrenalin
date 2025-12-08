@@ -62,13 +62,13 @@ export function PageLayout({ title, content, script, locale, t }: LayoutProps) {
 				${script ?? ''}
 				<link href="/public/styles.css" rel="stylesheet">
 			</head>
-			<body class="min-h-screen" x-data="visitPopup">
+ 			<body class="min-h-screen">
 				${t ? Nav({ t }) : Nav({ t: () => '' })}
 				<div id="search-results" class="relative z-10"></div>
 				${visitMarkup}
-				<div id="main-content">
+				<main>
 					${content}
-				</div>
+				</main>
 			</body>
 		</html>
 	`

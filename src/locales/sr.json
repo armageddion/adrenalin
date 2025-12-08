@@ -46,6 +46,8 @@
 	"loading": "Učitavanje...",
 	"error": "Greška",
 	"success": "Uspeh",
+	"enabled": "Omogućeno",
+	"disabled": "Onemogućeno",
 	"image": "Slika",
 	"buttons": {
 		"login": "Prijavi se",
@@ -61,7 +63,8 @@
 		"search": "Pretraži",
 		"new": "Novi",
 		"edit": "Izmeni",
-		"view": "Pogledaj"
+		"view": "Pogledaj",
+		"printConsent": "Štampaj Izjavu o Saglasnosti"
 	},
 	"labels": {
 		"cardId": "ID kartice",
@@ -89,6 +92,7 @@
 		"visitLogged": "Poseta zabeležena za {name}"
 	},
 	"address": {
+		"label": "Adresa",
 		"street": "Ulica",
 		"number": "Broj",
 		"city": "Grad"
@@ -102,7 +106,8 @@
 			"actions": "Akcije"
 		},
 		"visits": {
-			"title": "Nedavne posete",
+			"title": "Posete",
+			"searchPlaceholder": "Pretraži posete po imenu člana...",
 			"member": "Član",
 			"date": "Datum",
 			"notes": "Beleške"
@@ -144,6 +149,7 @@
 			"cameraStop": "Zaustavi Kameru",
 			"cameraKeep": "Zadrži Novu Sliku",
 			"cameraRevert": "Vrati na Original",
+			"guardian": "Staratelj",
 			"guardianFirstName": "Ime Staratelja",
 			"guardianLastName": "Prezime Staratelja",
 			"guardianGovId": "JMBG Staratelja",
@@ -153,7 +159,7 @@
 			"isGuardian": "Da li je staratelj?",
 			"hasGuardian": "Ima staratelja?",
 			"sendNotifications": "Šalji obaveštenja",
-			"year_of_birth": "Godina rođenja"
+			"yearOfBirth": "Godina rođenja"
 		},
 		"packageList": {
 			"title": "Paketi",
