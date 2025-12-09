@@ -30,7 +30,8 @@
 		"language": "Language",
 		"english": "English",
 		"serbian": "Serbian",
-		"resend": "Resend API Key"
+		"resend": "Resend API Key",
+		"serverIp": "Server IP"
 	},
 	"languages": {
 		"en": "English",
@@ -89,7 +90,9 @@
 		"noVisits": "No visits found",
 		"noPackages": "No packages found",
 		"confirmDelete": "Are you sure?",
-		"visitLogged": "Visit logged for {name}"
+		"visitLogged": "Visit logged for {name}",
+		"cardIdAlreadyExists": "Card ID already exists",
+		"govIdAlreadyExists": "Gov ID already exists"
 	},
 	"address": {
 		"label": "Address",
@@ -149,6 +152,7 @@
 			"cameraStop": "Stop Camera",
 			"cameraKeep": "Keep New Image",
 			"cameraRevert": "Revert to Original",
+			"cameraSwitch": "Switch Camera",
 			"guardian": "Guardian",
 			"guardianFirstName": "Guardian First Name",
 			"guardianLastName": "Guardian Last Name",
@@ -179,5 +183,13 @@
 	},
 	"placeholders": {
 		"searchMembers": "Search members..."
+	},
+	"register": {
+		"title": "Member Registration",
+		"signature": "Signature",
+		"errors": {
+			"cardIdExists": "Card ID already exists",
+			"govIdExists": "Government ID already exists"
+		}
 	}
 }

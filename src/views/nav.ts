@@ -66,7 +66,7 @@ export function Nav({ t }: { t: TFn }) {
 			<nav class="h-full flex gap-1 items-center p-2">
 				${Button({ href: '/', children: t('nav.home') })}
 				<div class="flex-auto">
-					<div class="relative bg-background text-muted-foreground hover:bg-accent rounded border">
+					<div class="relative bg-background text-muted-foreground hover:bg-accent rounded border w-full">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ export function Nav({ t }: { t: TFn }) {
 						<input
 							type="search"
 							placeholder="${t('nav.searchPlaceholder')}"
-							class="pl-10 pr-2 py-1 max-w-48 w-full"
+							class="pl-10 pr-2 py-1 w-full"
 							x-ref="globalSearch"
 							hx-get="/members-search"
 							hx-target="#search-results"
@@ -104,37 +104,20 @@ export function Nav({ t }: { t: TFn }) {
 	`
 }
 
+// biome-ignore lint/correctness/noUnusedFunctionParameters: stfu
 export function SearchResults({ members, t }: { members: Member[]; t: TFn }) {
 	return html`
 		<div id="member-list" class="space-y-2">
 			${members.map(
 				(m) => html`
-				<div class="flex justify-between items-center p-3">
+				<a href="/members/${m.id}" class="flex justify-between items-center p-3 hover:bg-muted-foreground/10">
 					<div>
-						<a href="/members/${m.id}" class="text-primary hover:underline font-semibold">
+						<span>
 							${m.first_name} ${m.last_name}
-						</a>
+						</span>
 						<span class="text-muted-foreground ml-2">${m.card_id}</span>
 					</div>
-					<div class="space-x-2">
-						<button
-							hx-get="/members/${m.id}/edit"
-							hx-target="#member-form"
-							class="bg-secondary text-secondary-foreground px-3 py-1 rounded hover:bg-secondary/80"
-						>
-							${t('components.searchResults.edit')}
-						</button>
-						<button
-							hx-delete="/members/${m.id}"
-							hx-confirm="${t('messages.confirmDelete')}"
-							hx-target="#members-list"
-							hx-swap="outerHTML"
-							class="text-destructive hover:bg-destructive/20 px-3 py-1 rounded"
-						>
-							${t('components.searchResults.delete')}
-						</button>
-					</div>
-				</div>
+				</a>
 			`,
 			)}
 		</div>

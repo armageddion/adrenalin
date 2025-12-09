@@ -9,7 +9,7 @@ import { renderVisitRows } from '../views/components/visits'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
-export async function logVisit(memberId: number, t: TFn) {
+export async function logVisit(memberId: number, t: TFn, _timestamp?: string) {
 	await q.addVisit(memberId)
 	const visits = await q.getVisitsByMemberId(memberId)
 	const { content } = VisitList({ visits, t })
@@ -63,10 +63,11 @@ visitsRouter.post('/', async (c) => {
 	const t = useTranslation(c)
 	const body = await c.req.parseBody()
 	const cardId = body.card_id as string
+	const timestamp = body.timestamp as string | undefined
 	const members = await q.searchMembers(cardId)
 	const member = members[0]
 	if (member) {
-		return c.html(await logVisit(member.id, t))
+		return c.html(await logVisit(member.id, t, timestamp))
 	}
 	return notFoundResponse(c, t, 'member')
 })

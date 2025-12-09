@@ -1,7 +1,7 @@
 import { html } from 'hono/html'
 import type { TFn } from '../../middleware/i18n'
 
-export function Settings({ t, locale }: { t: TFn; locale: string }) {
+export function Settings({ t, locale, ip }: { t: TFn; locale: string; ip: string }) {
 	return html`
 		<script>
 			const ipcRenderer = typeof require !== 'undefined' ? require('electron').ipcRenderer : null;
@@ -112,6 +112,14 @@ export function Settings({ t, locale }: { t: TFn; locale: string }) {
 						>
 							${t('save') || 'Save'}
 						</button>
+					</div>
+				</div>
+				<div>
+					<label class="block text-sm font-medium text-muted-foreground mb-2">
+						${t('settings.serverIp') || 'Server IP'}
+					</label>
+					<div class="px-3 py-2 border border-input rounded bg-muted text-muted-foreground">
+						${ip}
 					</div>
 				</div>
 			</div>

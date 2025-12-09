@@ -20,14 +20,12 @@ interface Pagination {
 export function renderMemberRows(members: Member[], _t: TFn) {
 	return members.map(
 		(member) => html`
-			<a href="/members/${member.id}">
-			<tr class="border-b hover:bg-muted cursor-pointer">
+			<tr class="hover:bg-muted cursor-pointer" onclick="window.location.href='/members/${member.id}'">
 				<td class="py-2 px-4 truncate">
 				${member.first_name} ${member.last_name}
 				</td>
 				<td class="py-2 px-4">${member.email || 'N/A'}</td>
 			</tr>
-			</a>
 		`,
 	)
 }
@@ -70,7 +68,7 @@ export function MemberList({
 					${t('buttons.addMember')}
 				</a>
 			</div>
-			<table class="w-full border-collapse border">
+			<table class="w-full border-collapse">
 				<thead class="bg-background">
 					<tr>
 						<th class="py-2 px-4 text-left">${t('components.members.name')}</th>

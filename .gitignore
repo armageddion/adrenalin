@@ -3,14 +3,18 @@ node_modules
 *.vim
 *.env
 !.env.example
+*.log
 
 db/adrenalin.*
+db/*.db
 public/
 config.json
 dist/
 out/
 
 .bak
+*.pem
+*.key
 
 AGENTS*
 
@@ -19,5 +23,7 @@ playwright-report
 coverage
 cypress
 
+package-lock.json
 pnpm-lock.yaml
-yank.lock
+yarn.lock
+bun.lock

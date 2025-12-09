@@ -30,7 +30,8 @@
 		"language": "Jezik",
 		"english": "Engleski",
 		"serbian": "Srpski",
-		"resend": "Resend Ključ"
+		"resend": "Resend Ključ",
+		"serverIp": "IP servera"
 	},
 	"languages": {
 		"en": "Engleski",
@@ -89,7 +90,9 @@
 		"noVisits": "Nema poseta",
 		"noPackages": "Nema paketa",
 		"confirmDelete": "Da li ste sigurni?",
-		"visitLogged": "Poseta zabeležena za {name}"
+		"visitLogged": "Poseta zabeležena za {name}",
+		"cardIdAlreadyExists": "ID kartice već postoji",
+		"govIdAlreadyExists": "JMBG već postoji"
 	},
 	"address": {
 		"label": "Adresa",
@@ -149,6 +152,7 @@
 			"cameraStop": "Zaustavi Kameru",
 			"cameraKeep": "Zadrži Novu Sliku",
 			"cameraRevert": "Vrati na Original",
+			"cameraSwitch": "Promeni Kameru",
 			"guardian": "Staratelj",
 			"guardianFirstName": "Ime Staratelja",
 			"guardianLastName": "Prezime Staratelja",
@@ -179,5 +183,13 @@
 	},
 	"placeholders": {
 		"searchMembers": "Pretraži članove..."
+	},
+	"register": {
+		"title": "Registracija člana",
+		"signature": "Potpis",
+		"errors": {
+			"cardIdExists": "ID kartice već postoji",
+			"govIdExists": "JMBG već postoji"
+		}
 	}
 }

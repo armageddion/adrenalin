@@ -59,15 +59,16 @@ export function Visit(t?: TFn) {
  						};
  						window.addEventListener('keydown', this.keydownListener);
  					},
- 					queryCard() {
- 						if (sessionStorage.getItem('visitQueryInProgress') === 'true') return;
- 						if (this.cardTimeout) clearTimeout(this.cardTimeout);
- 						if (this.isQuerying) return;
- 						if (this.cardDigits.length !== 11) return;
- 						if (this.cardDigits && !this.isCancelled) {
- 							this.isQuerying = true;
- 							sessionStorage.setItem('visitQueryInProgress', 'true');
- 							fetch('/visit-input?q=' + encodeURIComponent(this.cardDigits))
+					queryCard() {
+						if (sessionStorage.getItem('visitQueryInProgress') === 'true') return;
+						if (this.cardTimeout) clearTimeout(this.cardTimeout);
+						if (this.isQuerying) return;
+						if (this.cardDigits.length !== 11) return;
+						if (this.cardDigits && !this.isCancelled) {
+							this.isQuerying = true;
+							sessionStorage.setItem('visitQueryInProgress', 'true');
+							const timestamp = new Date().toISOString();
+							fetch('/visit-input?q=' + encodeURIComponent(this.cardDigits) + '&timestamp=' + encodeURIComponent(timestamp))
  								.then(response => {
  									// Check if it's a redirect response
  									const redirectUrl = response.headers.get('HX-Redirect');

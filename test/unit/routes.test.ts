@@ -175,7 +175,7 @@ describe('logVisit', () => {
 
 		const result = await logVisit(memberId, mockT)
 
-		expect(q.addVisit).toHaveBeenCalledWith(memberId)
+		expect(q.addVisit).toHaveBeenCalledWith(memberId, undefined)
 		expect(q.getVisitsByMemberId).toHaveBeenCalledWith(memberId)
 		// Just check that it returns something
 		expect(result).toBeDefined()

@@ -81,9 +81,11 @@ dashboardRouter.get('', async (c) => {
 	}
 
 	const content = html`
-		<div class="flex gap-6 p-6">
-			${MembersSection({ members, t, pagination: memberPagination, search: memberSearch, paramPrefix: 'member_' })}
-			${VisitsSection({ visits, t, pagination: visitPagination, search: visitSearch, paramPrefix: 'visit_' })}
+		<div class="p-6">
+			<div class="flex gap-6">
+				${MembersSection({ members, t, pagination: memberPagination, search: memberSearch, paramPrefix: 'member_' })}
+				${VisitsSection({ visits, t, pagination: visitPagination, search: visitSearch, paramPrefix: 'visit_' })}
+			</div>
 		</div>
 	`
 	return c.html(PageLayout({ title: t('components.dashboard.title'), content, locale, t }))
