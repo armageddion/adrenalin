@@ -22,9 +22,9 @@ export function parseMemberData(
 		gov_id: (body.gov_id as string) || undefined,
 		package_id: body.package_id
 			? (() => {
-					const p = Number.parseInt(body.package_id as string, 10)
-					return Number.isNaN(p) ? undefined : p
-				})()
+				const p = Number.parseInt(body.package_id as string, 10)
+				return Number.isNaN(p) ? undefined : p
+			})()
 			: undefined,
 		expires_at: (body.expires_at as string) || undefined,
 		image: (body.image as string) || undefined,
@@ -203,11 +203,11 @@ membersRouter.get('/:id/consent', async (c) => {
 			<div class="p-4 w-full max-w-4xl mx-auto">
 				<div class="bg-background p-6 rounded-lg shadow-md">
 					<div class="club-name" style="text-align: center; margin-bottom: 20px;">
-						<h1 style="text-align: center; margin: 100px;">PENJAČKI KLUB ADRENALIN NOVI SAD</h1>
+						<h1 style="text-align: center; margin: 50px;">PENJAČKI KLUB ADRENALIN NOVI SAD</h1>
 					</div>
 					<div class="header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-						<div class="logo" style="width: 400px; height: auto; margin-right: 20px;">
-							<img src="${logoSrc}" width="400" />
+						<div class="logo" style="width: 350px; height: auto; margin-right: 20px;">
+							<img src="${logoSrc}" width="350" />
 						</div>
 						<div class="club-details" style="text-align: right; margin-right: 50px">							
 							<p>
