@@ -90,7 +90,9 @@
 		"noVisits": "Nema poseta",
 		"noPackages": "Nema paketa",
 		"confirmDelete": "Da li ste sigurni?",
-		"visitLogged": "Poseta zabeležena za {name}"
+		"visitLogged": "Poseta zabeležena za {name}",
+		"cardIdAlreadyExists": "ID kartice već postoji",
+		"govIdAlreadyExists": "JMBG već postoji"
 	},
 	"address": {
 		"label": "Adresa",

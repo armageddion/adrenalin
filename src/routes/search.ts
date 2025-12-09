@@ -29,6 +29,7 @@ searchRouter.get('/members-search', async (c) => {
 searchRouter.get('/visit-input', async (c) => {
 	const t = useTranslation(c)
 	const query = c.req.query('q') || ''
+	const timestamp = c.req.query('timestamp')
 	if (!query) {
 		return c.html('<div id="search-results"></div>') // Empty when no query
 	}
@@ -37,7 +38,7 @@ searchRouter.get('/visit-input', async (c) => {
 	// If exactly one result, automatically log a visit and redirect to member profile
 	if (members.length === 1) {
 		const member = members[0]
-		await logVisit(member.id, t)
+		await logVisit(member.id, t, timestamp)
 		c.header('HX-Redirect', `/members/${member.id}`)
 		return c.text('', 200)
 	}

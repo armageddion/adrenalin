@@ -90,7 +90,9 @@
 		"noVisits": "No visits found",
 		"noPackages": "No packages found",
 		"confirmDelete": "Are you sure?",
-		"visitLogged": "Visit logged for {name}"
+		"visitLogged": "Visit logged for {name}",
+		"cardIdAlreadyExists": "Card ID already exists",
+		"govIdAlreadyExists": "Gov ID already exists"
 	},
 	"address": {
 		"label": "Address",
