@@ -22,7 +22,7 @@
 		"setup:icon": "npx -y svg-to-ico src/assets/logo.svg public/favicon.ico && cp src/assets/logo.svg public/logo.svg",
 		"setup": "npm run css && npm run setup:db && npm run setup:dependencies && npm run setup:fonts && npm run setup:icon",
 		"backup:db": "node scripts/backup-db.js",
-		"test:e2e": "NODE_ENV=test start-server-and-test 'tsx src/server.ts' http://localhost:3001 'cypress run --config-file test/cypress.config.ts'",
+		"test:e2e": "NODE_ENV=test start-server-and-test 'tsx src/server.ts' $([ -f adrenalin.pem ] && [ -f adrenalin.key ] && echo https://localhost:3001 || echo http://localhost:3001) 'cypress run --config-file test/cypress.config.ts'",
 		"test:unit": "NODE_ENV=test vitest run --config test/vitest.config.ts",
 		"test:integration": "NODE_ENV=test vitest run --config test/vitest.integration.config.ts",
 		"test": "npm run test:unit && npm run test:integration && npm run test:e2e"

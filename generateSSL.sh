@@ -1,1 +1,1 @@
-openssl req -x509 -newkey rsa:2048 -keyout adrenalin.key -out adrenalin.pem -days 3650 -nodes
+openssl req -x509 -newkey rsa:2048 -keyout adrenalin.key -out adrenalin.pem -days 3650 -nodes -subj"/O=PKAdrenalin/CN=localhost" 

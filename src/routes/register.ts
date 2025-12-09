@@ -237,12 +237,12 @@ registerRouter.get('/register', async (c) => {
 							<select name="package_id" class="mt-1 block w-full p-2 border rounded">
 								<option value="">None</option>
 								${packages.map(
-		(p) => html`
+									(p) => html`
 									<option value="${p.id}">
 										${p.name}-${p.price}€
 									</option>
 								`,
-	)}
+								)}
 							</select>
 						</div>
 						<div>

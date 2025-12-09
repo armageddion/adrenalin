@@ -1,9 +1,10 @@
 import fs from 'node:fs'
+import { createSecureServer } from 'node:http2'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createSecureServer } from 'node:http2'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
+import { Hono } from 'hono'
 import { initDb } from './queries'
 import app from './routes'
 import { getLocalIP } from './utils'
@@ -25,7 +26,6 @@ app.use('*', async (c, next) => {
 
 async function main() {
 	await initDb()
-	const port = process.env.NODE_ENV === 'test' ? 3001 : 3000
 	const hostname = '0.0.0.0'
 	const ip = getLocalIP()
 
@@ -34,19 +34,53 @@ async function main() {
 	const keyPath = path.resolve(__dirname, '../adrenalin.key')
 	const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath)
 
-	if (hasCerts) {
-		console.log(`Server running on https://${ip}:${port}`)
-		serve({
-			fetch: app.fetch,
-			createServer: createSecureServer,
-			serverOptions: {
-				key: fs.readFileSync(keyPath),
-				cert: fs.readFileSync(certPath),
-			},
-		})
+	if (process.env.NODE_ENV === 'test') {
+		const port = 3001
+		if (hasCerts) {
+			console.log(`Server running on https://${ip}:${port}`)
+			serve({
+				fetch: app.fetch,
+				createServer: createSecureServer,
+				serverOptions: {
+					key: fs.readFileSync(keyPath),
+					cert: fs.readFileSync(certPath),
+				},
+				port,
+				hostname,
+			})
+		} else {
+			console.log(`Server running on http://${ip}:${port}`)
+			serve({ fetch: app.fetch, port, hostname })
+		}
 	} else {
-		console.log(`Server running on http://${ip}:${port} (HTTPS certificates not found)`)
-		serve({ fetch: app.fetch, port, hostname })
+		const httpPort = process.env.HTTP_PORT ? parseInt(process.env.HTTP_PORT, 10) : 3000
+		const httpsPort = process.env.HTTPS_PORT ? parseInt(process.env.HTTPS_PORT, 10) : 3443
+		if (hasCerts) {
+			// HTTPS server
+			console.log(`HTTPS server running on https://${ip}:${httpsPort}`)
+			serve({
+				fetch: app.fetch,
+				createServer: createSecureServer,
+				serverOptions: {
+					key: fs.readFileSync(keyPath),
+					cert: fs.readFileSync(certPath),
+				},
+				port: httpsPort,
+				hostname,
+			})
+			// HTTP redirect server
+			const redirectApp = new Hono()
+			redirectApp.all('*', (c) => {
+				const fullUrl = c.req.url
+				const newUrl = fullUrl.replace(/^http:\/\//, 'https://').replace(/:(\d+)/, `:${httpsPort}`)
+				return c.redirect(newUrl, 301)
+			})
+			console.log(`HTTP server running on http://${ip}:${httpPort} (redirects to HTTPS)`)
+			serve({ fetch: redirectApp.fetch, port: httpPort, hostname })
+		} else {
+			console.log(`Server running on http://${ip}:${httpPort}`)
+			serve({ fetch: app.fetch, port: httpPort, hostname })
+		}
 	}
 }
 
