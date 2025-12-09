@@ -186,6 +186,10 @@
 	},
 	"register": {
 		"title": "Registracija člana",
-		"signature": "Potpis"
+		"signature": "Potpis",
+		"errors": {
+			"cardIdExists": "ID kartice već postoji",
+			"govIdExists": "JMBG već postoji"
+		}
 	}
 }

@@ -411,3 +411,19 @@ export async function logMessage(
 		args: [memberId, subject, message, method],
 	})
 }
+
+export async function cardIdExists(cardId: string): Promise<boolean> {
+	const rs = await db.execute({
+		sql: 'SELECT COUNT(*) as count FROM members WHERE card_id = ?',
+		args: [cardId],
+	})
+	return (rs.rows[0] as unknown as { count: number }).count > 0
+}
+
+export async function govIdExists(govId: string): Promise<boolean> {
+	const rs = await db.execute({
+		sql: 'SELECT COUNT(*) as count FROM members WHERE gov_id = ?',
+		args: [govId],
+	})
+	return (rs.rows[0] as unknown as { count: number }).count > 0
+}

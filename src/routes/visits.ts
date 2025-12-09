@@ -9,8 +9,8 @@ import { renderVisitRows } from '../views/components/visits'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
-export async function logVisit(memberId: number, t: TFn, timestamp?: string) {
-	await q.addVisit(memberId, timestamp)
+export async function logVisit(memberId: number, t: TFn, _timestamp?: string) {
+	await q.addVisit(memberId)
 	const visits = await q.getVisitsByMemberId(memberId)
 	const { content } = VisitList({ visits, t })
 	return String(content)

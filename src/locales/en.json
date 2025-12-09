@@ -186,6 +186,10 @@
 	},
 	"register": {
 		"title": "Member Registration",
-		"signature": "Signature"
+		"signature": "Signature",
+		"errors": {
+			"cardIdExists": "Card ID already exists",
+			"govIdExists": "Government ID already exists"
+		}
 	}
 }
