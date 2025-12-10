@@ -11,8 +11,9 @@ import { notFoundResponse } from './utils'
 
 export async function logVisit(memberId: number, t: TFn, _timestamp?: string) {
 	await q.addVisit(memberId)
+	const member = await q.getMember(memberId)
 	const visits = await q.getVisitsByMemberId(memberId)
-	const { content } = VisitList({ visits, t })
+	const { content } = VisitList({ visits, t, member: member || undefined })
 	return String(content)
 }
 
