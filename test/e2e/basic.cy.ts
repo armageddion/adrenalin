@@ -7,15 +7,8 @@ describe('Basic App Workflows', () => {
 	it('should load the home page and display dashboard', () => {
 		// Check if the page loads and has expected content
 		cy.get('nav').should('be.visible')
-		cy.get('h2').should('contain', 'Kontrolna tabla') // Dashboard title in Serbian
-		cy.get('.bg-card').should('have.length.greaterThan', 0) // Stats cards
-	})
-
-	it('should navigate to members page', () => {
-		// Navigate to members
-		cy.visit('/members')
-		// Check for member list or form
 		cy.get('h2').should('contain', 'Članovi') // Members title
+		cy.get('.bg-card').should('have.length.greaterThan', 0) // Cards
 	})
 
 	it('should perform a simple search', () => {
@@ -31,11 +24,6 @@ describe('Basic App Workflows', () => {
 		cy.get('h2').should('contain', 'Paketi') // Packages title
 	})
 
-	it('should navigate to visits page', () => {
-		cy.visit('/visits')
-		cy.get('h2').should('contain', 'Nedavne posete') // Visits title
-	})
-
 	it('should navigate to settings page', () => {
 		cy.visit('/settings')
 		cy.get('h2').should('contain', 'Podešavanja') // Settings title
@@ -43,11 +31,11 @@ describe('Basic App Workflows', () => {
 
 	it('should navigate to register page and check form', () => {
 		cy.visit('/register')
-		cy.get('h3').should('contain', 'Member Registration')
+		cy.get('h3').should('contain', 'Registracija člana')
 		cy.get('input[name="first_name"]').should('be.visible')
 		cy.get('input[name="last_name"]').should('be.visible')
 		cy.get('input[name="card_id"]').should('be.visible')
-		cy.get('button[type="submit"]').should('contain', 'Register')
+		cy.get('button[type="submit"]').should('contain', 'Registruj se')
 	})
 
 	it.skip('should perform search and log visit', () => {

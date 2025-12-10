@@ -165,6 +165,7 @@ describe('logVisit', () => {
 	beforeEach(() => {
 		vi.mock('../../src/queries', () => ({
 			addVisit: vi.fn(),
+			getMember: vi.fn(() => ({ id: 1, first_name: 'John', last_name: 'Doe' })),
 			getVisitsByMemberId: vi.fn(() => []),
 		}))
 	})
@@ -175,7 +176,7 @@ describe('logVisit', () => {
 
 		const result = await logVisit(memberId, mockT)
 
-		expect(q.addVisit).toHaveBeenCalledWith(memberId, undefined)
+		expect(q.addVisit).toHaveBeenCalledWith(memberId)
 		expect(q.getVisitsByMemberId).toHaveBeenCalledWith(memberId)
 		// Just check that it returns something
 		expect(result).toBeDefined()

@@ -5,7 +5,7 @@ import { createClient, type InValue } from '@libsql/client'
 import type { Member, Package, User, Visit } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const isTest = false // process.env.NODE_ENV === 'test'
+const isTest = process.env.NODE_ENV === 'test'
 console.log('isTest:', isTest, 'NODE_ENV:', process.env.NODE_ENV)
 
 let dbPath: string | undefined

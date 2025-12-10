@@ -59,7 +59,7 @@ describe('VisitList', () => {
 		const t = vi.fn((key) => key)
 
 		const content = VisitList({ visits, t })
-		const htmlString = content.toString()
+		const htmlString = String(content.content)
 		const dom = new JSDOM(htmlString)
 		const document = dom.window.document
 
@@ -112,11 +112,11 @@ describe('SearchResults', () => {
 		const t = vi.fn((key) => key)
 
 		const content = SearchResults({ members, t })
-		const htmlString = content.toString()
+		const htmlString = String(content)
 		const dom = new JSDOM(htmlString)
 		const document = dom.window.document
 
 		expect(document.querySelector('a[href="/members/1"]')?.textContent).toContain('John Doe')
-		expect(document.querySelector('span')?.textContent).toContain('CARD123')
+		expect(document.querySelector('.text-muted-foreground')?.textContent).toContain('CARD123')
 	})
 })
