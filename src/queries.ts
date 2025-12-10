@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createClient, type InValue } from '@libsql/client'
-import type { Member, Package, Visit } from './types'
+import type { Member, Package, Visit, User } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const isTest = process.env.NODE_ENV === 'test'
+const isTest = false // process.env.NODE_ENV === 'test'
+console.log('isTest:', isTest, 'NODE_ENV:', process.env.NODE_ENV)
 
 let dbPath: string | undefined
 if (process.env.DB_PATH) {
@@ -36,6 +37,7 @@ if (process.env.DB_PATH) {
 }
 
 const dbUrl = isTest ? ':memory:' : `file:${dbPath}`
+console.log('dbUrl:', dbUrl)
 // --- FIX END ---
 
 const schemaPath = process.env.ELECTRON_RUN_AS_NODE
@@ -53,6 +55,8 @@ if (!isTest && dbPath) {
 	}
 }
 
+console.log('final dbPath:', dbPath, 'dbUrl:', dbUrl)
+
 export const db = createClient({ url: dbUrl })
 
 export async function initDb() {
@@ -66,6 +70,11 @@ export async function initDb() {
 			console.log('Initializing new database at:', dbPath)
 			const schemaSql = fs.readFileSync(schemaPath, 'utf8')
 			await db.executeMultiple(schemaSql)
+			// Insert default admin user
+			await db.execute({
+				sql: 'INSERT OR IGNORE INTO users (username, password_hash, role) VALUES (?, ?, ?)',
+				args: ['admin', '$2b$10$RIg0/m/lxZRhLTllIWuCO.CzoRC5vhIDoCo1RnN2lKVuu6v20l75y', 'admin']
+			})
 		}
 	}
 
@@ -429,6 +438,45 @@ export async function govIdExists(govId: string): Promise<boolean> {
 	const rs = await db.execute({
 		sql: 'SELECT COUNT(*) as count FROM members WHERE gov_id = ?',
 		args: [govId],
+	})
+	return (rs.rows[0] as unknown as { count: number }).count > 0
+}
+
+export async function getUsers(): Promise<User[]> {
+	const rs = await db.execute('SELECT id, username, role, created_at, updated_at FROM users ORDER BY created_at DESC')
+	return rs.rows as unknown as User[]
+}
+
+export async function createUser(user: Omit<User, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
+	const rs = await db.execute({
+		sql: 'INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)',
+		args: [user.username, user.password_hash, user.role],
+	})
+	return Number(rs.lastInsertRowid)
+}
+
+export async function updateUser(id: number, user: Partial<User>): Promise<void> {
+	const fields = Object.keys(user).filter((key) => key !== 'id' && key !== 'created_at' && key !== 'updated_at')
+	const setClause = fields.map((field) => `${field} = ?`).join(', ')
+	const values: InValue[] = fields.map((field) => user[field as keyof User] ?? null)
+	values.push(id)
+	await db.execute({
+		sql: `UPDATE users SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+		args: values,
+	})
+}
+
+export async function deleteUser(id: number): Promise<void> {
+	await db.execute({
+		sql: 'DELETE FROM users WHERE id = ?',
+		args: [id],
+	})
+}
+
+export async function usernameExists(username: string): Promise<boolean> {
+	const rs = await db.execute({
+		sql: 'SELECT COUNT(*) as count FROM users WHERE username = ?',
+		args: [username],
 	})
 	return (rs.rows[0] as unknown as { count: number }).count > 0
 }

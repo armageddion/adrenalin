@@ -1,5 +1,6 @@
 import { useTranslation } from '@intlify/hono'
 import { type Context, Hono } from 'hono'
+import { html } from 'hono/html'
 import * as q from '../queries'
 import { SearchResults } from '../views/nav'
 import { logVisit } from './visits'
@@ -17,7 +18,7 @@ searchRouter.get('/members-search', async (c) => {
 	const t = useTranslation(c)
 	const query = c.req.query('q') || ''
 	if (!query) {
-		return c.html('<div id="search-results"></div>') // Empty when no query
+		return c.html(html`<div id="search-results"></div>`) // Empty when no query
 	}
 	const members = await q.searchMembers(query)
 
@@ -31,7 +32,7 @@ searchRouter.get('/visit-input', async (c) => {
 	const query = c.req.query('q') || ''
 	const timestamp = c.req.query('timestamp')
 	if (!query) {
-		return c.html('<div id="search-results"></div>') // Empty when no query
+		return c.html(html`<div id="search-results"></div>`) // Empty when no query
 	}
 	const members = await q.searchMembers(query)
 
@@ -54,7 +55,7 @@ searchRouter.get('/visit-input', async (c) => {
 })
 
 function renderSearchResults(c: Context, results: ReturnType<typeof SearchResults>) {
-	return c.html(`
+	return c.html(html`
 		<div id="search-results" class="fixed top-12 left-0 right-0 bg-background/50 backdrop-blur-lg border rounded shadow-lg max-h-96 overflow-y-auto">
 			${results}
 		</div>

@@ -22,9 +22,9 @@ export function parseMemberData(
 		gov_id: (body.gov_id as string) || undefined,
 		package_id: body.package_id
 			? (() => {
-					const p = Number.parseInt(body.package_id as string, 10)
-					return Number.isNaN(p) ? undefined : p
-				})()
+				const p = Number.parseInt(body.package_id as string, 10)
+				return Number.isNaN(p) ? undefined : p
+			})()
 			: undefined,
 		expires_at: (body.expires_at as string) || undefined,
 		image: (body.image as string) || undefined,
@@ -143,7 +143,7 @@ membersRouter.get('/:id', async (c) => {
 		const memberContent = html`
 			<div class="flex max-w-6xl w-full mx-auto my-6 gap-6">
 				${MemberCard({ member, memberPackage, t })}
-				${VisitList({ visits, t }).content}
+				${VisitList({ visits, t, member }).content}
 			</div>
 		`
 		if (c.req.header('HX-Request')) {

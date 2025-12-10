@@ -2,13 +2,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Hono } from 'hono'
+import { html } from 'hono/html'
+import { hashPassword, getUserByUsername } from '../middleware/auth'
+import { db } from '../queries'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const setupRouter = new Hono()
 
 setupRouter.get('/setup', (c) => {
-	return c.html(`
+	return c.html(html`
 		<!DOCTYPE html>
 		<html lang="en">
 		<head>
@@ -58,6 +61,20 @@ setupRouter.post('/setup', async (c) => {
 
 	const configPath = path.resolve(__dirname, '../../config.json')
 	fs.writeFileSync(configPath, JSON.stringify({ dbPath }))
+
+	// Create admin user if not exists
+	try {
+		const existingAdmin = await getUserByUsername('admin')
+		if (!existingAdmin) {
+			const passwordHash = await hashPassword('admin')
+			await db.execute({
+				sql: 'INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)',
+				args: ['admin', passwordHash, 'admin'],
+			})
+		}
+	} catch (error) {
+		// Ignore if table doesn't exist yet or other errors
+	}
 
 	return c.redirect('/')
 })

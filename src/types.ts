@@ -49,3 +49,12 @@ export interface Message {
 	method: string
 	created_at: string
 }
+
+export interface User {
+	id: number
+	username: string
+	password_hash: string
+	role: string
+	created_at: string
+	updated_at: string
+}

@@ -12,6 +12,20 @@ const dashboardRouter = new Hono()
 dashboardRouter.get('', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
+	const cookieHeader = c.req.raw.headers.get('cookie')
+	let user = null
+	if (cookieHeader) {
+		const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+			const [name, value] = cookie.trim().split('=')
+			acc[name] = decodeURIComponent(value)
+			return acc
+		}, {} as Record<string, string>)
+		if (cookies['user']) {
+			try {
+				user = JSON.parse(cookies['user'])
+			} catch {}
+		}
+	}
 
 	// Parse params for members
 	const memberPage = Number.parseInt(c.req.query('member_page') || '1', 10)
@@ -88,7 +102,7 @@ dashboardRouter.get('', async (c) => {
 			</div>
 		</div>
 	`
-	return c.html(PageLayout({ title: t('components.dashboard.title'), content, locale, t }))
+	return c.html(PageLayout({ title: t('components.dashboard.title'), content, locale, t, user }))
 })
 
 export default dashboardRouter

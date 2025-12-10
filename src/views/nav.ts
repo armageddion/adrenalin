@@ -27,7 +27,7 @@ export function Button({ href, onClick, className = '', children }: ButtonProps)
 	`
 }
 
-export function Nav({ t }: { t: TFn }) {
+export function Nav({ t, user }: { t: TFn; user?: { username: string; role: string } }) {
 	return html`
 		<header
 			x-data="{
@@ -99,6 +99,19 @@ export function Nav({ t }: { t: TFn }) {
 						</g>
 					</svg>
 				</a>
+				${
+					user
+						? html`
+					<div class="flex items-center gap-2">
+						${user.role === 'admin' ? Button({ href: '/users', children: 'Users' }) : ''}
+						<span class="text-sm">${user.username}</span>
+						<form method="post" action="/logout" class="inline">
+							<button type="submit" class="text-sm text-red-600 hover:text-red-800">Logout</button>
+						</form>
+					</div>
+				`
+						: ''
+				}
 			</nav>
 		</header>
 	`

@@ -1,16 +1,28 @@
 import fs from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { createSecureServer } from 'node:http2'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { serve } from '@hono/node-server'
-import { serveStatic } from '@hono/node-server/serve-static'
+
 import { initDb } from './queries'
 import app from './routes'
 import { getLocalIP } from './utils'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-app.use('/public/*', serveStatic({ root: './' }))
+app.get('/public/*', async (c) => {
+  const path = c.req.path
+  const filePath = path.replace('/public/', './public/')
+  try {
+    const data = await readFile(filePath)
+    const ext = path.split('.').pop()
+    const mime = ext === 'css' ? 'text/css' : ext === 'js' ? 'application/javascript' : 'text/plain'
+    return c.body(data, 200, { 'Content-Type': mime })
+  } catch {
+    return c.text('Not found', 404)
+  }
+})
 
 app.use('*', async (c, next) => {
 	if (c.req.path === '/setup' || c.req.method !== 'GET') return next()
@@ -24,6 +36,7 @@ app.use('*', async (c, next) => {
 })
 
 async function main() {
+	console.log('cwd:', process.cwd())
 	await initDb()
 	const hostname = '0.0.0.0'
 	const ip = getLocalIP()

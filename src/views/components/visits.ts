@@ -114,11 +114,13 @@ export function VisitList({
 	t,
 	pagination,
 	paramPrefix = '',
+	member,
 }: {
 	visits: Array<Visit & Pick<Member, 'first_name' | 'last_name'>>
 	t: TFn
 	pagination?: Pagination
 	paramPrefix?: string
+	member?: Member
 }) {
 	const visitRows = renderVisitRows(visits, t)
 
@@ -126,9 +128,14 @@ export function VisitList({
 		<div id="visits-list" class="bg-card py-6 rounded-lg shadow-md w-full">
 			<div class="h-10 px-6 flex justify-between items-center mb-4">
 				<h2 class="text-2xl font-bold">${t('components.visits.title')}</h2>
-				<button @click="$store.visitPopup.showVisitPopup = true" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
-					${t('buttons.logVisit')}
-				</button>
+				${member
+			? html`<button hx-post="/visits" hx-vals='{"card_id": "${member.card_id}"}' hx-target="#visits-list" hx-swap="outerHTML" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
+							${t('buttons.logVisit')}
+						</button>`
+			: html`<button @click="$store.visitPopup.showVisitPopup = true" class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 rounded">
+							${t('buttons.logVisit')}
+						</button>`
+		}
 			</div>
 			<table class="w-full">
 				<thead class="bg-background">

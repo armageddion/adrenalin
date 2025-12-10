@@ -11,9 +11,10 @@ interface LayoutProps {
 	locale?: string
 	hideNav?: boolean
 	t?: TFn
+	user?: { username: string; role: string }
 }
 
-export function PageLayout({ title, content, script, locale, hideNav, t }: LayoutProps) {
+export function PageLayout({ title, content, script, locale, hideNav, t, user }: LayoutProps) {
 	const { script: visitScript, markup: visitMarkup } = Visit(t)
 	return html`
 		<!DOCTYPE html>
@@ -28,7 +29,7 @@ export function PageLayout({ title, content, script, locale, hideNav, t }: Layou
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title>${title} - ${t ? t('app.name') : 'Adrenalin'}</title>
 				<link rel="icon" href="/public/favicon.ico">
-				<link rel="icon" type="image/svg+xml" href="/public/favicon.svg">
+				<link rel="icon" type="image/svg+xml" href="/public/logo.svg">
 				<link rel="manifest" href="/manifest.json">
 				<link href="/public/fonts/fonts.css" rel="stylesheet">
 				<script>
@@ -64,7 +65,7 @@ export function PageLayout({ title, content, script, locale, hideNav, t }: Layou
 				<link href="/public/styles.css" rel="stylesheet">
 			</head>
  			<body class="min-h-screen">
-				${hideNav ? '' : t ? Nav({ t }) : Nav({ t: () => '' })}
+				${hideNav ? '' : t ? Nav({ t, user }) : Nav({ t: () => '', user })}
 				<div id="search-results" class="relative z-10"></div>
 				${hideNav ? '' : visitMarkup}
 				<main>

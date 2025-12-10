@@ -54,6 +54,16 @@ CREATE TABLE IF NOT EXISTS messages (
 	FOREIGN KEY (member_id) REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS users (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	username TEXT NOT NULL UNIQUE,
+	password_hash TEXT NOT NULL,
+	role TEXT NOT NULL DEFAULT 'user',
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_members_card_id ON members(card_id);
 CREATE INDEX IF NOT EXISTS idx_visits_member_id ON visits(member_id);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
