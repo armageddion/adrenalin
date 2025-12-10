@@ -46,7 +46,7 @@ export function renderVisitRows(visits: Array<Visit & Pick<Member, 'first_name' 
 					<button
 						hx-delete="/visits/${visit.id}"
 						hx-confirm="${t('messages.confirmDelete')}"
-					hx-target="#visits-section"
+					hx-target="#visits-list"
 						hx-swap="outerHTML"
 						class="text-destructive hover:bg-destructive/20 px-3 py-1 rounded"
 					>

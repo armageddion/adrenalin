@@ -644,8 +644,6 @@ export function MemberForm({
 									type="button"
 									hx-delete="/members/${member.id}"
 									hx-confirm="${t('messages.confirmDelete')}"
-				hx-target="#members-section"
-									hx-swap="outerHTML"
 									class="bg-destructive text-destructive-foreground hover:bg-destructive/80 px-4 py-2 rounded"
 								>
 									${t('delete')}

@@ -319,11 +319,9 @@ membersRouter.post('/:id', async (c) => {
 })
 
 membersRouter.delete('/:id', async (c) => {
-	const t = useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	await q.deleteMember(id)
-	const members = await q.getMembers()
-	return c.html(MemberList({ members, t }).content as string)
+	c.header('HX-Redirect', '/')
+	return c.text('', 200)
 })
-
 export default membersRouter

@@ -4,7 +4,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
-import { Hono } from 'hono'
 import { initDb } from './queries'
 import app from './routes'
 import { getLocalIP } from './utils'
@@ -69,14 +68,8 @@ async function main() {
 				hostname,
 			})
 			// HTTP redirect server
-			const redirectApp = new Hono()
-			redirectApp.all('*', (c) => {
-				const fullUrl = c.req.url
-				const newUrl = fullUrl.replace(/^http:\/\//, 'https://').replace(/:(\d+)/, `:${httpsPort}`)
-				return c.redirect(newUrl, 301)
-			})
-			console.log(`HTTP server running on http://${ip}:${httpPort} (redirects to HTTPS)`)
-			serve({ fetch: redirectApp.fetch, port: httpPort, hostname })
+			console.log(`HTTP server running on http://${ip}:${httpPort}`)
+			serve({ fetch: app.fetch, port: httpPort, hostname })
 		} else {
 			console.log(`Server running on http://${ip}:${httpPort}`)
 			serve({ fetch: app.fetch, port: httpPort, hostname })
