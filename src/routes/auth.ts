@@ -1,8 +1,8 @@
+import { useTranslation } from '@intlify/hono'
 import { Hono } from 'hono'
 import { html } from 'hono/html'
-import { useTranslation } from '@intlify/hono'
+import { getUserByUsername, verifyPassword } from '../middleware/auth'
 import { customLocaleDetector } from '../middleware/i18n'
-import { verifyPassword, getUserByUsername } from '../middleware/auth'
 import { PageLayout } from '../views/layouts'
 
 const authRouter = new Hono()
@@ -46,7 +46,10 @@ authRouter.post('/login', async (c) => {
 		return c.html('<p class="text-red-600">Invalid credentials</p>')
 	}
 
-	c.header('Set-Cookie', `user=${encodeURIComponent(JSON.stringify({ id: user.id, username: user.username, role: user.role }))}; HttpOnly; ${process.env.NODE_ENV === 'production' ? 'Secure;' : ''} SameSite=Strict; Max-Age=604800`)
+	c.header(
+		'Set-Cookie',
+		`user=${encodeURIComponent(JSON.stringify({ id: user.id, username: user.username, role: user.role }))}; HttpOnly; ${process.env.NODE_ENV === 'production' ? 'Secure;' : ''} SameSite=Strict; Max-Age=604800`,
+	)
 	c.header('HX-Redirect', '/')
 	return c.text('')
 })

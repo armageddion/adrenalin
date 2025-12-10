@@ -61,19 +61,19 @@ import * as q from '../../src/queries'
 describe('Hono App Routes', () => {
 	beforeEach(() => {
 		// Set a dummy user cookie to bypass auth middleware
-		const userCookie = 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'test', role: 'admin' })) + '; Path=/'
+		const _userCookie = `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'test', role: 'admin' }))}; Path=/`
 		// Since Hono request doesn't have cookies easily, we need to mock or set headers
 		// Actually, for Hono, we can pass headers in request
 		// But to make it global, perhaps modify the app
 	})
 
 	// Helper to create request with user cookie
-	const requestWithUser = (url: string, options: RequestInit = {}) => {
+	const _requestWithUser = (url: string, options: RequestInit = {}) => {
 		return app.request(url, {
 			...options,
 			headers: {
 				...options.headers,
-				'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'test', role: 'admin' })),
+				Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'test', role: 'admin' }))}`,
 			},
 		})
 	}
@@ -339,7 +339,7 @@ describe('Hono App Routes', () => {
 
 	it('should return 200 for GET /users', async () => {
 		const response = await app.request('/users', {
-			headers: { 'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' })) },
+			headers: { Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' }))}` },
 		})
 		expect(response.status).toBe(200)
 		expect(await response.text()).toContain('Users')
@@ -352,7 +352,7 @@ describe('Hono App Routes', () => {
 
 	it('should return 200 for GET /users/new', async () => {
 		const response = await app.request('/users/new', {
-			headers: { 'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' })) },
+			headers: { Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' }))}` },
 		})
 		expect(response.status).toBe(200)
 		expect(await response.text()).toContain('Add User')
@@ -367,7 +367,7 @@ describe('Hono App Routes', () => {
 		const response = await app.request('/users', {
 			method: 'POST',
 			body,
-			headers: { 'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' })) },
+			headers: { Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' }))}` },
 		})
 
 		expect(response.status).toBe(200)
@@ -376,10 +376,19 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should return 200 for GET /users/1/edit', async () => {
-		vi.mocked(q.getUsers).mockResolvedValue([{ id: 1, username: 'test', password_hash: 'hash', role: 'user', created_at: '2023-01-01', updated_at: '2023-01-01' }])
+		vi.mocked(q.getUsers).mockResolvedValue([
+			{
+				id: 1,
+				username: 'test',
+				password_hash: 'hash',
+				role: 'user',
+				created_at: '2023-01-01',
+				updated_at: '2023-01-01',
+			},
+		])
 
 		const response = await app.request('/users/1/edit', {
-			headers: { 'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' })) },
+			headers: { Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' }))}` },
 		})
 		expect(response.status).toBe(200)
 		expect(await response.text()).toContain('Edit User')
@@ -393,7 +402,7 @@ describe('Hono App Routes', () => {
 		const response = await app.request('/users/1', {
 			method: 'PUT',
 			body,
-			headers: { 'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' })) },
+			headers: { Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' }))}` },
 		})
 
 		expect(response.status).toBe(200)
@@ -404,7 +413,7 @@ describe('Hono App Routes', () => {
 	it('should handle DELETE /users/1', async () => {
 		const response = await app.request('/users/1', {
 			method: 'DELETE',
-			headers: { 'Cookie': 'user=' + encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' })) },
+			headers: { Cookie: `user=${encodeURIComponent(JSON.stringify({ id: 1, username: 'admin', role: 'admin' }))}` },
 		})
 
 		expect(response.status).toBe(200)
@@ -505,14 +514,16 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should return 200 for GET /packages/1/edit', async () => {
-		vi.mocked(q.getPackages).mockResolvedValue([{
-			id: 1,
-			name: 'Test Package',
-			price: 50,
-			description: 'Test',
-			display_order: 1,
-			created_at: '2023-01-01',
-		}])
+		vi.mocked(q.getPackages).mockResolvedValue([
+			{
+				id: 1,
+				name: 'Test Package',
+				price: 50,
+				description: 'Test',
+				display_order: 1,
+				created_at: '2023-01-01',
+			},
+		])
 
 		const response = await app.request('/packages/1/edit')
 		expect(response.status).toBe(200)
@@ -545,31 +556,33 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should handle POST /visits', async () => {
-		vi.mocked(q.searchMembers).mockResolvedValue([{
-			id: 1,
-			first_name: 'John',
-			last_name: 'Doe',
-			email: 'john@example.com',
-			phone: '123456789',
-			card_id: 'CARD123',
-			gov_id: 'GOV123',
-			package_id: 1,
-			expires_at: '2025-12-31',
-			image: 'image.jpg',
-			notes: 'Test notes',
-			address_street: 'Main St',
-			address_number: '123',
-			address_city: 'Test City',
-			guardian: 0,
-			guardian_first_name: undefined,
-			guardian_last_name: undefined,
-			guardian_gov_id: undefined,
-			notify: 1,
-			year_of_birth: 1990,
-			created_at: '2023-01-01',
-			updated_at: '2023-01-01',
-			signature: undefined,
-		}])
+		vi.mocked(q.searchMembers).mockResolvedValue([
+			{
+				id: 1,
+				first_name: 'John',
+				last_name: 'Doe',
+				email: 'john@example.com',
+				phone: '123456789',
+				card_id: 'CARD123',
+				gov_id: 'GOV123',
+				package_id: 1,
+				expires_at: '2025-12-31',
+				image: 'image.jpg',
+				notes: 'Test notes',
+				address_street: 'Main St',
+				address_number: '123',
+				address_city: 'Test City',
+				guardian: 0,
+				guardian_first_name: undefined,
+				guardian_last_name: undefined,
+				guardian_gov_id: undefined,
+				notify: 1,
+				year_of_birth: 1990,
+				created_at: '2023-01-01',
+				updated_at: '2023-01-01',
+				signature: undefined,
+			},
+		])
 
 		const body = new FormData()
 		body.append('card_id', 'CARD123')
@@ -593,31 +606,33 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should handle GET /members-search', async () => {
-		vi.mocked(q.searchMembers).mockResolvedValue([{
-			id: 1,
-			first_name: 'John',
-			last_name: 'Doe',
-			email: 'john@example.com',
-			phone: '123456789',
-			card_id: 'CARD123',
-			gov_id: 'GOV123',
-			package_id: 1,
-			expires_at: '2025-12-31',
-			image: 'image.jpg',
-			notes: 'Test notes',
-			address_street: 'Main St',
-			address_number: '123',
-			address_city: 'Test City',
-			guardian: 0,
-			guardian_first_name: undefined,
-			guardian_last_name: undefined,
-			guardian_gov_id: undefined,
-			notify: 1,
-			year_of_birth: 1990,
-			created_at: '2023-01-01',
-			updated_at: '2023-01-01',
-			signature: undefined,
-		}])
+		vi.mocked(q.searchMembers).mockResolvedValue([
+			{
+				id: 1,
+				first_name: 'John',
+				last_name: 'Doe',
+				email: 'john@example.com',
+				phone: '123456789',
+				card_id: 'CARD123',
+				gov_id: 'GOV123',
+				package_id: 1,
+				expires_at: '2025-12-31',
+				image: 'image.jpg',
+				notes: 'Test notes',
+				address_street: 'Main St',
+				address_number: '123',
+				address_city: 'Test City',
+				guardian: 0,
+				guardian_first_name: undefined,
+				guardian_last_name: undefined,
+				guardian_gov_id: undefined,
+				notify: 1,
+				year_of_birth: 1990,
+				created_at: '2023-01-01',
+				updated_at: '2023-01-01',
+				signature: undefined,
+			},
+		])
 
 		const response = await app.request('/members-search?q=john')
 		expect(response.status).toBe(200)
@@ -625,31 +640,33 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should handle GET /visit-input with single result', async () => {
-		vi.mocked(q.searchMembers).mockResolvedValue([{
-			id: 1,
-			first_name: 'John',
-			last_name: 'Doe',
-			email: 'john@example.com',
-			phone: '123456789',
-			card_id: 'CARD123',
-			gov_id: 'GOV123',
-			package_id: 1,
-			expires_at: '2025-12-31',
-			image: 'image.jpg',
-			notes: 'Test notes',
-			address_street: 'Main St',
-			address_number: '123',
-			address_city: 'Test City',
-			guardian: 0,
-			guardian_first_name: undefined,
-			guardian_last_name: undefined,
-			guardian_gov_id: undefined,
-			notify: 1,
-			year_of_birth: 1990,
-			created_at: '2023-01-01',
-			updated_at: '2023-01-01',
-			signature: undefined,
-		}])
+		vi.mocked(q.searchMembers).mockResolvedValue([
+			{
+				id: 1,
+				first_name: 'John',
+				last_name: 'Doe',
+				email: 'john@example.com',
+				phone: '123456789',
+				card_id: 'CARD123',
+				gov_id: 'GOV123',
+				package_id: 1,
+				expires_at: '2025-12-31',
+				image: 'image.jpg',
+				notes: 'Test notes',
+				address_street: 'Main St',
+				address_number: '123',
+				address_city: 'Test City',
+				guardian: 0,
+				guardian_first_name: undefined,
+				guardian_last_name: undefined,
+				guardian_gov_id: undefined,
+				notify: 1,
+				year_of_birth: 1990,
+				created_at: '2023-01-01',
+				updated_at: '2023-01-01',
+				signature: undefined,
+			},
+		])
 
 		const response = await app.request('/visit-input?q=CARD123')
 		expect(response.status).toBe(200)
@@ -658,31 +675,33 @@ describe('Hono App Routes', () => {
 	})
 
 	it('should handle POST /settings/print-consents', async () => {
-		vi.mocked(q.getMembersWithSignatures).mockResolvedValue([{
-			id: 1,
-			first_name: 'John',
-			last_name: 'Doe',
-			email: 'john@example.com',
-			phone: '123456789',
-			card_id: 'CARD123',
-			gov_id: 'GOV123',
-			package_id: 1,
-			expires_at: '2025-12-31',
-			image: 'image.jpg',
-			notes: 'Test notes',
-			address_street: 'Main St',
-			address_number: '123',
-			address_city: 'Test City',
-			guardian: 0,
-			guardian_first_name: undefined,
-			guardian_last_name: undefined,
-			guardian_gov_id: undefined,
-			notify: 1,
-			year_of_birth: 1990,
-			created_at: '2023-01-01',
-			updated_at: '2023-01-01',
-			signature: 'data:image/png;base64,test',
-		}])
+		vi.mocked(q.getMembersWithSignatures).mockResolvedValue([
+			{
+				id: 1,
+				first_name: 'John',
+				last_name: 'Doe',
+				email: 'john@example.com',
+				phone: '123456789',
+				card_id: 'CARD123',
+				gov_id: 'GOV123',
+				package_id: 1,
+				expires_at: '2025-12-31',
+				image: 'image.jpg',
+				notes: 'Test notes',
+				address_street: 'Main St',
+				address_number: '123',
+				address_city: 'Test City',
+				guardian: 0,
+				guardian_first_name: undefined,
+				guardian_last_name: undefined,
+				guardian_gov_id: undefined,
+				notify: 1,
+				year_of_birth: 1990,
+				created_at: '2023-01-01',
+				updated_at: '2023-01-01',
+				signature: 'data:image/png;base64,test',
+			},
+		])
 
 		const response = await app.request('/settings/print-consents', {
 			method: 'POST',

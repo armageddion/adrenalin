@@ -1,14 +1,15 @@
+import { useTranslation } from '@intlify/hono'
+import type { Context } from 'hono'
 import { Hono } from 'hono'
 import { html } from 'hono/html'
-import { useTranslation } from '@intlify/hono'
-import { customLocaleDetector } from '../middleware/i18n'
 import { hashPassword } from '../middleware/auth'
-import { getUsers, createUser, updateUser, deleteUser, usernameExists } from '../queries'
+import { customLocaleDetector } from '../middleware/i18n'
+import { createUser, deleteUser, getUsers, updateUser, usernameExists } from '../queries'
 import { PageLayout } from '../views/layouts'
 
 const usersRouter = new Hono()
 
-function getUserFromCookie(c: any) {
+function getUserFromCookie(c: Context) {
 	const cookieHeader = c.req.raw.headers.get('cookie')
 	if (!cookieHeader) return null
 	const cookies = cookieHeader.split(';').reduce((acc: Record<string, string>, cookie: string) => {
@@ -16,10 +17,10 @@ function getUserFromCookie(c: any) {
 		acc[name] = decodeURIComponent(value)
 		return acc
 	}, {})
-	if (cookies['user']) {
+	if (cookies.user) {
 		try {
-			return JSON.parse(cookies['user'])
-		} catch { }
+			return JSON.parse(cookies.user)
+		} catch {}
 	}
 	return null
 }
@@ -55,7 +56,7 @@ usersRouter.get('/', async (c) => {
 					</thead>
 					<tbody class="bg-card divide-y divide-border">
 						${users.map(
-		(user) => html`
+							(user) => html`
 							<tr>
 								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${user.username}</td>
 								<td class="px-6 py-4 whitespace-nowrap text-sm">${user.role}</td>
@@ -66,7 +67,7 @@ usersRouter.get('/', async (c) => {
 								</td>
 							</tr>
 						`,
-	)}
+						)}
 					</tbody>
 				</table>
 			</div>
@@ -137,7 +138,7 @@ usersRouter.get('/:id/edit', async (c) => {
 	const t = useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const currentUser = getUserFromCookie(c)
-	const id = parseInt(c.req.param('id'))
+	const id = parseInt(c.req.param('id'), 10)
 	const users = await getUsers()
 	const user = users.find((u) => u.id === id)
 	if (!user) return c.text('User not found', 404)
@@ -172,13 +173,13 @@ usersRouter.get('/:id/edit', async (c) => {
 })
 
 usersRouter.put('/:id', async (c) => {
-	const id = parseInt(c.req.param('id'))
+	const id = parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const username = body.username as string
 	const role = body.role as string
 	const password = body.password as string
 
-	const updateData: any = { username, role }
+	const updateData: Record<string, string> = { username, role }
 	if (password) {
 		updateData.password_hash = await hashPassword(password)
 	}
@@ -189,7 +190,7 @@ usersRouter.put('/:id', async (c) => {
 })
 
 usersRouter.delete('/:id', async (c) => {
-	const id = parseInt(c.req.param('id'))
+	const id = parseInt(c.req.param('id'), 10)
 	await deleteUser(id)
 	return c.text('User deleted', 200)
 })

@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createClient, type InValue } from '@libsql/client'
-import type { Member, Package, Visit, User } from './types'
+import type { Member, Package, User, Visit } from './types'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isTest = false // process.env.NODE_ENV === 'test'
@@ -73,7 +73,7 @@ export async function initDb() {
 			// Insert default admin user
 			await db.execute({
 				sql: 'INSERT OR IGNORE INTO users (username, password_hash, role) VALUES (?, ?, ?)',
-				args: ['admin', '$2b$10$RIg0/m/lxZRhLTllIWuCO.CzoRC5vhIDoCo1RnN2lKVuu6v20l75y', 'admin']
+				args: ['admin', '$2b$10$RIg0/m/lxZRhLTllIWuCO.CzoRC5vhIDoCo1RnN2lKVuu6v20l75y', 'admin'],
 			})
 		}
 	}

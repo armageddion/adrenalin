@@ -22,9 +22,9 @@ export function parseMemberData(
 		gov_id: (body.gov_id as string) || undefined,
 		package_id: body.package_id
 			? (() => {
-				const p = Number.parseInt(body.package_id as string, 10)
-				return Number.isNaN(p) ? undefined : p
-			})()
+					const p = Number.parseInt(body.package_id as string, 10)
+					return Number.isNaN(p) ? undefined : p
+				})()
 			: undefined,
 		expires_at: (body.expires_at as string) || undefined,
 		image: (body.image as string) || undefined,

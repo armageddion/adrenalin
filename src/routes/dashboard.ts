@@ -15,14 +15,17 @@ dashboardRouter.get('', async (c) => {
 	const cookieHeader = c.req.raw.headers.get('cookie')
 	let user = null
 	if (cookieHeader) {
-		const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-			const [name, value] = cookie.trim().split('=')
-			acc[name] = decodeURIComponent(value)
-			return acc
-		}, {} as Record<string, string>)
-		if (cookies['user']) {
+		const cookies = cookieHeader.split(';').reduce(
+			(acc, cookie) => {
+				const [name, value] = cookie.trim().split('=')
+				acc[name] = decodeURIComponent(value)
+				return acc
+			},
+			{} as Record<string, string>,
+		)
+		if (cookies.user) {
 			try {
-				user = JSON.parse(cookies['user'])
+				user = JSON.parse(cookies.user)
 			} catch {}
 		}
 	}

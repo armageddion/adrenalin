@@ -16,7 +16,13 @@ const app = new Hono()
 app.use('*', i18nMiddleware)
 if (process.env.NODE_ENV !== 'test') {
 	app.use('*', async (c, next) => {
-		if (c.req.path === '/login' || c.req.path === '/setup' || c.req.path === '/manifest.json' || c.req.path.startsWith('/public/') || c.req.method !== 'GET') {
+		if (
+			c.req.path === '/login' ||
+			c.req.path === '/setup' ||
+			c.req.path === '/manifest.json' ||
+			c.req.path.startsWith('/public/') ||
+			c.req.method !== 'GET'
+		) {
 			return next()
 		}
 		const cookieHeader = c.req.raw.headers.get('cookie')
@@ -58,7 +64,5 @@ app.route('/users', usersRouter)
 app.route('/members', membersRouter)
 app.route('/packages', packagesRouter)
 app.route('/visits', visitsRouter)
-
-
 
 export default app

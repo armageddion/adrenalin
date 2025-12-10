@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Hono } from 'hono'
 import { html } from 'hono/html'
-import { hashPassword, getUserByUsername } from '../middleware/auth'
+import { getUserByUsername, hashPassword } from '../middleware/auth'
 import { db } from '../queries'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -72,7 +72,7 @@ setupRouter.post('/setup', async (c) => {
 				args: ['admin', passwordHash, 'admin'],
 			})
 		}
-	} catch (error) {
+	} catch (_error) {
 		// Ignore if table doesn't exist yet or other errors
 	}
 

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
-import type { User } from '../types'
+import type { MiddlewareHandler } from 'hono'
 import { db } from '../queries'
+import type { User } from '../types'
 
 export async function hashPassword(password: string): Promise<string> {
 	return bcrypt.hash(password, 10)
@@ -26,8 +27,8 @@ export async function getUserById(id: number): Promise<User | undefined> {
 	return rs.rows[0] as unknown as User | undefined
 }
 
-export function requireAuth() {
-	return async (c: any, next: any) => {
+export function requireAuth(): MiddlewareHandler {
+	return async (c, next) => {
 		const user = c.get('user')
 		if (!user) {
 			return c.redirect('/login')
@@ -36,8 +37,8 @@ export function requireAuth() {
 	}
 }
 
-export function requireAdmin() {
-	return async (c: any, next: any) => {
+export function requireAdmin(): MiddlewareHandler {
+	return async (c, next) => {
 		const user = c.get('user')
 		if (!user || user.role !== 'admin') {
 			return c.text('Forbidden', 403)

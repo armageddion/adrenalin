@@ -12,16 +12,16 @@ import { getLocalIP } from './utils'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 app.get('/public/*', async (c) => {
-  const path = c.req.path
-  const filePath = path.replace('/public/', './public/')
-  try {
-    const data = await readFile(filePath)
-    const ext = path.split('.').pop()
-    const mime = ext === 'css' ? 'text/css' : ext === 'js' ? 'application/javascript' : 'text/plain'
-    return c.body(data, 200, { 'Content-Type': mime })
-  } catch {
-    return c.text('Not found', 404)
-  }
+	const path = c.req.path
+	const filePath = path.replace('/public/', './public/')
+	try {
+		const data = await readFile(filePath)
+		const ext = path.split('.').pop()
+		const mime = ext === 'css' ? 'text/css' : ext === 'js' ? 'application/javascript' : 'text/plain'
+		return c.body(data, 200, { 'Content-Type': mime })
+	} catch {
+		return c.text('Not found', 404)
+	}
 })
 
 app.use('*', async (c, next) => {
