@@ -8,14 +8,14 @@ import { logVisit } from './visits'
 const searchRouter = new Hono()
 
 searchRouter.get('/search', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const query = c.req.query('q') || ''
 	const members = await q.searchMembers(query)
 	return c.html(SearchResults({ members, t }))
 })
 
 searchRouter.get('/members-search', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const query = c.req.query('q') || ''
 	if (!query) {
 		return c.html(html`<div id="search-results"></div>`) // Empty when no query
@@ -28,7 +28,7 @@ searchRouter.get('/members-search', async (c) => {
 })
 
 searchRouter.get('/visit-input', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const query = c.req.query('q') || ''
 	const timestamp = c.req.query('timestamp')
 	if (!query) {

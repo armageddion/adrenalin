@@ -13,8 +13,8 @@ import { PageLayout } from '../views/layouts'
 
 const settingsRouter = new Hono()
 
-settingsRouter.get('/settings', (c) => {
-	const t = useTranslation(c)
+settingsRouter.get('/settings', async (c) => {
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const ip = getLocalIP()
 	return c.html(

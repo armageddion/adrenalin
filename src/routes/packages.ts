@@ -21,7 +21,7 @@ export function parsePackageData(body: Record<string, unknown>, _isUpdate = fals
 const packagesRouter = new Hono()
 
 packagesRouter.get('/', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const packages = await q.getPackages()
 	const content = html`
@@ -41,8 +41,8 @@ packagesRouter.get('/', async (c) => {
 	)
 })
 
-packagesRouter.get('/new', (c) => {
-	const t = useTranslation(c)
+packagesRouter.get('/new', async (c) => {
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	return c.html(
 		PageLayout({
@@ -55,7 +55,7 @@ packagesRouter.get('/new', (c) => {
 })
 
 packagesRouter.get('/:id/edit', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const packages = await q.getPackages()
@@ -95,7 +95,7 @@ packagesRouter.post('/:id', async (c) => {
 })
 
 packagesRouter.delete('/:id', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	await q.deletePackage(id)
 	const packages = await q.getPackages()

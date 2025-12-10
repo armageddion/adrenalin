@@ -34,7 +34,7 @@ usersRouter.use('*', async (c, next) => {
 })
 
 usersRouter.get('/', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const user = getUserFromCookie(c)
 	const users = await getUsers()
@@ -76,8 +76,8 @@ usersRouter.get('/', async (c) => {
 	return c.html(PageLayout({ title: 'Users', content, locale, t, user }))
 })
 
-usersRouter.get('/new', (c) => {
-	const t = useTranslation(c)
+usersRouter.get('/new', async (c) => {
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const user = getUserFromCookie(c)
 	const query = c.req.query()
@@ -135,7 +135,7 @@ usersRouter.post('/', async (c) => {
 })
 
 usersRouter.get('/:id/edit', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const currentUser = getUserFromCookie(c)
 	const id = parseInt(c.req.param('id'), 10)

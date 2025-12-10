@@ -458,7 +458,7 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = []) 
 }
 
 registerRouter.get('/register', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const packages = await q.getPackages()
 
@@ -468,7 +468,7 @@ registerRouter.get('/register', async (c) => {
 })
 
 registerRouter.post('/register', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const member = {
 		first_name: body.first_name as string,

@@ -10,7 +10,7 @@ import { PageLayout } from '../views/layouts'
 const dashboardRouter = new Hono()
 
 dashboardRouter.get('', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const cookieHeader = c.req.raw.headers.get('cookie')
 	let user = null

@@ -20,7 +20,7 @@ export async function logVisit(memberId: number, t: TFn, _timestamp?: string) {
 const visitsRouter = new Hono()
 
 visitsRouter.get('/', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 
 	const page = Number.parseInt(c.req.query('page') || '1', 10)
@@ -61,7 +61,7 @@ visitsRouter.get('/', async (c) => {
 })
 
 visitsRouter.post('/', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const cardId = body.card_id as string
 	const timestamp = body.timestamp as string | undefined
@@ -74,7 +74,7 @@ visitsRouter.post('/', async (c) => {
 })
 
 visitsRouter.delete('/:id', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	await q.deleteVisit(id)
 	const referer = c.req.header('Referer') || ''

@@ -48,7 +48,7 @@ export function parseMemberData(
 const membersRouter = new Hono()
 
 membersRouter.get('/', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 
 	const page = Number.parseInt(c.req.query('page') || '1', 10)
@@ -116,7 +116,7 @@ membersRouter.get('/', async (c) => {
 })
 
 membersRouter.get('/new', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const packages = await q.getPackages()
 	const { content, script } = MemberForm({ packages, member: null, t })
@@ -132,7 +132,7 @@ membersRouter.get('/new', async (c) => {
 })
 
 membersRouter.get('/:id', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const member = await q.getMember(id)
@@ -162,7 +162,7 @@ membersRouter.get('/:id', async (c) => {
 })
 
 membersRouter.get('/:id/edit', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const member = await q.getMember(id)
@@ -194,7 +194,7 @@ membersRouter.get('/:id/edit', async (c) => {
 })
 
 membersRouter.get('/:id/consent', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const member = await q.getMember(id)
 	if (member?.signature) {
@@ -301,7 +301,7 @@ membersRouter.get('/:id/consent', async (c) => {
 })
 
 membersRouter.post('/', async (c) => {
-	const t = useTranslation(c)
+	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const member = parseMemberData(body)
 	await q.addMember(member)

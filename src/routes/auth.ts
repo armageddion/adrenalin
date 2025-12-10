@@ -7,8 +7,8 @@ import { PageLayout } from '../views/layouts'
 
 const authRouter = new Hono()
 
-authRouter.get('/login', (c) => {
-	const t = useTranslation(c)
+authRouter.get('/login', async (c) => {
+	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
 	const content = html`
 		<div class="flex items-center justify-center min-h-screen">
