@@ -36,6 +36,18 @@ export function Settings({ t, locale, ip }: { t: TFn; locale: string; ip: string
 				setLanguage(lang) {
 					this.currentLanguage = lang;
 					setLocale(lang);
+				},
+				async printConsents() {
+					try {
+						const response = await fetch('/settings/print-consents', { method: 'POST' });
+						if (response.ok) {
+							alert('Consents printed successfully!');
+						} else {
+							alert('Error printing consents.');
+						}
+					} catch (error) {
+						alert('Error: ' + error.message);
+					}
 				}
 			}"
 			x-init="initApiKey()"
@@ -121,6 +133,14 @@ export function Settings({ t, locale, ip }: { t: TFn; locale: string; ip: string
 					<div class="px-3 py-2 border border-input rounded bg-muted text-muted-foreground">
 						${ip}
 					</div>
+				</div>
+				<div>
+					<button
+						x-on:click="printConsents()"
+						class="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/80"
+					>
+						Print Consents
+					</button>
 				</div>
 			</div>
 		</div>

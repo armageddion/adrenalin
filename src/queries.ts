@@ -82,6 +82,11 @@ export async function getMembers(): Promise<Member[]> {
 	return rs.rows as unknown as Member[]
 }
 
+export async function getMembersWithSignatures(): Promise<Member[]> {
+	const rs = await db.execute('SELECT * FROM members WHERE signature IS NOT NULL ORDER BY id ASC')
+	return rs.rows as unknown as Member[]
+}
+
 export async function getMembersPaginated(page: number, limit: number): Promise<Member[]> {
 	const offset = (page - 1) * limit
 	const rs = await db.execute({
