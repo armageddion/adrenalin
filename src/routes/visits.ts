@@ -1,20 +1,20 @@
 import { useTranslation } from '@intlify/hono'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import { html } from 'hono/html'
 import { customLocaleDetector, type TFn } from '../middleware/i18n'
 import * as q from '../queries'
-import type { Member, Visit } from '../types'
+import type { AppContext, Member, Visit } from '../types'
 import { VisitList } from '../views/components'
 import { renderVisitRows } from '../views/components/visits'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
 
 export async function logVisit(memberId: number, t: TFn, _timestamp?: string) {
-	await q.addVisit(memberId)
+	const visitId = await q.addVisit(memberId)
 	const member = await q.getMember(memberId)
 	const visits = await q.getVisitsByMemberId(memberId)
 	const { content } = VisitList({ visits, t, member: member || undefined })
-	return String(content)
+	return { html: String(content), visitId }
 }
 
 const visitsRouter = new Hono()
@@ -60,7 +60,7 @@ visitsRouter.get('/', async (c) => {
 	)
 })
 
-visitsRouter.post('/', async (c) => {
+visitsRouter.post('/', async (c: Context<AppContext>) => {
 	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const cardId = body.card_id as string
@@ -68,14 +68,39 @@ visitsRouter.post('/', async (c) => {
 	const members = await q.searchMembers(cardId)
 	const member = members[0]
 	if (member) {
-		return c.html(await logVisit(member.id, t, timestamp))
+		const { html, visitId } = await logVisit(member.id, t, timestamp)
+		const user = c.get('user')
+		if (user) {
+			await q.logUserAction(
+				user.id,
+				'create_visit',
+				'visit',
+				visitId,
+				undefined,
+				c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+				c.req.header('User-Agent') || 'unknown',
+			)
+		}
+		return c.html(html)
 	}
 	return notFoundResponse(c, t, 'member')
 })
 
-visitsRouter.delete('/:id', async (c) => {
+visitsRouter.delete('/:id', async (c: Context<AppContext>) => {
 	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'delete_visit',
+			'visit',
+			id,
+			undefined,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	await q.deleteVisit(id)
 	const referer = c.req.header('Referer') || ''
 	const memberMatch = referer.match(/\/members\/(\d+)/)

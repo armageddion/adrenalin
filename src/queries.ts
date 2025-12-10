@@ -299,8 +299,16 @@ export async function getPackages(): Promise<Package[]> {
 	return rs.rows as unknown as Package[]
 }
 
-export async function addVisit(memberId: number): Promise<void> {
-	await db.execute({
+export async function getPackage(id: number): Promise<Package | undefined> {
+	const rs = await db.execute({
+		sql: 'SELECT * FROM packages WHERE id = ?',
+		args: [id],
+	})
+	return rs.rows[0] as unknown as Package | undefined
+}
+
+export async function addVisit(memberId: number): Promise<number> {
+	const rs = await db.execute({
 		sql: 'INSERT INTO visits (member_id) VALUES (?)',
 		args: [memberId],
 	})
@@ -309,6 +317,8 @@ export async function addVisit(memberId: number): Promise<void> {
 		sql: 'UPDATE members SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
 		args: [memberId],
 	})
+
+	return rs.lastInsertRowid as unknown as number
 }
 
 export async function addMember(
@@ -342,7 +352,7 @@ export async function addMember(
 			member.year_of_birth || null,
 		],
 	})
-	return Number(rs.lastInsertRowid)
+	return rs.lastInsertRowid as unknown as number
 }
 
 export async function updateMember(id: number, member: Partial<Member>): Promise<void> {
@@ -378,7 +388,7 @@ export async function addPackage(pkg: Omit<Package, 'id' | 'created_at'>): Promi
 		sql: 'INSERT INTO packages (name, price, description, display_order) VALUES (?, ?, ?, ?)',
 		args: [pkg.name, pkg.price || null, pkg.description || null, pkg.display_order || null],
 	})
-	return Number(rs.lastInsertRowid)
+	return rs.lastInsertRowid as unknown as number
 }
 
 export async function updatePackage(id: number, pkg: Partial<Package>): Promise<void> {
@@ -443,8 +453,16 @@ export async function govIdExists(govId: string): Promise<boolean> {
 }
 
 export async function getUsers(): Promise<User[]> {
-	const rs = await db.execute('SELECT id, username, role, created_at, updated_at FROM users ORDER BY created_at DESC')
+	const rs = await db.execute('SELECT id, username, role, created_at, updated_at FROM users')
 	return rs.rows as unknown as User[]
+}
+
+export async function getUser(id: number): Promise<User | undefined> {
+	const rs = await db.execute({
+		sql: 'SELECT id, username, role, created_at, updated_at FROM users WHERE id = ?',
+		args: [id],
+	})
+	return rs.rows[0] as unknown as User | undefined
 }
 
 export async function createUser(user: Omit<User, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
@@ -452,7 +470,7 @@ export async function createUser(user: Omit<User, 'id' | 'created_at' | 'updated
 		sql: 'INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)',
 		args: [user.username, user.password_hash, user.role],
 	})
-	return Number(rs.lastInsertRowid)
+	return rs.lastInsertRowid as unknown as number
 }
 
 export async function updateUser(id: number, user: Partial<User>): Promise<void> {
@@ -479,4 +497,35 @@ export async function usernameExists(username: string): Promise<boolean> {
 		args: [username],
 	})
 	return (rs.rows[0] as unknown as { count: number }).count > 0
+}
+
+export async function logUserAction(
+	userId: number,
+	action: string,
+	resource?: string,
+	resourceId?: number,
+	details?: Record<string, unknown>,
+	ip?: string,
+	ua?: string,
+) {
+	await db.execute(
+		'INSERT INTO user_actions (user_id, action, resource, resource_id, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)',
+		[
+			userId,
+			action,
+			resource || null,
+			resourceId || null,
+			details ? JSON.stringify(details) : null,
+			ip || 'unknown',
+			ua || 'unknown',
+		],
+	)
+}
+
+export async function getUserActions(userId?: number, limit = 100, offset = 0) {
+	const sql = userId
+		? 'SELECT * FROM user_actions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?'
+		: 'SELECT * FROM user_actions ORDER BY created_at DESC LIMIT ? OFFSET ?'
+	const args = userId ? [userId, limit, offset] : [limit, offset]
+	return db.execute(sql, args)
 }

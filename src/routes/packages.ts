@@ -1,9 +1,9 @@
 import { useTranslation } from '@intlify/hono'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import { html } from 'hono/html'
 import { customLocaleDetector } from '../middleware/i18n'
 import * as q from '../queries'
-import type { Package } from '../types'
+import type { AppContext, Package } from '../types'
 import { PackageForm, PackageList } from '../views/components'
 import { PageLayout } from '../views/layouts'
 import { notFoundResponse } from './utils'
@@ -47,7 +47,7 @@ packagesRouter.get('/new', async (c) => {
 	return c.html(
 		PageLayout({
 			title: t('components.packageForm.addTitle'),
-			content: PackageForm({ package: null, t }),
+			content: PackageForm({ package: undefined, t }),
 			locale,
 			t,
 		}),
@@ -77,26 +77,64 @@ packagesRouter.get('/:id/edit', async (c) => {
 	return notFoundResponse(c, t, 'package')
 })
 
-packagesRouter.post('/', async (c) => {
+packagesRouter.post('/', async (c: Context<AppContext>) => {
 	const body = await c.req.parseBody()
 	const pkg = parsePackageData(body)
-	await q.addPackage(pkg)
+	const newId = await q.addPackage(pkg)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'create_package',
+			'package',
+			newId,
+			undefined,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	c.header('HX-Redirect', '/packages')
 	return c.text('', 200)
 })
 
-packagesRouter.post('/:id', async (c) => {
+packagesRouter.post('/:id', async (c: Context<AppContext>) => {
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const updates = parsePackageData(body, true)
+	const oldPackage = await q.getPackage(id)
 	await q.updatePackage(id, updates)
+	const newPackage = await q.getPackage(id)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'update_package',
+			'package',
+			id,
+			{ before: oldPackage, after: newPackage },
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	c.header('HX-Redirect', '/packages')
 	return c.text('', 200)
 })
 
-packagesRouter.delete('/:id', async (c) => {
+packagesRouter.delete('/:id', async (c: Context<AppContext>) => {
 	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'delete_package',
+			'package',
+			id,
+			undefined,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	await q.deletePackage(id)
 	const packages = await q.getPackages()
 	return c.html(PackageList({ packages, t }))

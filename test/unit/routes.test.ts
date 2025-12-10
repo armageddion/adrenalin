@@ -164,9 +164,9 @@ describe('parsePackageData', () => {
 describe('logVisit', () => {
 	beforeEach(() => {
 		vi.mock('../../src/queries', () => ({
-			addVisit: vi.fn(),
-			getMember: vi.fn(() => ({ id: 1, first_name: 'John', last_name: 'Doe' })),
+			addVisit: vi.fn(() => 1),
 			getVisitsByMemberId: vi.fn(() => []),
+			getMember: vi.fn(() => ({ id: 1, first_name: 'John', last_name: 'Doe' })),
 		}))
 	})
 
@@ -178,8 +178,8 @@ describe('logVisit', () => {
 
 		expect(q.addVisit).toHaveBeenCalledWith(memberId)
 		expect(q.getVisitsByMemberId).toHaveBeenCalledWith(memberId)
-		// Just check that it returns something
-		expect(result).toBeDefined()
+		expect(result).toHaveProperty('html')
+		expect(result).toHaveProperty('visitId', 1)
 	})
 })
 

@@ -63,7 +63,22 @@ CREATE TABLE IF NOT EXISTS users (
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS user_actions (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	user_id INTEGER NOT NULL,
+	action TEXT NOT NULL,
+	resource TEXT,
+	resource_id INTEGER,
+	details TEXT,
+	ip_address TEXT,
+	user_agent TEXT,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE INDEX IF NOT EXISTS idx_members_card_id ON members(card_id);
 CREATE INDEX IF NOT EXISTS idx_visits_member_id ON visits(member_id);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_user_actions_user_id ON user_actions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_actions_created_at ON user_actions(created_at);
 

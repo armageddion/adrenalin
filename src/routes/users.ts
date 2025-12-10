@@ -4,7 +4,9 @@ import { Hono } from 'hono'
 import { html } from 'hono/html'
 import { hashPassword } from '../middleware/auth'
 import { customLocaleDetector } from '../middleware/i18n'
+import * as q from '../queries'
 import { createUser, deleteUser, getUsers, updateUser, usernameExists } from '../queries'
+import type { AppContext } from '../types'
 import { PageLayout } from '../views/layouts'
 
 const usersRouter = new Hono()
@@ -113,7 +115,7 @@ usersRouter.get('/new', async (c) => {
 	return c.html(PageLayout({ title: 'Add User', content, locale, t, user }))
 })
 
-usersRouter.post('/', async (c) => {
+usersRouter.post('/', async (c: Context<AppContext>) => {
 	const body = await c.req.parseBody()
 	const username = body.username as string
 	const password = body.password as string
@@ -128,7 +130,19 @@ usersRouter.post('/', async (c) => {
 	}
 
 	const passwordHash = await hashPassword(password)
-	await createUser({ username, password_hash: passwordHash, role: role || 'user' })
+	const newId = await createUser({ username, password_hash: passwordHash, role: role || 'user' })
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'create_user',
+			'user',
+			newId,
+			undefined,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 
 	c.header('HX-Redirect', '/users')
 	return c.text('', 200)
@@ -172,7 +186,7 @@ usersRouter.get('/:id/edit', async (c) => {
 	return c.html(PageLayout({ title: 'Edit User', content, locale, t, user: currentUser }))
 })
 
-usersRouter.put('/:id', async (c) => {
+usersRouter.put('/:id', async (c: Context<AppContext>) => {
 	const id = parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const username = body.username as string
@@ -184,13 +198,39 @@ usersRouter.put('/:id', async (c) => {
 		updateData.password_hash = await hashPassword(password)
 	}
 
+	const oldUser = await q.getUser(id)
 	await updateUser(id, updateData)
+	const newUser = await q.getUser(id)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'update_user',
+			'user',
+			id,
+			{ before: oldUser, after: newUser },
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	c.header('HX-Redirect', '/users')
 	return c.text('', 200)
 })
 
-usersRouter.delete('/:id', async (c) => {
+usersRouter.delete('/:id', async (c: Context<AppContext>) => {
 	const id = parseInt(c.req.param('id'), 10)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'delete_user',
+			'user',
+			id,
+			undefined,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	await deleteUser(id)
 	return c.text('User deleted', 200)
 })

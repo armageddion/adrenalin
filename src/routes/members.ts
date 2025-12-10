@@ -1,9 +1,9 @@
 import { useTranslation } from '@intlify/hono'
-import { Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import { html } from 'hono/html'
 import { customLocaleDetector } from '../middleware/i18n'
 import * as q from '../queries'
-import type { Member } from '../types'
+import type { AppContext, Member } from '../types'
 import { MemberForm, MemberList, VisitList } from '../views/components'
 import { MemberCard, renderMemberRows } from '../views/components/members'
 import { PageLayout } from '../views/layouts'
@@ -300,26 +300,64 @@ membersRouter.get('/:id/consent', async (c) => {
 	return notFoundResponse(c, t, 'member')
 })
 
-membersRouter.post('/', async (c) => {
+membersRouter.post('/', async (c: Context<AppContext>) => {
 	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const member = parseMemberData(body)
-	await q.addMember(member)
+	const newId = await q.addMember(member)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'create_member',
+			'member',
+			newId,
+			null,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	const members = await q.getMembers()
 	return c.html(MemberList({ members, t }).content as string)
 })
 
-membersRouter.post('/:id', async (c) => {
+membersRouter.post('/:id', async (c: Context<AppContext>) => {
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const updates = parseMemberData(body, true)
+	const oldMember = await q.getMember(id)
 	await q.updateMember(id, updates)
+	const newMember = await q.getMember(id)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'update_member',
+			'member',
+			id,
+			{ before: oldMember, after: newMember },
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	c.header('HX-Redirect', '/members')
 	return c.text('', 200)
 })
 
-membersRouter.delete('/:id', async (c) => {
+membersRouter.delete('/:id', async (c: Context<AppContext>) => {
 	const id = Number.parseInt(c.req.param('id'), 10)
+	const user = c.get('user')
+	if (user) {
+		await q.logUserAction(
+			user.id,
+			'delete_member',
+			'member',
+			id,
+			null,
+			c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown',
+			c.req.header('User-Agent') || 'unknown',
+		)
+	}
 	await q.deleteMember(id)
 	c.header('HX-Redirect', '/')
 	return c.text('', 200)

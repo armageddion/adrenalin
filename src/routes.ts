@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { i18nMiddleware } from './middleware/i18n'
+import { setUserContext } from './middleware/userContext'
 import authRouter from './routes/auth'
 import cronRouter from './routes/cron'
 import dashboardRouter from './routes/dashboard'
@@ -11,9 +12,11 @@ import settingsRouter from './routes/settings'
 import setupRouter from './routes/setup'
 import usersRouter from './routes/users'
 import visitsRouter from './routes/visits'
+import type { AppContext } from './types'
 
-const app = new Hono()
+const app = new Hono<AppContext>()
 app.use('*', i18nMiddleware)
+app.use('*', setUserContext)
 if (process.env.NODE_ENV !== 'test') {
 	app.use('*', async (c, next) => {
 		if (
