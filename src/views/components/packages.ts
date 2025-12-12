@@ -25,15 +25,15 @@ export function PackageList({ packages, t }: { packages: Package[]; t: TFn }) {
  							>
  								${t('components.packageList.edit')}
  							</button>
- 							<button
- 								hx-delete="/packages/${p.id}"
- 								hx-confirm="${t('messages.confirmDelete')}"
- 								hx-target="#package-list-container"
- 								hx-swap="outerHTML"
- 								class="text-destructive hover:bg-destructive/20 px-3 py-1 rounded"
- 							>
- 								${t('components.packageList.delete')}
- 							</button>
+							<button
+								hx-delete="/packages/${p.id}"
+								hx-confirm="${t('messages.confirmDelete')}"
+								hx-target="closest div"
+								hx-swap="delete"
+								class="text-destructive hover:bg-destructive/20 px-3 py-1 rounded"
+							>
+								${t('components.packageList.delete')}
+							</button>
  						</div>
  					</div>
  				`,

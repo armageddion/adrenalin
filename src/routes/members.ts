@@ -321,7 +321,7 @@ membersRouter.post('/:id', async (c) => {
 membersRouter.delete('/:id', async (c) => {
 	const id = Number.parseInt(c.req.param('id'), 10)
 	await q.deleteMember(id)
-	c.header('HX-Redirect', '/')
+	c.header('HX-Redirect', '/members')
 	return c.text('', 200)
 })
 export default membersRouter

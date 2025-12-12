@@ -33,6 +33,7 @@ if (process.env.NODE_ENV !== 'test') {
 	})
 }
 
+
 app.get('/manifest.json', (c) => {
 	return c.json({
 		name: 'Adrenalin',
@@ -47,6 +48,11 @@ app.get('/manifest.json', (c) => {
 				src: '/public/logo.svg',
 				sizes: 'any',
 				type: 'image/svg+xml',
+			},
+			{
+				src: '/public/favicon.ico',
+				sizes: 'any',
+				type: 'image/x-icon',
 			},
 		],
 	})

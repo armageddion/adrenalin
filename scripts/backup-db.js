@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dbPath = path.resolve(__dirname, '../db/adrenalin.db')
-const backupDir = path.resolve(__dirname, '../backups')
+//const backupDir = path.resolve(__dirname, '../backups')
+const backupDir = path.resolve("H:\\My Drive\\baza_podataka")
 
 if (!fs.existsSync(dbPath)) {
 	console.error('Database not found. Run `npm run setup:db` first.')

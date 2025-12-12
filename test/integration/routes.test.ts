@@ -184,7 +184,7 @@ describe('Hono App Routes', () => {
 
 		expect(response.status).toBe(200)
 		expect(q.deleteMember).toHaveBeenCalledWith(1)
-		expect(response.headers.get('HX-Redirect')).toBe('/')
+		expect(response.headers.get('HX-Redirect')).toBe('/members')
 	})
 
 	it('should handle GET /members/:id', async () => {
