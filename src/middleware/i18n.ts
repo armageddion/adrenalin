@@ -1,8 +1,9 @@
 import { defineIntlifyMiddleware } from '@intlify/hono'
 import type { Context } from 'hono'
-import { getCookie } from 'hono/cookie'
+import { getCookie, setCookie } from 'hono/cookie'
 import en from '../locales/en.json'
 import sr from '../locales/sr.json'
+import ru from '../locales/ru.json'
 
 // Re-declared locally since TranslationFunction is not exported from @intlify/hono
 // This matches the internal interface used by the package for the translation function
@@ -23,13 +24,20 @@ interface TranslationFunction {
 }
 
 export function customLocaleDetector(c: Context): string {
+	// Check query parameter first (e.g., ?lang=en)
+	const queryLang = c.req.query('lang')
+	if (queryLang && ['en', 'sr', 'ru'].includes(queryLang)) {
+		setCookie(c, 'locale', queryLang, { path: '/', maxAge: 31536000 }) // 1 year
+		return queryLang
+	}
+
 	const cookieLang = getCookie(c, 'locale')
-	if (cookieLang && ['en', 'sr'].includes(cookieLang)) return cookieLang
+	if (cookieLang && ['en', 'sr', 'ru'].includes(cookieLang)) return cookieLang
 
 	const acceptLang = c.req.header('Accept-Language')
 	if (acceptLang) {
 		const preferredLang = acceptLang.split(',')[0].split('-')[0]
-		if (['en', 'sr'].includes(preferredLang)) return preferredLang
+		if (['en', 'sr', 'ru'].includes(preferredLang)) return preferredLang
 	}
 
 	return 'sr'
@@ -37,9 +45,9 @@ export function customLocaleDetector(c: Context): string {
 
 export const i18nMiddleware = defineIntlifyMiddleware({
 	locale: customLocaleDetector,
-	messages: { en, sr },
+	messages: { en, sr, ru },
 	fallbackLocale: 'sr',
-	supportedLanguages: ['en', 'sr'],
+	supportedLanguages: ['en', 'sr', 'ru'],
 })
 
 export type TFn = TranslationFunction

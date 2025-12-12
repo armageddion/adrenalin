@@ -18,6 +18,7 @@ if (process.env.NODE_ENV !== 'test') {
 	app.use('*', async (c, next) => {
 		if (
 			c.req.path === '/login' ||
+			c.req.path === '/register' ||
 			c.req.path === '/setup' ||
 			c.req.path === '/manifest.json' ||
 			c.req.path.startsWith('/public/') ||

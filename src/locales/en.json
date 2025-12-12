@@ -30,12 +30,14 @@
 		"language": "Language",
 		"english": "English",
 		"serbian": "Serbian",
+		"russian": "Russian",
 		"resend": "Resend API Key",
 		"serverIp": "Server IP"
 	},
 	"languages": {
 		"en": "English",
-		"sr": "Serbian"
+		"sr": "Serbian",
+		"ru": "Russian"
 	},
 	"welcome": "Welcome",
 	"home": "Home",
@@ -190,6 +192,41 @@
 		"errors": {
 			"cardIdExists": "Card ID already exists",
 			"govIdExists": "Government ID already exists"
+		},
+		"liability": {
+			"title": "Liability Waiver",
+			"intro": "By my own will and without any coercion, by signing this statement, I declare and confirm the following:",
+			"points": [
+				"I understand that rock climbing and mountaineering are extreme sports with risk of injury and accidents that no amount of care, caution, instruction or expertise can completely eliminate. I expressly and voluntarily assume all risk of injury or death should they occur while I participate in rock climbing and mountaineering activities at the club and with the club outside the club premises.",
+				"The back of this \"liability waiver\" contains a statement of consent - agreement for the processing of personal data.",
+				"I am obligated to use any equipment that I will use in these premises in a safe manner, in accordance with the instructions I received from the club instructor on the proper use of equipment, so that I do not endanger the lives or property of any person. And if I use my own equipment (climbing rope, safety harness, self-rescue devices), I am obligated to use it safely so I do not endanger the lives or property of any person, and I assume personal responsibility for the use of my own equipment.",
+				"I am not under the influence of drugs, alcohol or other psychoactive substances that could affect my judgment in rock climbing and mountaineering.",
+				"I am in good health and there is no health condition that could affect my participation in rock climbing and mountaineering activities.",
+				"I have been timely informed of all dangers and risks that may occur during rock climbing and mountaineering activities at the Club and with the club.",
+				"I have been timely warned that personal belongings I leave in the club locker room or anywhere outside my supervision are left at my own risk.",
+				"The Club has recommended that I insure myself with an insurance company against the consequences of accidents.",
+				"I have had the full opportunity to ask the Club any questions regarding rock climbing activities, as well as mountaineering and received answers, which I confirm by signing this \"liability waiver\".",
+				"I agree that I have been given adequate opportunity to read and understand the text of this \"liability waiver\", and that it was not presented at the last moment.",
+				"I confirm that I am of legal age.",
+				"I confirm that I agree as a parent or legal guardian that my child ({firstName} {lastName}, ID: {govId}) may access the club and I voluntarily assume all responsibility and risk that may result to me or my minor child as a result of any injury at the Club and with the club outside the club premises.",
+				"I have read this \"LIABILITY WAIVER\" and fully understand its content and legal consequences, and I agree to all risks and consequences presented in this \"liability waiver\" and of my own free will and seriousness sign it as a sign of acceptance.",
+				"The house rules of the club are posted on the club bulletin board, which I have read and familiarized myself with the rules of conduct while in the club premises."
+			]
+		},
+		"dataConsent": {
+			"title": "Consent/Agreement for Personal Data Processing",
+			"intro": "As a member and the subject of the data, I freely and without any coercion or conditionality give my consent to the Adrenalin Climbing Club located at Milete Protića 12, Tax ID 101662166, email office@adrenalin.org.rs, phone 00381631785588 (hereinafter Controller) to process my personal data, specifically:",
+			"itemsTitle": "Personal data being processed:",
+			"items": [
+				"Full name",
+				"Government ID",
+				"Street and number",
+				"City/Municipality",
+				"Full name and Government ID of the minor for whom this \"liability waiver\" was signed as a guardian",
+				"Any other personal data that I voluntarily provided to the controller (except special categories of personal data in accordance with the Law)"
+			],
+			"usage": "The stated data may be used exclusively for the purpose of archiving and storing club member data and cannot be used for other purposes.",
+			"rights": "I am aware that I have the right to withdraw consent for personal data processing and the effects and legal consequences of such withdrawal in accordance with the Law, and that withdrawal of consent does not affect the legality of processing that was performed on the basis of consent prior to withdrawal."
 		}
 	}
 }

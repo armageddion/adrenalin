@@ -2,13 +2,18 @@ import { useTranslation } from '@intlify/hono'
 import { Hono } from 'hono'
 import { html } from 'hono/html'
 import { customLocaleDetector, type TFn } from '../middleware/i18n'
+import en from '../locales/en.json'
+import sr from '../locales/sr.json'
+import ru from '../locales/ru.json'
 import * as q from '../queries'
 import type { Package } from '../types'
 import { PageLayout } from '../views/layouts'
 
 const registerRouter = new Hono()
 
-function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = []) {
+const messages: Record<string, any> = { en, sr, ru }
+
+function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], locale = 'sr') {
 	const signatureScript = html`
 		<script src="/public/signature_pad.js"></script>
 		<script>
@@ -197,7 +202,14 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = []) 
 		<div id="register-container">
 			<div class="p-4 w-full">
 				<div class="bg-background p-6 rounded-lg shadow-md mb-6 max-w-2xl mx-auto">
-					<h3 class="text-xl font-bold mb-4">${t('register.title')}</h3>
+					<div class="flex justify-between items-center mb-6">
+						<h3 class="text-xl font-bold">${t('register.title')}</h3>
+						<div class="flex space-x-2">
+							<a href="/register?lang=en" class="px-3 py-1 rounded text-sm hover:bg-muted">${t('settings.english') || 'English'}</a>
+							<a href="/register?lang=sr" class="px-3 py-1 rounded text-sm hover:bg-muted">${t('settings.serbian') || 'Serbian'}</a>
+							<a href="/register?lang=ru" class="px-3 py-1 rounded text-sm hover:bg-muted">${t('settings.russian') || 'Russian'}</a>
+						</div>
+					</div>
 					${errorHtml}
 					<form
 						hx-post="/register"
@@ -377,52 +389,66 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = []) 
 						<div class="w-full prose prose-sm dark:prose-invert max-w-3xl space-y-6 select-text">
 							<div>
 								<h2 class="text-lg font-semibold mb-4">
-									Izjava odgovornosti
+									${t('register.liability.title')}
 								</h2>
+								<p>${t('register.liability.intro')}</p>
 								<ol class="list-decimal space-y-2 pl-6">
-									<li>Da sam razumeo da je aktivnost sportsko penjanje i planinarenje ekstreman sport, te da postoji opasnost od povreda i nesrećnih slučajeva koju bilo kakva količina brige, opreza, nastave ili ekspertize može potpuno eliminisati. Ja izričito i dobrovoljno preuzimam sav rizik od povreda ili smrti ukoliko se dese dok učestvujem u aktivnostima sportskog penjanja i planinarenja u klubu i sa klubom van kluba.</li>
-									<li>Na poleđini "izjave odgovornosti" nalazi se izjava o pristanku - saglasnosti za obradu podataka o ličnosti.</li>
-									<li>Obavezujem se da ću opremu koju budem koristio/la u ovim prostorijama, koristiti na bezbedan način, u skladu sa uputstvom koje sam dobio/la od instruktora kluba o korišćenju opreme, kako ne bih ugrozio/la živote ljudi i imovine bilo kog pojedinca. A ukoliko koristim svoju opremu (uže za penjenje, sigurnosni pojas, sprave za osiguravanje sebe i partnera), obavezujem se da ću je koristiti na bezbedan način kako ne bih ugrozio/la živote ljudi i imovine pojedinca, kao i da preuzimam spostveni rizik za korišćenje sopstvene opreme.</li>
-									<li>Da nisam pod uticajem droge, alkohola ili drugih psihoaktivnih supstanci koje bi mogle da utiču na pravilno rasuđivanje pri sportskom penjanju i planinarenju.</li>
-									<li>Da sam u dobrom zdravstvenom stanju i da kod mene ne postoji ni jedna zdravstvena smetnja koja bi mogla uticati na bavljenje aktivnostima sportskog penjanja i planinarenja.</li>
-									<li>Da sam blagovremeno upoznat/a sa svim opasnostima i rizicima koje mogu da nastanu prilikom aktivnosti sportskog penjanja i planinarenja u Klubu i sa klubom.</li>
-									<li>Da sam blagovremeno upozoren/a da lične stvari koje ostavim u svlačionici kluba ili bilo gde van sopostvenog nadzora, to činim na sopstvenu odgovornost.</li>
-									<li>Da mi je Klub preporučio da se osiguram kod osiguravajućeg društva od posledica nesrećnog slučaja.</li>
-									<li>Da sam dobio/la punu priliku da postavim Klubu bilo koje pitanje u vezi sa aktivnostima sportskog penjanja, kao i planinarenja i dobio odgovor, što i potvrđujem potpisivanjem ove "izjave odgovornosti".</li>
-									<li>Da sam saglasan/na da sam dobio/la adekvatnu priliku da pročitam i razumem tekst ove "izjave odgovornosti", te da ista nije predočena u poslednjem trenutku.</li>
-									<li>Potvrđujem da sam punoletan/na.</li>
-									<li x-show="member.is_guardian">
-										Potvrđujem da sam saglasan/na kao roditelj ili zakonski staratelj da moje dete
-										({{ member.first_name }} {{ member.last_name }}, JMBG: {{ member.gov_id }}),
-										pristupi klubu i da dobrovoljno preuzimam svu odgovornost i sav rizik koji može nastati meni ili mom
-										maloletnom detetu kao rezultat bilo kakve povrede u Klubu i sa klubom van prostorija kluba.
-									</li>
-									<li>Da sam pročitao/la ovu "IZJAVU ODGOVORNOSTI" i da sam u potpunosti razumeo/la njegov sadržaj i pravne posledice, te da pristajem na sve rizike i posledice predočene u ovoj "izjavi odgovornosti"i svojom ozbiljnom i slobodnom voljom istu potpisujem kao znak prihvatanja iste.</li>
-									<li>Na oglasnoj tabli kluba se nalazi kućni red kluba, koji sam pročitao/la i upoznao sa pravilima ponašanja tokom boravka u prostorijama kluba.</li>
+									${(() => {
+										let pointsCandidate = t('register.liability.points') as any
+										let pointsArray: string[] = []
+										if (Array.isArray(pointsCandidate)) {
+											pointsArray = pointsCandidate
+										} else {
+											// try reading raw messages for the active locale
+											const raw = messages[locale]?.register?.liability?.points
+											if (Array.isArray(raw)) pointsArray = raw
+											else if (typeof pointsCandidate === 'string' && pointsCandidate && pointsCandidate !== 'register.liability.points') {
+												pointsArray = pointsCandidate.split('\n')
+											}
+										}
+										return pointsArray.map((point: string, idx: number) => {
+											const content = point
+												.replace('{firstName}', '{{ member.first_name }}')
+												.replace('{lastName}', '{{ member.last_name }}')
+												.replace('{govId}', '{{ member.gov_id }}')
+											// The clause about a minor (parent/guardian) is at index 11 (0-based). Show it only when guardian checkbox is set.
+											if (idx === 11) {
+												return html`<li x-show="member.is_guardian">${content}</li>`
+											}
+											return html`<li>${content}</li>`
+										})
+									})()}
 								</ol>
 							</div>
 							<div>
 								<h2 class="text-lg font-semibold mb-4">
-									Izjava o pristanku/saglasnosti na obradu podataka o ličnosti
+									${t('register.dataConsent.title')}
 								</h2>
 								<p class="mb-4">
-									Član, kao lice na koje se podaci odnose, slobodno i bez ikakve prinude i uslovljavanja daje svoj pristanak Penjačkom klubu Adrenalin sa sedištem u Milete Protića broj 12, PIB 101662166, e-mail office@adrenalin.org.rs, broj telefona 00381631785588 (u daljem tekstu Rukovaoc) da obrađuje moje lične podatke i to:
+									${t('register.dataConsent.intro')}
 								</p>
+								<p class="mb-2 font-medium">${t('register.dataConsent.itemsTitle')}</p>
 								<ul class="list-disc pl-6 mb-4">
-									<li>Ime i prezime</li>
-									<li>JMBG</li>
-									<li>Ulicu i broj</li>
-									<li>Mesto/grad</li>
-									<li x-show="member.is_guardian">
-										Ime, prezime i JMBG maloletnog lica čiji je staratelj potpisao "izjavu odgovornosti"
-									</li>
-									<li>Svaki drugi podatak o ličnosti koji sam svojevoljno dao rukovaocu (osim posebnih vrsta podataka o ličnosti u skladu sa Zakonom)</li>
+									${(() => {
+										let itemsCandidate = t('register.dataConsent.items') as any
+										let itemsArray: string[] = []
+										if (Array.isArray(itemsCandidate)) {
+											itemsArray = itemsCandidate
+										} else {
+											const raw = messages[locale]?.register?.dataConsent?.items
+											if (Array.isArray(raw)) itemsArray = raw
+											else if (typeof itemsCandidate === 'string' && itemsCandidate && itemsCandidate !== 'register.dataConsent.items') {
+												itemsArray = itemsCandidate.split('\n')
+											}
+										}
+										return itemsArray.map(i => html`<li>${i}</li>`)
+									})()}
 								</ul>
 								<p class="mb-2">
-									Navedeni podaci mogu se upotrebljavati isključivo u svrhu arhiviranja i skladištenja podataka članova kluba i u druge svrhe se ne mogu koristiti.
+									${t('register.dataConsent.usage')}
 								</p>
 								<p>
-									Upoznat sam da imam pravo na opoziv pristanka za obradu podataka o ličnosti i dejstva i pravnih posledica takvog opoziva u skladu sa Zakonom, kao i da opoziv pristanka ne utiče na dopuštenost obrade koja je vršena na osnovu pristanka pre opoziva.
+									${t('register.dataConsent.rights')}
 								</p>
 							</div>
 						</div>
@@ -462,13 +488,14 @@ registerRouter.get('/register', async (c) => {
 	const locale = customLocaleDetector(c)
 	const packages = await q.getPackages()
 
-	const { content, script } = renderRegisterForm(t, packages)
+	const { content, script } = renderRegisterForm(t, packages, [], locale)
 
 	return c.html(PageLayout({ title: 'Register', content, script, hideNav: true, t, locale }))
 })
 
 registerRouter.post('/register', async (c) => {
 	const t = await useTranslation(c)
+	const locale = customLocaleDetector(c)
 	const body = await c.req.parseBody()
 	const member = {
 		first_name: body.first_name as string,
@@ -489,7 +516,7 @@ registerRouter.post('/register', async (c) => {
 		guardian_first_name: (body.guardian_first_name as string) || undefined,
 		guardian_last_name: (body.guardian_last_name as string) || undefined,
 		guardian_gov_id: (body.guardian_gov_id as string) || undefined,
-		notify: body.notify !== 'off' ? 1 : 0,
+		notify: body.notify === 'off' ? 0 : 1,
 		year_of_birth: Number.parseInt(body.year_of_birth as string, 10),
 	}
 
@@ -505,7 +532,7 @@ registerRouter.post('/register', async (c) => {
 
 	if (errors.length > 0) {
 		const packages = await q.getPackages()
-		const { content } = renderRegisterForm(t, packages, errors)
+		const { content } = renderRegisterForm(t, packages, errors, locale)
 		return c.html(content)
 	}
 

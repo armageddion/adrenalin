@@ -94,6 +94,13 @@ export function Settings({ t, locale, ip }: { t: TFn; locale: string; ip: string
 						>
 							${t('settings.serbian') || 'Serbian'}
 						</button>
+						<button
+							x-on:click="setLanguage('ru')"
+							x-bind:class="currentLanguage === 'ru' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'"
+							class="px-4 py-2 rounded"
+						>
+							${t('settings.russian') || 'Russian'}
+						</button>
 					</div>
 				</div>
 				<div>
