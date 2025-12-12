@@ -2,8 +2,8 @@ import { defineIntlifyMiddleware } from '@intlify/hono'
 import type { Context } from 'hono'
 import { getCookie, setCookie } from 'hono/cookie'
 import en from '../locales/en.json'
-import sr from '../locales/sr.json'
 import ru from '../locales/ru.json'
+import sr from '../locales/sr.json'
 
 // Re-declared locally since TranslationFunction is not exported from @intlify/hono
 // This matches the internal interface used by the package for the translation function

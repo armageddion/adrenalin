@@ -1,10 +1,10 @@
 import { useTranslation } from '@intlify/hono'
 import { Hono } from 'hono'
 import { html } from 'hono/html'
-import { customLocaleDetector, type TFn } from '../middleware/i18n'
 import en from '../locales/en.json'
-import sr from '../locales/sr.json'
 import ru from '../locales/ru.json'
+import sr from '../locales/sr.json'
+import { customLocaleDetector, type TFn } from '../middleware/i18n'
 import * as q from '../queries'
 import type { Package } from '../types'
 import { PageLayout } from '../views/layouts'
@@ -20,6 +20,7 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], 
 			document.addEventListener('alpine:init', () => {
 				Alpine.data('signaturePad', () => ({
 					signaturePad: null,
+					liabilityPoints: [],
 					member: {
 						is_guardian: false,
 						first_name: '',
@@ -36,6 +37,7 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], 
 						guardian_gov_id: ''
 					},
 					init() {
+						this.liabilityPoints = JSON.parse(this.$el.dataset.liabilityPoints) || [];
 						const canvas = document.getElementById('signature-pad');
 						if (canvas) {
 							canvas.style.backgroundColor = 'white';
@@ -64,6 +66,12 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], 
 							const dataUrl = tempPad.toDataURL();
 							document.getElementById('signature-input').value = dataUrl;
 						}
+					},
+					getLiabilityText(point, idx) {
+						return point
+							.replace(/__FIRST_NAME__|{firstName}/g, this.member.first_name)
+							.replace(/__LAST_NAME__|{lastName}/g, this.member.last_name)
+							.replace(/__GOV_ID__|{govId}/g, this.member.gov_id);
 					}
 				}));
 				Alpine.data('cameraCapture', () => ({
@@ -218,6 +226,7 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], 
 						class="space-y-4"
 						x-data="signaturePad()"
 						x-on:submit="setSignatureData"
+						data-liability-points="${JSON.stringify(messages[locale]?.register?.liability?.points || sr.register.liability.points)}"
 					>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
@@ -393,31 +402,12 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], 
 								</h2>
 								<p>${t('register.liability.intro')}</p>
 								<ol class="list-decimal space-y-2 pl-6">
-									${(() => {
-										let pointsCandidate = t('register.liability.points') as any
-										let pointsArray: string[] = []
-										if (Array.isArray(pointsCandidate)) {
-											pointsArray = pointsCandidate
-										} else {
-											// try reading raw messages for the active locale
-											const raw = messages[locale]?.register?.liability?.points
-											if (Array.isArray(raw)) pointsArray = raw
-											else if (typeof pointsCandidate === 'string' && pointsCandidate && pointsCandidate !== 'register.liability.points') {
-												pointsArray = pointsCandidate.split('\n')
-											}
-										}
-										return pointsArray.map((point: string, idx: number) => {
-											const content = point
-												.replace('{firstName}', '{{ member.first_name }}')
-												.replace('{lastName}', '{{ member.last_name }}')
-												.replace('{govId}', '{{ member.gov_id }}')
-											// The clause about a minor (parent/guardian) is at index 11 (0-based). Show it only when guardian checkbox is set.
-											if (idx === 11) {
-												return html`<li x-show="member.is_guardian">${content}</li>`
-											}
-											return html`<li>${content}</li>`
-										})
-									})()}
+									<template x-for="(point, index) in liabilityPoints">
+										<li
+											x-show="(index === 10 && !member.is_guardian) || (index === 11 && member.is_guardian) || (index !== 10 && index !== 11)"
+											x-text="getLiabilityText(point, index)"
+										></li>
+									</template>
 								</ol>
 							</div>
 							<div>
@@ -430,18 +420,8 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = [], 
 								<p class="mb-2 font-medium">${t('register.dataConsent.itemsTitle')}</p>
 								<ul class="list-disc pl-6 mb-4">
 									${(() => {
-										let itemsCandidate = t('register.dataConsent.items') as any
-										let itemsArray: string[] = []
-										if (Array.isArray(itemsCandidate)) {
-											itemsArray = itemsCandidate
-										} else {
-											const raw = messages[locale]?.register?.dataConsent?.items
-											if (Array.isArray(raw)) itemsArray = raw
-											else if (typeof itemsCandidate === 'string' && itemsCandidate && itemsCandidate !== 'register.dataConsent.items') {
-												itemsArray = itemsCandidate.split('\n')
-											}
-										}
-										return itemsArray.map(i => html`<li>${i}</li>`)
+										const itemsArray = messages[locale]?.register?.dataConsent?.items || []
+										return (itemsArray as string[]).map((i: string) => html`<li>${i}</li>`)
 									})()}
 								</ul>
 								<p class="mb-2">

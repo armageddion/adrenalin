@@ -16,7 +16,7 @@ const settingsRouter = new Hono()
 settingsRouter.get('/settings', async (c) => {
 	const t = await useTranslation(c)
 	const locale = customLocaleDetector(c)
-	const ip = 'https://' + getLocalIP() + ':3443'
+	const ip = `https://${getLocalIP()}:3443`
 	return c.html(
 		PageLayout({
 			title: t('settings.title') || 'Settings',

@@ -34,7 +34,6 @@ if (process.env.NODE_ENV !== 'test') {
 	})
 }
 
-
 app.get('/manifest.json', (c) => {
 	return c.json({
 		name: 'Adrenalin',
