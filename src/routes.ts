@@ -48,6 +48,11 @@ app.get('/manifest.json', (c) => {
 				sizes: 'any',
 				type: 'image/svg+xml',
 			},
+			{
+				src: '/public/favicon.ico',
+				sizes: 'any',
+				type: 'image/x-icon',
+			},
 		],
 	})
 })
