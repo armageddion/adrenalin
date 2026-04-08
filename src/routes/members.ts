@@ -301,12 +301,11 @@ membersRouter.get('/:id/consent', async (c) => {
 })
 
 membersRouter.post('/', async (c) => {
-	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const member = parseMemberData(body)
 	await q.addMember(member)
-	const members = await q.getMembers()
-	return c.html(MemberList({ members, t }).content as string)
+	c.header('HX-Redirect', '/')
+	return c.text('', 200)
 })
 
 membersRouter.post('/:id', async (c) => {
