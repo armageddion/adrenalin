@@ -311,9 +311,7 @@ export async function addVisit(memberId: number): Promise<void> {
 	})
 }
 
-export async function addMember(
-	member: Omit<Member, 'id' | 'updated_at' | 'expires_at' | 'created_at'>,
-): Promise<number> {
+export async function addMember(member: Omit<Member, 'id' | 'updated_at' | 'created_at'>): Promise<number> {
 	const rs = await db.execute({
 		sql: `
 		INSERT INTO members (first_name, last_name, email, phone, card_id, gov_id, package_id, expires_at, image, signature, notes, address_street, address_number, address_city, guardian, guardian_first_name, guardian_last_name, guardian_gov_id, notify, year_of_birth)
@@ -327,7 +325,7 @@ export async function addMember(
 			member.card_id,
 			member.gov_id || null,
 			member.package_id || null,
-			null,
+			member.expires_at || null,
 			member.image || null,
 			member.signature || null,
 			member.notes || null,
