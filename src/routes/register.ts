@@ -251,7 +251,7 @@ function renderRegisterForm(t: TFn, packages: Package[], errors: string[] = []) 
 							</div>
 							<div>
 								<label class="block text-sm font-medium text-muted-foreground">Expiry Date:</label>
-								<input type="date" name="expires_at" class="mt-1 block w-full p-2 border rounded" />
+								<input type="text" inputmode="numeric" name="expires_at" placeholder="DD-MM-YYYY" class="mt-1 block w-full p-2 border rounded" />
 							</div>
 						</div>
 						<div>

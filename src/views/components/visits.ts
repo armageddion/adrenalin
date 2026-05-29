@@ -1,6 +1,7 @@
 import { html } from 'hono/html'
 import type { TFn } from '../../middleware/i18n'
 import type { Member, Visit } from '../../types'
+import { formatDate } from '../../utils'
 
 interface Pagination {
 	currentPage: number
@@ -40,7 +41,7 @@ export function renderVisitRows(visits: Array<Visit & Pick<Member, 'first_name' 
 				<td class="py-2 px-4">
 					${visit.first_name} ${visit.last_name}
 				</td>
-				<td class="py-2 px-4">${new Date(visit.created_at).toLocaleString()}</td>
+				<td class="py-2 px-4">${formatDate(visit.created_at)}</td>
 				<!-- <td class="py-2 px-4">${visit.notes || 'N/A'}</td> -->
 				<td class="py-2 px-4 text-right">
 					<button

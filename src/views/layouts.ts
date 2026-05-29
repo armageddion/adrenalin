@@ -56,9 +56,54 @@ export function PageLayout({ title, content, script, locale, hideNav, t, user }:
 							const locale = cookieMatch ? cookieMatch[1] : currentLocale;
 							select.value = locale;
 						}
+						const flash = sessionStorage.getItem('flash-toast');
+						if (flash) {
+							try {
+								const { message, type } = JSON.parse(flash);
+								showToast(message, type || 'success');
+							} catch (e) {}
+							sessionStorage.removeItem('flash-toast');
+						}
 					});
 				</script>
 				<script src="/public/htmx.js"></script>
+				<script>
+					function showToast(message, type = 'success', duration = 4000) {
+						const container = document.getElementById('toast-container');
+						if (!container || !message) return;
+						const toast = document.createElement('div');
+						toast.textContent = message;
+						toast.className =
+							'max-w-sm px-4 py-3 rounded-lg shadow-lg border transition-opacity duration-300 opacity-100 ' +
+							(type === 'error'
+								? 'bg-destructive text-destructive-foreground border-destructive/50'
+								: 'bg-primary text-primary-foreground border-primary/50');
+						container.appendChild(toast);
+						setTimeout(() => {
+							toast.style.opacity = '0';
+						}, duration - 300);
+						setTimeout(() => {
+							toast.remove();
+						}, duration);
+					}
+
+				document.addEventListener('htmx:afterRequest', function (event) {
+					const xhr = event.detail.xhr;
+					const toastMessage = xhr.getResponseHeader('X-Toast');
+					const toastType = xhr.getResponseHeader('X-Toast-Type') || 'success';
+					if (toastMessage) {
+						const message = decodeURIComponent(toastMessage);
+						if (xhr.getResponseHeader('HX-Redirect')) {
+							sessionStorage.setItem('flash-toast', JSON.stringify({ message, type: toastType }));
+						} else {
+							showToast(message, toastType);
+						}
+					} else if (xhr.status >= 400) {
+						const text = xhr.responseText?.trim();
+						if (text) showToast(text, 'error');
+					}
+				});
+				</script>
 				<script src="/public/alpine.js" defer></script>
 				${hideNav ? '' : visitScript}
 				${script ?? ''}
@@ -66,6 +111,7 @@ export function PageLayout({ title, content, script, locale, hideNav, t, user }:
 			</head>
  			<body class="min-h-screen">
 				${hideNav ? '' : t ? Nav({ t, user }) : Nav({ t: () => '', user })}
+				<div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-3"></div>
 				<div id="search-results" class="relative z-10"></div>
 				${hideNav ? '' : visitMarkup}
 				<main>

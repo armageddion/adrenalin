@@ -2,6 +2,7 @@ import { html } from 'hono/html'
 import type { JSXNode } from 'hono/jsx'
 import type { TFn } from '../../middleware/i18n'
 import type { Member, Package } from '../../types'
+import { formatDate } from '../../utils'
 
 interface ComponentWithScript {
 	content: ReturnType<typeof html> | JSXNode
@@ -130,7 +131,7 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('labels.expiryDate')}</dt>
-							<dd>${member.expires_at || 'N/A'}</dd>
+							<dd>${formatDate(member.expires_at)}</dd>
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('components.memberForm.yearOfBirth')}</dt>
@@ -154,7 +155,7 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('labels.lastUpdated')}</dt>
-							<dd>${new Date(member.updated_at).toLocaleString()}</dd>
+							<dd>${formatDate(member.updated_at)}</dd>
 						</div>
 					</dl>
 					<div class="flex flex-wrap gap-2 mt-4">
@@ -327,7 +328,10 @@ export function MemberForm({
 					date.setMonth(date.getMonth() + months)
 					const input = document.getElementById('expiry-date')
 					if (input) {
-						input.value = date.toISOString().split('T')[0]
+						const day = String(date.getDate()).padStart(2, '0')
+						const month = String(date.getMonth() + 1).padStart(2, '0')
+						const year = date.getFullYear()
+						input.value = day + '-' + month + '-' + year
 					}
 				},
 				isGuardian: initialGuardian
@@ -463,13 +467,15 @@ export function MemberForm({
 							${t('components.memberForm.expiry1Year')}
 						</button>
 					</div>
-					<input
-						type="date"
-						name="expires_at"
-						id="expiry-date"
-						value="${member?.expires_at || ''}"
-						class="mt-1 block w-full p-2 border rounded"
-					/>
+				<input
+					type="text"
+					inputmode="numeric"
+					name="expires_at"
+					id="expiry-date"
+					value="${member?.expires_at ? member.expires_at.split('-').reverse().join('-') : ''}"
+					placeholder="DD-MM-YYYY"
+					class="mt-1 block w-full p-2 border rounded"
+				/>
 				</div>
 				<div>
 					<label class="block text-sm font-medium text-muted-foreground">${t('image')}:</label>
@@ -644,6 +650,8 @@ export function MemberForm({
 									type="button"
 									hx-delete="/members/${member.id}"
 									hx-confirm="${t('messages.confirmDelete')}"
+									hx-params="none"
+									onclick="event.stopPropagation()"
 									class="bg-destructive text-destructive-foreground hover:bg-destructive/80 px-4 py-2 rounded"
 								>
 									${t('delete')}

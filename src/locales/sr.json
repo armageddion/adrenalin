@@ -43,7 +43,7 @@
 	"contact": "Kontakt",
 	"save": "Sačuvaj",
 	"cancel": "Otkaži",
-	"delete": "Obriši",
+	"delete": "Obriši člana",
 	"loading": "Učitavanje...",
 	"error": "Greška",
 	"success": "Uspeh",
@@ -63,7 +63,7 @@
 		"cancel": "Otkaži",
 		"search": "Pretraži",
 		"new": "Novi",
-		"edit": "Izmeni",
+		"edit": "Izmeni člana",
 		"view": "Pogledaj",
 		"printConsent": "Štampaj Izjavu o Saglasnosti"
 	},
@@ -85,6 +85,9 @@
 	},
 	"messages": {
 		"memberNotFound": "Član nije pronađen",
+		"memberCreated": "Član je uspešno kreiran",
+		"memberUpdated": "Član je uspešno ažuriran",
+		"memberDeleted": "Član je uspešno obrisan",
 		"packageNotFound": "Paket nije pronađen",
 		"noMembers": "Nema članova",
 		"noVisits": "Nema poseta",

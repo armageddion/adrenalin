@@ -3,7 +3,23 @@ import os from 'node:os'
 // TODO:
 // - member profile, updates, expires
 // - visits
-export function formatDate(_date: string | number) {}
+export function formatDate(date: string | number | Date | null | undefined): string {
+	if (date === null || date === undefined || date === '') {
+		return 'N/A'
+	}
+
+	const parsedDate = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date
+
+	if (Number.isNaN(parsedDate.getTime())) {
+		return 'N/A'
+	}
+
+	const day = String(parsedDate.getDate()).padStart(2, '0')
+	const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
+	const year = parsedDate.getFullYear()
+
+	return `${day}-${month}-${year}`
+}
 
 // TODO:
 // - package prices

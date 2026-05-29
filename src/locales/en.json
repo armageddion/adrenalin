@@ -85,6 +85,9 @@
 	},
 	"messages": {
 		"memberNotFound": "Member not found",
+		"memberCreated": "Member created successfully",
+		"memberUpdated": "Member updated successfully",
+		"memberDeleted": "Member deleted successfully",
 		"packageNotFound": "Package not found",
 		"noMembers": "No members found",
 		"noVisits": "No visits found",

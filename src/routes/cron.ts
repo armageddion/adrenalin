@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import * as q from '../queries'
+import { formatDate } from '../utils'
 import { sendEmail } from './utils'
 
 const cronRouter = new Hono()
@@ -13,7 +14,7 @@ cronRouter.post('/cron', async (c) => {
 	for (const member of members) {
 		if (member.email) {
 			const subject = 'Package Expiry Reminder'
-			const message = `Hi ${member.first_name}, your package expires on ${member.expires_at}. Please renew soon.`
+			const message = `Hi ${member.first_name}, your package expires on ${formatDate(member.expires_at)}. Please renew soon.`
 			const sent = await sendEmail(member.email, subject, message)
 			if (sent) {
 				await q.logMessage(member.id, subject, message)

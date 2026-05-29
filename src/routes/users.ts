@@ -5,6 +5,7 @@ import { html } from 'hono/html'
 import { hashPassword } from '../middleware/auth'
 import { customLocaleDetector } from '../middleware/i18n'
 import { createUser, deleteUser, getUsers, updateUser, usernameExists } from '../queries'
+import { formatDate } from '../utils'
 import { PageLayout } from '../views/layouts'
 
 const usersRouter = new Hono()
@@ -60,7 +61,7 @@ usersRouter.get('/', async (c) => {
 							<tr>
 								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${user.username}</td>
 								<td class="px-6 py-4 whitespace-nowrap text-sm">${user.role}</td>
-								<td class="px-6 py-4 whitespace-nowrap text-sm">${new Date(user.created_at).toLocaleDateString()}</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm">${formatDate(user.created_at)}</td>
 								<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
 									<a href="/users/${user.id}/edit" class="text-primary hover:text-primary/80 mr-4">Edit</a>
 									${user.username !== 'admin' ? html`<button hx-delete="/users/${user.id}" hx-confirm="Are you sure?" class="text-red-600 hover:text-red-800">Delete</button>` : ''}

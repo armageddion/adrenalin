@@ -4,6 +4,7 @@ import { html } from 'hono/html'
 import { customLocaleDetector } from '../middleware/i18n'
 import * as q from '../queries'
 import type { Member } from '../types'
+import { formatDate } from '../utils'
 import { MemberForm, MemberList, VisitList } from '../views/components'
 import { MemberCard, renderMemberRows } from '../views/components/members'
 import { PageLayout } from '../views/layouts'
@@ -26,7 +27,13 @@ export function parseMemberData(
 					return Number.isNaN(p) ? undefined : p
 				})()
 			: undefined,
-		expires_at: (body.expires_at as string) || undefined,
+		expires_at: (() => {
+		const val = body.expires_at as string
+		if (!val) return undefined
+		const match = val.match(/^(\d{2})-(\d{2})-(\d{4})$/)
+		if (match) return `${match[3]}-${match[2]}-${match[1]}`
+		return val
+	})(),
 		image: (body.image as string) || undefined,
 		notes: (body.notes as string) || undefined,
 		address_street: (body.address_street as string) || undefined,
@@ -262,7 +269,7 @@ membersRouter.get('/:id/consent', async (c) => {
 						<p>Email: ${member.email || 'N/A'}</p>
 						<p>Telefon: ${member.phone || 'N/A'}</p>
 						${member.guardian ? html`<p>Staratelj: ${member.guardian_first_name} ${member.guardian_last_name}, JMBG: ${member.guardian_gov_id}</p>` : ''}
-						<p>Datum kreiranja: ${new Date(member.created_at).toLocaleDateString('sr-RS')}</p>
+						<p>Datum kreiranja: ${formatDate(member.created_at)}</p>
 					</div>
 					<div class="signature" style="margin: 100px;">
 						<h3>Potpis</h3>
@@ -301,25 +308,55 @@ membersRouter.get('/:id/consent', async (c) => {
 })
 
 membersRouter.post('/', async (c) => {
+	const t = await useTranslation(c)
 	const body = await c.req.parseBody()
 	const member = parseMemberData(body)
-	await q.addMember(member)
+	try {
+		await q.addMember(member)
+	} catch (error) {
+		const message = (error as Error).message || t('error')
+		c.header('X-Toast', encodeURIComponent(message))
+		c.header('X-Toast-Type', 'error')
+		return c.text(message, 500)
+	}
+	c.header('X-Toast', encodeURIComponent(t('messages.memberCreated')))
+	c.header('X-Toast-Type', 'success')
 	c.header('HX-Redirect', '/')
 	return c.text('', 200)
 })
 
 membersRouter.post('/:id', async (c) => {
+	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
 	const body = await c.req.parseBody()
 	const updates = parseMemberData(body, true)
-	await q.updateMember(id, updates)
+	try {
+		await q.updateMember(id, updates)
+	} catch (error) {
+		const message = (error as Error).message || t('error')
+		c.header('X-Toast', encodeURIComponent(message))
+		c.header('X-Toast-Type', 'error')
+		return c.text(message, 500)
+	}
+	c.header('X-Toast', encodeURIComponent(t('messages.memberUpdated')))
+	c.header('X-Toast-Type', 'success')
 	c.header('HX-Redirect', '/members')
 	return c.text('', 200)
 })
 
 membersRouter.delete('/:id', async (c) => {
+	const t = await useTranslation(c)
 	const id = Number.parseInt(c.req.param('id'), 10)
-	await q.deleteMember(id)
+	try {
+		await q.deleteMember(id)
+	} catch (error) {
+		const message = (error as Error).message || t('error')
+		c.header('X-Toast', encodeURIComponent(message))
+		c.header('X-Toast-Type', 'error')
+		return c.text(message, 500)
+	}
+	c.header('X-Toast', encodeURIComponent(t('messages.memberDeleted')))
+	c.header('X-Toast-Type', 'success')
 	c.header('HX-Redirect', '/')
 	return c.text('', 200)
 })
