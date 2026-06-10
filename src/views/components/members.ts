@@ -109,6 +109,10 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 			<div class="flex flex-col md:flex-row gap-6">
 				<div class="flex-1">
 					<dl class="space-y-2">
+						<div class="flex justify-between items-center bg-primary text-primary-foreground rounded px-3 py-1">
+							<dt class="font-medium">${t('labels.expiryDate')}</dt>
+							<dd class="font-bold">${formatDate(member.expires_at) || 'N/A'}</dd>
+						</div>					
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('labels.cardId')}</dt>
 							<dd>${member.card_id}</dd>
@@ -128,14 +132,6 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('labels.package')}</dt>
 							<dd>${memberPackage ? `${memberPackage.name} - ${memberPackage.price} RSD` : 'None'}</dd>
-						</div>
-						<div class="flex justify-between">
-							<dt class="font-medium">${t('labels.expiryDate')}</dt>
-								<dd>
-									<span class="inline-block bg-secondary text-secondary-foreground font-bold px-3 py-1 rounded">
-										${formatDate(member.expires_at) || 'N/A'}
-									</span>
-								</dd>
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('components.memberForm.yearOfBirth')}</dt>
