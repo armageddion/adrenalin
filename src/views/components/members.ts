@@ -131,7 +131,11 @@ export function MemberCard({ member, memberPackage, t }: { member: Member; membe
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('labels.expiryDate')}</dt>
-							<dd>${formatDate(member.expires_at)}</dd>
+								<dd>
+									<span class="inline-block bg-secondary text-secondary-foreground font-bold px-3 py-1 rounded">
+										${formatDate(member.expires_at) || 'N/A'}
+									</span>
+								</dd>
 						</div>
 						<div class="flex justify-between">
 							<dt class="font-medium">${t('components.memberForm.yearOfBirth')}</dt>
